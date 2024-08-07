@@ -1,0 +1,38 @@
+{{define "register"}}
+<div class="blur-underlay"></div>
+
+    <div class="center-page">
+        <div class="container borders">
+            <form method="post" action="/register" class="login">
+                <p class="login-title bottom-outset"> Register </p>
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                
+                <div class="input-fields">
+                    <label for="username"></label>
+                    <input class="input borders bottom-outset" type="text" name="username" placeholder="Username" id="username" autofocus required>
+
+                    <label for="mail"></label>
+                    <input class="input borders bottom-outset" type="text" name="email" placeholder="Mail Address" id="mail" required>
+                    
+                    <label for="password"></label>
+                    <input class="input borders" type="password" name="password" placeholder="Password" id="password" required>
+
+                    <label for="confirm-password"></label>
+                    <input class="input borders" type="password" name="confirm_password" placeholder="Confirm Password" id="confirm-pasword" required>
+                </div>
+                
+                <div class="submit">
+                    <button class="button borders top-outset" type="submit"> Register </button>
+                </div>
+            </form>
+    
+            <div class="separation"> 
+                <div class="line"></div>
+                <p class="or"> OR </p>
+                <div class="line"></div>
+            </div>
+    
+            <a href="/login" class="switch borders"> Login </a>
+        </div>
+    </div>
+{{end}}

@@ -1,0 +1,407 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Threadive - Your online tech forum">
+    <meta name="keywords" content="Threadive, Thread, HTML, CSS, JavaScript, JS, NodeJS, Express, TypeScript, ECMAScript, ES, Golang, Go, Angular, React, Vue, Programming, Linux, Dev, Hardware, Software, Forum, C++, Java, SCSS, C#, Ynov, Rust, Lua, CPP, Go, PHP, MySQL, PostGreSQL, Electronique, Cyber, Godot, Unreal, Unity, Security, API, Computer, SBC, Server, Token, Cookie, Authentification, Console, Terminal, Bash, Powershell, Ubuntu, Debian, Kali, VMWare, GNS3, PacketTracer, Proxmox, Error, Help, Tips, Tuto, Tutos">
+    <meta name="author" content="Antoine de Barbarin, Marin Harel, Roméo Sanchez">
+
+    <title> {{.Title}} </title>
+
+    <link rel="icon" type="image/png" href="/static/img/logo/logo_icon.png">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+
+
+    <!--############################-->
+    <!--########## HEADER ##########-->
+    <!--############################-->
+
+    <header>
+        <div class="logo-searchbar">
+            <a href="/home"><img class="logo" src="/static/img/logo/logo_transparent.png" alt="Threadive logo"></a>
+            <form class="search" method="get" action="/search">
+                <label for="searchbar" class="abs display-none"></label>
+                <input class="searchbar" id="searchbar" name="q" {{with .Search}}value="{{.}}"{{end}} type="text" placeholder="Search for a category, a thread...">
+                <button type="submit" class="search-submit"><img class="search-icon" src="/static/img/icons/search-icon.svg" alt="search icon"></button>
+            </form>
+        </div>
+        <div class="notification-profile">
+            {{/*<img class="notification-icon" src="/static/img/icons/notification-icon.svg" alt="notification icon">*/}}
+            <div>{{/*empty div instead of the notification icon: remove when activating the notification icon*/}}</div>
+            <div class="profile">
+                <div class="profile-picture relative">
+                    {{if .IsAuthenticated}}
+                        <img src="{{.User.Avatar}}" alt="profile icon">
+                        <a href="/dashboard" class="abs full on-top"></a>
+                    {{else}}
+                        <img src="/static/img/icons/menu-dots-icon.svg" alt="menu dots icon">
+                    {{end}}
+                </div>
+                <div class="profile-icon-box">
+                    <img class="profile-icon" src="/static/img/icons/down-arrow-icon.svg" alt="arrow icon">
+                </div>
+                <nav class="dropdown">
+                    {{if .IsAuthenticated}}
+                        <div class="item">
+                            <img class="item-icon" src="/static/img/icons/dashboard-icon.svg" alt="dashboard icon">
+                            <a class="item-link" href="/dashboard"></a>
+                            <p class="item-text"> Dashboard </p>
+                        </div>
+                        <form method="post" action="/logout" class="item relative">
+                            <img class="item-icon" src="/static/img/icons/disconnect-icon.svg" alt="disconnect icon">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                            <button class="logout-link abs full on-top" type="submit"></button>
+                            <p class="item-text"> Disconnect </p>
+                        </form>
+                    {{else}}
+                        <div class="item">
+                            <img class="item-icon" src="/static/img/icons/login-icon.svg" alt="login icon">
+                            <a class="item-link" href="/login"></a>
+                            <p class="item-text"> Login </p>
+                        </div>
+                        <div class="item">
+                            <img class="item-icon" src="/static/img/icons/register-icon.svg" alt="register icon">
+                            <a class="item-link" href="/register"></a>
+                            <p class="item-text"> Register </p>
+                        </div>
+                    {{end}}
+                </nav>
+            </div>
+        </div>
+    </header>
+
+
+
+    <!--##############################-->
+    <!--########## NAV LEFT ##########-->
+    <!--##############################-->
+
+    <div class="nav-left">
+        {{if .IsAuthenticated}}
+            <div class="profile">
+                <div class="personal-info relative">
+                    <a href="/dashboard" class="abs full on-top"></a>
+                    <div class="profile-picture">
+                        <img class="avatar" src="{{.User.Avatar}}" alt="avatar image">
+                        <div class="activity"></div>
+                    </div>
+                    <div class="name-rank">
+                        <p> {{.User.Name}} </p>
+                        <p> {{.User.Role}} </p>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="member-since">
+                        <p> Member since </p>
+                        <p> {{humanDate .User.CreatedAt}} </p>
+                    </div>
+
+                    <div class="posts">
+                        <p> Post(s) </p>
+                        <p> {{len .User.Posts}} </p>
+                    </div>
+                </div>
+            </div>
+        {{end}}
+
+        <nav class="page-link borders">
+            <div class="link relative">
+                <img class="link-icon" src="/static/img/icons/home-icon.svg" alt="home icon">
+                <a href="/home" class="abs full on-top"></a>
+                <p class="link-text"> Home </p>
+            </div>
+
+            <div class="link relative">
+                <img class="link-icon" src="/static/img/icons/discover-icon.svg" alt="discover icon">
+                <p class="link-text"> Discover </p>
+                <a href="/tag/{{(index .PopularTags 0).ID}}" class="abs full on-top"></a>
+            </div>
+
+            <div class="link relative">
+                <img class="link-icon" src="/static/img/icons/tag.svg" alt="tags icon">
+                <p class="link-text"> Tags </p>
+                <a href="/tags" class="abs full on-top"></a>
+            </div>
+
+            <div data-list="list-of-categories-1" class="link has-list">
+                <img class="link-icon" src="/static/img/icons/categories-icon.svg" alt="categories icon">
+                <p class="link-text"> Categories </p>
+                <img class="link-icon" src="/static/img/icons/down-arrow-icon.svg" alt="arrow icon">
+            </div>
+
+            <div id="list-of-categories-1" class="category-list">
+                <div class="category relative">
+                    <p class="category-text italic-link"> All categories </p>
+                    <a href="/categories" class="category-link abs full on-top"></a>
+                </div>
+                {{if .IsAuthenticated}}
+                    <div class="category relative">
+                        <p class="category-text italic-link"> New category </p>
+                        <a href="/category/create" class="category-link abs full on-top"></a>
+                    </div>
+                {{end}}
+                {{range .CategoriesNavLeft}}
+                    <div class="category relative">
+                        <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
+                        <p class="category-text"> {{.Name}} </p>
+                        <a href="/category/{{.ID}}" class="category-link abs full on-top"></a>
+                    </div>
+                {{end}}
+            </div>
+        </nav>
+
+        <div class="footer borders">
+            <div class="footer-link relative">
+                <img class="footer-icon" src="/static/img/icons/legal-notice-icon.svg" alt="notice icon">
+                <p class="footer-text"> Legal Notice </p>
+                <a href="/about#legal-notice" class="link abs full on-top"></a>
+            </div>
+
+            <div class="footer-link relative">
+                <img class="footer-icon" src="/static/img/icons/privacy-policy-icon.svg" alt="policy icon">
+                <p class="footer-text"> Privacy Policy </p>
+                <a href="/about#privacy-policy" class="link abs full on-top"></a>
+            </div>
+
+            <div class="footer-link relative">
+                <img class="footer-icon" src="/static/img/icons/rules-icon.svg" alt="rules icon">
+                <p class="footer-text"> Rules </p>
+                <a href="/about#rules" class="link abs full on-top"></a>
+            </div>
+
+            <p class="rights"> Threadive, inc © {{.CurrentYear}} - All rights reserved. </p>
+        </div>
+    </div>
+
+
+
+    <!--###############################-->
+    <!--########## NAV RIGHT ##########-->
+    <!--###############################-->
+
+    <div class="nav-right">
+        <div class="nav-right-container borders">
+            <p class="nav-right-title"> Popular tags </p>
+            <div class="all-tags">
+                {{range .PopularTags}}
+                    <div class="tag relative">
+                        <span class="tag-link"> {{.Name}} </span>
+                        <a href="/tag/{{.ID}}" class="abs full on-top"></a>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+
+
+    <!--##########################-->
+    <!--########## MAIN ##########-->
+    <!--##########################-->
+
+    <main class="template-container">
+
+        <!--########## FLASH ##########-->
+
+        {{with .Flash}}
+            <div class="flash borders">{{.}}</div>
+        {{end}}
+
+
+
+        <!--########## IMPORT PAGE ##########-->
+
+        {{template "page" .}}
+
+    </main>
+
+    
+
+    <!--#####################################-->
+    <!--########## OVERLAY CONTENT ##########-->
+    <!--#####################################-->
+
+    {{if eq .Overlay "login"}}
+        {{block "login" .}}{{end}}
+    {{else if eq .Overlay "register"}}
+        {{block "register" .}}{{end}}
+    {{else if eq .Overlay "forgot-password"}}
+        {{block "forgot-password" .}}{{end}}
+    {{else if eq .Overlay "reset-password"}}
+        {{block "reset-password" .}}{{end}}
+    {{end}}
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script nonce="{{.Nonce}}">
+
+
+        {{/* ######################################################################################*/}}
+        {{/* # HIDE OVERLAY                                                                        */}}
+        {{/* ######################################################################################*/}}
+
+        {{if ne .Overlay "default"}}
+            const overlay = document.querySelector('.blur-underlay');
+            const centerPage = document.querySelector('.center-page');
+
+            centerPage.addEventListener('click', (event) => {
+                if (event.target === centerPage) {
+                    centerPage.style.display = 'none';
+                    overlay.style.display = 'none';
+                }
+            })
+        {{end}}
+
+        {{if .IsAuthenticated}}
+
+            {{/* ######################################################################################*/}}
+            {{/* # AJAX: FRIENDS                                                                       */}}
+            {{/* ######################################################################################*/}}
+
+            {{/*Friend requests*/}}
+
+            {{/*Friend response*/}}
+
+            {{/*Friend remove*/}}
+
+            {{/* ######################################################################################*/}}
+            {{/* # AJAX: POST REACTIONS                                                                */}}
+            {{/* ######################################################################################*/}}
+
+            const emojis = document.querySelectorAll('.emoji-ctn .emoji');
+
+            function addReaction(emojiCtn) {
+                emojiCtn.classList.toggle('selected');
+                emojiCtn.querySelector('.emoji').dataset.status = 'selected';
+                let reactionNb = emojiCtn.querySelector('.reactions-nb');
+                if (!!reactionNb) {
+                    const nb = parseInt(reactionNb.innerText);
+                    reactionNb.innerText = nb + 1;
+                } else {
+                    reactionNb = document.createElement('div');
+                    reactionNb.classList.add('reactions-nb');
+                    reactionNb.innerText = '1';
+                    emojiCtn.appendChild(reactionNb);
+                }
+            }
+
+            function removeReaction(emojiCtn, status = 'reacted') {
+                emojiCtn.classList.toggle('selected');
+                let reactionNb = emojiCtn.querySelector('.reactions-nb');
+                const nb = parseInt(reactionNb.innerText);
+                if (nb === 1) {
+                    emojiCtn.removeChild(reactionNb);
+                } else {
+                    reactionNb.innerText = nb - 1;
+                }
+                if (status === 'selected') {
+                    emojiCtn.parentNode.querySelectorAll('.emoji').forEach(emoji => {
+                        emoji.dataset.status = 'none';
+                    });
+                }
+            }
+
+            function updateReaction(emojiCtn, status) {
+                switch (status) {
+                    case "reacted":
+                        removeReaction(emojiCtn.parentNode.querySelector('.selected'));
+                        addReaction(emojiCtn);
+                        break;
+                    case "selected":
+                        removeReaction(emojiCtn, status)
+                        break;
+                    case "none":
+                        addReaction(emojiCtn);
+                        break;
+                }
+            }
+
+            emojis.forEach(emoji => {
+                emoji.addEventListener('click', () => {
+
+                    {{/*getting the user's reaction's status on this post*/}}
+                    const status = emoji.dataset.status;
+
+                    {{/*getting the post ID*/}}
+                    const id = emoji.dataset.id;
+
+                    {{/*including the CSRF token in the axios requests*/}}
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = {{.CSRFToken}};
+
+                    {{/*choose the ajax request according to the reaction's status*/}}
+                    switch (status) {
+
+                        {{/*the user reacted to this post, but not with this emoji*/}}
+                        case "reacted":
+                            {{/*send ajax request to update the reaction*/}}
+                            axios.patch(`/posts/${id}/react`, {reaction: emoji.dataset.value},
+                                {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+                                .then(function (response) {
+                                    updateReaction(emoji.parentNode, status)
+                                    console.log(response);
+                                })
+                                .catch(function (error) {
+                                    {{/*handle error*/}}
+                                    console.log(error);
+                                });
+                            break;
+
+                        {{/*the user reacted to this post with this emoji*/}}
+                        case "selected":
+                            {{/*send ajax request to remove the reaction*/}}
+                            axios.delete(`/posts/${id}/react`)
+                                .then(function (response) {
+                                    updateReaction(emoji.parentNode, status)
+                                    console.log(response);
+                                })
+                                .catch(function (error) {
+                                    {{/*handle error*/}}
+                                    console.log(error);
+                                });
+                            break;
+
+                        {{/*the user didn't react to this post*/}}
+                        case "none":
+                            {{/*send ajax request to update the reaction*/}}
+                            axios.post(`/posts/${id}/react`, {reaction: emoji.dataset.value},
+                                {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+                                .then(function (response) {
+                                    updateReaction(emoji.parentNode, status)
+                                    console.log(response);
+                                })
+                                .catch(function (error) {
+                                    {{/*handle error*/}}
+                                    console.log(error);
+                                });
+                            break;
+                    }
+                })
+            })
+
+            {{/* ######################################################################################*/}}
+            {{/* # AJAX: TAG FOLLOW/UNFOLLOW                                                           */}}
+            {{/* ######################################################################################*/}}
+
+            {{/*Tag follow*/}}
+
+            {{/*Tag unfollow*/}}
+
+            {{/* ######################################################################################*/}}
+            {{/* # AJAX: THREAD FAVORITE                                                               */}}
+            {{/* ######################################################################################*/}}
+
+            {{/*Thread add to favorites*/}}
+
+            {{/*Thread remove from favorites*/}}
+
+        {{end}}
+    </script>
+</body>
+</html>
+{{end}}

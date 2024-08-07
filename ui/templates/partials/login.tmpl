@@ -1,0 +1,33 @@
+{{define "login"}}
+<div class="blur-underlay"></div>
+
+    <div class="center-page">
+        <div class="container borders">
+            <form method="post" action="/login" class="login">
+                <p class="login-title bottom-outset"> Login </p>
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    
+                <div class="input-fields">
+                    <label for="mail"> Email </label>
+                    <input class="input borders" type="text" name="email" placeholder="Mail Address" id="mail" autofocus required>
+        
+                    <label for="password"> Password </label>
+                    <input class="input borders" type="password" name="password" placeholder="Password" id="password" required>
+                </div>
+    
+                <div class="submit">
+                    <a href="/forgot-password" class="classic-link"> Forgot password ? </a>
+                    <button class="button borders" type="submit"> Submit </button>
+                </div>
+            </form>
+    
+            <div class="separation"> 
+                <div class="line"></div>
+                <p class="or"> OR </p>
+                <div class="line"></div>
+            </div>
+    
+            <a href="/register" class="switch borders"> Register </a>
+        </div>
+    </div>
+{{end}}
