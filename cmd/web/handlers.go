@@ -3,7 +3,6 @@ package main
 import (
 	"Portfolio/internal/data"
 	"Portfolio/internal/validator"
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/alexedwards/flow"
@@ -64,7 +63,7 @@ func (app *application) search(w http.ResponseWriter, r *http.Request) {
 
 	// checking the query
 	if r.URL.Query() == nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
@@ -82,6 +81,35 @@ func (app *application) search(w http.ResponseWriter, r *http.Request) {
 
 	// render the template
 	app.render(w, r, http.StatusOK, "search.tmpl", tmplData)
+}
+
+func (app *application) postGet(w http.ResponseWriter, r *http.Request) {
+
+	// fetching the post ID
+	id, err := getPathID(r)
+	if err != nil {
+		app.clientError(w, r, http.StatusBadRequest)
+		return
+	}
+
+	// retrieving basic template data
+	tmplData := app.newTemplateData(r)
+
+	// fetching the post
+	tmplData.Post, err = app.models.PostModel.GetByID(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.clientError(w, r, http.StatusNotFound)
+		default:
+			app.serverError(w, r, err)
+		}
+		return
+	}
+	tmplData.Title = fmt.Sprintf("Antoine de Barbarin - %s", tmplData.Post.Title)
+
+	// render the template
+	app.render(w, r, http.StatusOK, "post.tmpl", tmplData)
 }
 
 /* #############################################################################
@@ -105,7 +133,7 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.logger.Error(err.Error())
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
@@ -132,40 +160,38 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// creating and registering the user
-	v := validator.New()
+	// creating the user
 	user := &data.User{
-		Name:     form.Username,
-		Email:    form.Email,
-		Password: form.Password,
+		Name:   form.Username,
+		Email:  form.Email,
+		Status: data.UserToActivate,
 	}
-	err = app.models.UserModel.Create(app.getToken(r, authTokenSessionManager), user, v)
+
+	// setting the password hash
+	err = user.Password.Set(form.Password)
 	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			app.clientError(r, w, http.StatusNotFound)
-		default:
-			app.serverError(w, r, err)
-		}
+		app.serverError(w, r, err)
 		return
 	}
 
-	// looking for errors from the API
-	if !v.Valid() {
+	// verifying the user data
+	v := validator.New()
+	if data.ValidateUser(v, user); !v.Valid() {
 
-		// DEBUG
-		app.logger.Debug(fmt.Sprintf("errors: %+v", v.NonFieldErrors))
+		// redirect to login page with errors
+		app.failedValidationError(w, r, form, v, "login.tmpl")
+		return
+	}
 
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.Form = form
-
-		tmplData.FieldErrors = v.FieldErrors
-		tmplData.NonFieldErrors = v.NonFieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusUnprocessableEntity, "home.tmpl", tmplData)
+	err = app.models.UserModel.Create(user)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrDuplicateEmail):
+			v.AddFieldError("email", "a user with this email address already exists")
+			app.failedValidationError(w, r, form, v, "login.tmpl")
+		default:
+			app.serverError(w, r, err)
+		}
 		return
 	}
 
@@ -183,7 +209,7 @@ func (app *application) confirm(w http.ResponseWriter, r *http.Request) {
 	// retrieving the activation token from the URL
 	tmplData.ActivationToken = flow.Param(r.Context(), "token")
 	if tmplData.ActivationToken == "" {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
@@ -197,51 +223,35 @@ func (app *application) confirmPost(w http.ResponseWriter, r *http.Request) {
 	form := newUserConfirmForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
-	// checking the data from the user
-	form.ValidateToken(form.Token)
-
-	// return to confirm page if there is an error
-	if !form.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.FieldErrors = form.FieldErrors
-		tmplData.ActivationToken = form.Token
-
-		// render the template
-		app.render(w, r, http.StatusOK, "confirm.tmpl", tmplData)
+	// checking the data from the user and return to confirm page if there is an error
+	if form.ValidateToken(form.Token); !form.Valid() {
+		app.failedValidationError(w, r, form, &form.Validator, "confirm.tmpl")
 		return
 	}
 
-	// API request to activate the user account
 	v := validator.New()
-	err = app.models.UserModel.Activate(form.Token, v)
+
+	// fetching the user with the token
+	user, err := app.models.UserModel.GetForToken(data.TokenActivation, form.Token)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			app.clientError(r, w, http.StatusNotFound)
+		case errors.Is(err, data.ErrRecordNotFound):
+			v.AddFieldError("token", "invalid or expired activation link")
+			app.failedValidationError(w, r, form, v, "confirm.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
 		return
 	}
 
-	// looking for errors from the API
-	if !v.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.FieldErrors = form.FieldErrors
-		tmplData.ActivationToken = form.Token
-
-		// render the template
-		app.render(w, r, http.StatusOK, "confirm.tmpl", tmplData)
+	// activating the user
+	err = app.models.UserModel.Activate(user)
+	if err != nil {
+		app.serverError(w, r, err)
 		return
 	}
 
@@ -256,7 +266,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	tmplData.Title = "Antoine de Barbarin - Login"
 
 	// render the template
-	app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
+	app.render(w, r, http.StatusOK, "login.tmpl", tmplData)
 }
 
 func (app *application) loginPost(w http.ResponseWriter, r *http.Request) {
@@ -265,60 +275,42 @@ func (app *application) loginPost(w http.ResponseWriter, r *http.Request) {
 	form := newUserLoginForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
 	// checking the data from the user
 	form.Check(validator.NotBlank(form.Email), "email", "This field cannot be blank")
 	form.Check(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
-	form.ValidatePassword(form.Password)
-
-	// return to login page if there is an error
-	if !form.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.Form = form
-
-		// render the template
-		app.render(w, r, http.StatusUnprocessableEntity, "home.tmpl", tmplData)
+	if form.ValidatePassword(form.Password); !form.Valid() {
+		app.failedValidationError(w, r, form, &form.Validator, "login.tmpl")
 		return
 	}
 
-	// building the API request body
-	body := map[string]string{
-		"email":    form.Email,
-		"password": form.Password,
-	}
-
-	// API request to authenticate the user
-	v := validator.New()
-	tokens, err := app.models.TokenModel.Authenticate(body, v)
+	// fetching the user with the mail address
+	user, err := app.models.UserModel.GetByEmail(form.Email)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			app.clientError(r, w, http.StatusNotFound)
+		case errors.Is(err, data.ErrRecordNotFound):
+			form.AddNonFieldError("invalid credentials")
+			app.failedValidationError(w, r, form, &form.Validator, "login.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
 		return
 	}
 
-	// looking for errors from the API
-	if !v.Valid() {
+	// matching the password
+	match, err := user.Password.Matches(form.Password)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
 
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.FieldErrors = form.FieldErrors
-
-		form.Password = ""
-		tmplData.Form = form
-
-		// render the template
-		app.render(w, r, http.StatusUnprocessableEntity, "home.tmpl", tmplData)
+	// checking the password match
+	if !match {
+		form.AddNonFieldError("invalid credentials")
+		app.failedValidationError(w, r, form, &form.Validator, "login.tmpl")
 		return
 	}
 
@@ -329,21 +321,8 @@ func (app *application) loginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// fetching the user id from the API
-	user, err := app.models.UserModel.GetByID(tokens.Authentication.Token, "me", nil, v)
-	if err != nil || !v.Valid() {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			app.clientError(r, w, http.StatusNotFound)
-		default:
-			app.serverError(w, r, err)
-		}
-		return
-	}
-
-	// storing the user id and tokens in the user session
+	// storing the user id in the user session
 	app.sessionManager.Put(r.Context(), authenticatedUserIDSessionManager, user.ID)
-	app.putToken(r, *tokens)
 
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
@@ -355,7 +334,7 @@ func (app *application) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	tmplData.Title = "Antoine de Barbarin - Forgot password"
 
 	// render the template
-	app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
+	app.render(w, r, http.StatusOK, "forgot-password.tmpl", tmplData)
 }
 
 func (app *application) forgotPasswordPost(w http.ResponseWriter, r *http.Request) {
@@ -364,7 +343,7 @@ func (app *application) forgotPasswordPost(w http.ResponseWriter, r *http.Reques
 	form := newForgotPasswordForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
@@ -373,48 +352,12 @@ func (app *application) forgotPasswordPost(w http.ResponseWriter, r *http.Reques
 
 	// return to forgot-password page if there is an error
 	if !form.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		tmplData.Form = form
-
-		// render the template
-		app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
+		app.failedValidationError(w, r, form, &form.Validator, "forgot-password.tmpl")
 		return
 	}
 
-	// API request to send a reset password token
-	v := validator.New()
-	err = app.models.UserModel.ForgotPassword(form.Email, v)
-	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			app.clientError(r, w, http.StatusNotFound)
-		default:
-			app.serverError(w, r, err)
-		}
-		return
-	}
-
-	// looking for errors from the API
-	if !v.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		tmplData.Form = form
-
-		// render the template
-		app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
-		return
-	}
+	// Generate a reset token and send a mail if the user exists
+	// TODO
 
 	app.sessionManager.Put(r.Context(), "flash", "We've sent you a mail to reset your password!")
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -429,12 +372,12 @@ func (app *application) resetPassword(w http.ResponseWriter, r *http.Request) {
 	// retrieving the reset token from the URL
 	tmplData.ResetToken = flow.Param(r.Context(), "token")
 	if tmplData.ResetToken == "" {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
 	// render the template
-	app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
+	app.render(w, r, http.StatusOK, "reset-password.tmpl", tmplData)
 }
 
 func (app *application) resetPasswordPost(w http.ResponseWriter, r *http.Request) {
@@ -443,59 +386,36 @@ func (app *application) resetPasswordPost(w http.ResponseWriter, r *http.Request
 	form := newResetPasswordForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
-	// checking the data from the user
+	// checking the data from the user and return to reset password page if there is an error
 	form.ValidateNewPassword(form.NewPassword, form.ConfirmPassword)
-	form.ValidateToken(form.Token)
-
-	// return to reset-password page if there is an error
-	if !form.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
+	if form.ValidateToken(form.Token); !form.Valid() {
+		app.failedValidationError(w, r, form, &form.Validator, "reset-password.tmpl")
 		return
 	}
 
-	// building the API request body
-	body := map[string]string{
-		"token":            form.Token,
-		"new_password":     form.NewPassword,
-		"confirm_password": form.ConfirmPassword,
-	}
-
-	// API request to send a reset password token
 	v := validator.New()
-	err = app.models.UserModel.ResetPassword(body, v)
+
+	// fetching the user with the token
+	user, err := app.models.UserModel.GetForToken(data.TokenReset, form.Token)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			app.clientError(r, w, http.StatusNotFound)
+		case errors.Is(err, data.ErrRecordNotFound):
+			v.AddFieldError("token", "invalid or expired link")
+			app.failedValidationError(w, r, form, v, "reset-password.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
 		return
 	}
 
-	// looking for errors from the API
-	if !v.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
+	// FIXME! TODO -> resetting the user's password
+	err = app.models.UserModel.Activate(user)
+	if err != nil {
+		app.serverError(w, r, err)
 		return
 	}
 
@@ -519,28 +439,8 @@ func (app *application) dashboard(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) logoutPost(w http.ResponseWriter, r *http.Request) {
 
-	// revoking the user's tokens
-	v := validator.New()
-	err := app.models.TokenModel.Logout(app.getToken(r, authTokenSessionManager), v)
-	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			app.clientError(r, w, http.StatusNotFound)
-		default:
-			app.serverError(w, r, err)
-		}
-		return
-	}
-
-	// looking for errors from the API
-	if !v.Valid() {
-		app.logger.Error(fmt.Sprintf("errors: %s", string(v.Errors())))
-		app.clientError(r, w, http.StatusBadRequest)
-		return
-	}
-
 	// logging the user out
-	err = app.logout(r)
+	err := app.logout(r)
 	if err != nil {
 
 		// DEBUG
@@ -571,12 +471,16 @@ func (app *application) updateUserPut(w http.ResponseWriter, r *http.Request) {
 	form := newUserUpdateForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
-	// creating the User struct to insert the new data into it
-	user := &data.User{}
+	// fetching the authenticated user
+	user, err := app.models.UserModel.GetByID(app.getUserID(r))
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
 
 	// checking the data from the user
 	var isEmpty = true
@@ -588,7 +492,11 @@ func (app *application) updateUserPut(w http.ResponseWriter, r *http.Request) {
 	if form.Password != nil || form.NewPassword != nil || form.ConfirmationPassword != nil {
 		isEmpty = false
 		form.ValidateNewPassword(*form.NewPassword, *form.ConfirmationPassword)
-		user.Password = *form.NewPassword
+		err = user.Password.Set(*form.NewPassword)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
 	}
 	if form.Email != nil {
 		isEmpty = false
@@ -601,42 +509,23 @@ func (app *application) updateUserPut(w http.ResponseWriter, r *http.Request) {
 
 	// return to update-user page if there is an error
 	if !form.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusOK, "user-update.tmpl", tmplData)
+		app.failedValidationError(w, r, form, &form.Validator, "user-update.tmpl")
 		return
 	}
 
-	// API request to send a reset password token
+	// updating the user
 	v := validator.New()
-	err = app.models.UserModel.Update(app.getToken(r, authTokenSessionManager), *form.Password, user, v)
+	err = app.models.UserModel.Update(user)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			app.clientError(r, w, http.StatusNotFound)
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.clientError(w, r, http.StatusNotFound)
+		case errors.Is(err, data.ErrDuplicateEmail):
+			v.AddFieldError("email", "email is already in use")
+			app.failedValidationError(w, r, form, v, "user-update.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
-		return
-	}
-
-	// looking for errors from the API
-	if !v.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusOK, "user-update.tmpl", tmplData)
 		return
 	}
 
@@ -660,13 +549,13 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 	form := newPostForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
 	// DEBUG
 	app.logger.Debug(fmt.Sprintf("content: %+v", *form.Content))
-	app.logger.Debug(fmt.Sprintf("thread_id: %+v", *form.ThreadID))
+	app.logger.Debug(fmt.Sprintf("title: %+v", *form.Title))
 
 	// creating the new thread
 	post := &data.Post{}
@@ -679,49 +568,27 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 		content := strings.ReplaceAll(*form.Content, "\n", "<br>")
 		post.Content = template.HTML(content)
 	}
-	if form.ThreadID == nil {
-		form.AddFieldError("thread_id", "must be provided")
+	if form.Title == nil {
+		form.AddFieldError("title", "must be provided")
 	} else {
-		form.CheckID(*form.ThreadID, "thread_id")
-		post.Thread.ID = *form.ThreadID
-	}
-	if form.ParentPostID != nil {
-		form.CheckID(*form.ParentPostID, "parent_post_id")
-		post.IDParentPost = *form.ParentPostID
+		form.StringCheck(*form.Title, 2, 120, true, "title")
 	}
 
 	// return to post-create page if there is an error
 	if !form.Valid() {
-		tmplData := app.newTemplateData(r) // FIXME
-		tmplData.Form = form
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusUnprocessableEntity, "home.tmpl", tmplData)
+		app.failedValidationError(w, r, form, &form.Validator, "post-create.tmpl")
 		return
 	}
 
-	// API request to create a category
-	v := validator.New()
-	err = app.models.PostModel.Create(app.getToken(r, authTokenSessionManager), post, v)
-	// looking for errors from the API
-	if !v.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r) // FIXME
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
+	// creating the post
+	err = app.models.PostModel.Create(post)
+	if err != nil {
+		app.serverError(w, r, err)
 		return
 	}
 
 	app.sessionManager.Put(r.Context(), "flash", "Post created successfully!")
-	http.Redirect(w, r, fmt.Sprintf("/thread/%d", post.Thread.ID), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/post/%d", post.ID), http.StatusSeeOther)
 }
 
 func (app *application) updatePost(w http.ResponseWriter, r *http.Request) {
@@ -733,17 +600,16 @@ func (app *application) updatePost(w http.ResponseWriter, r *http.Request) {
 	// retrieving the post id from the path
 	id, err := getPathID(r)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
 	// retrieving the post from the API
-	v := validator.New()
-	post, err := app.models.PostModel.GetByID(app.getToken(r, authTokenSessionManager), id, v)
+	post, err := app.models.PostModel.GetByID(id)
 	if err != nil {
 		switch {
-		case errors.Is(err, api.ErrRecordNotFound):
-			app.clientError(r, w, http.StatusNotFound)
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.clientError(w, r, http.StatusNotFound)
 		default:
 			app.serverError(w, r, err)
 		}
@@ -763,7 +629,7 @@ func (app *application) updatePostPut(w http.ResponseWriter, r *http.Request) {
 	form := newPostForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
@@ -775,58 +641,36 @@ func (app *application) updatePostPut(w http.ResponseWriter, r *http.Request) {
 		form.StringCheck(*form.Content, 1, 1_020, false, "content")
 		post.Content = template.HTML(*form.Content)
 	}
-	if form.ParentPostID != nil {
-		form.CheckID(*form.ParentPostID, "parent_post_id")
-		post.IDParentPost = *form.ParentPostID
+	if form.Title != nil {
+		form.StringCheck(*form.Title, 1, 120, false, "title")
+		post.Title = *form.Title
 	}
 
 	// return to post-update page if there is an error
 	if !form.Valid() {
-		tmplData := app.newTemplateData(r)
-		tmplData.Form = form
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusUnprocessableEntity, "post-update.tmpl", tmplData)
+		app.failedValidationError(w, r, form, &form.Validator, "post-update.tmpl")
 		return
 	}
 
 	// retrieving the post id from the path
 	post.ID, err = getPathID(r)
 	if err != nil {
-		app.clientError(r, w, http.StatusBadRequest)
+		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
 	// API request to update a post
-	v := validator.New()
-	err = app.models.PostModel.Update(app.getToken(r, authTokenSessionManager), post, v)
+	err = app.models.PostModel.Update(post)
 	if err != nil {
 		switch {
-		case errors.Is(err, api.ErrRecordNotFound):
-			app.clientError(r, w, http.StatusNotFound)
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.clientError(w, r, http.StatusNotFound)
 		default:
 			app.serverError(w, r, err)
 		}
 		return
 	}
 
-	// looking for errors from the API
-	if !v.Valid() {
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-
-		tmplData.NonFieldErrors = form.NonFieldErrors
-		tmplData.FieldErrors = form.FieldErrors
-
-		// render the template
-		app.render(w, r, http.StatusOK, "post-update.tmpl", tmplData)
-		return
-	}
-
 	app.sessionManager.Put(r.Context(), "flash", "Post updated successfully!")
-	http.Redirect(w, r, fmt.Sprintf("/thread/%d", post.Thread.ID), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/post/%d", post.ID), http.StatusSeeOther)
 }

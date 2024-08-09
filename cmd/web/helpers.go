@@ -70,7 +70,7 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 	return nil
 }
 
-func (app *application) clientError(r *http.Request, w http.ResponseWriter, status int) {
+func (app *application) clientError(w http.ResponseWriter, r *http.Request, status int) {
 
 	// setting the templateData
 	tmplData := app.newTemplateData(r)
@@ -86,6 +86,24 @@ func (app *application) clientError(r *http.Request, w http.ResponseWriter, stat
 
 	// rendering the error page
 	app.render(w, r, status, "error.tmpl", tmplData)
+}
+
+func (app *application) failedValidationError(w http.ResponseWriter, r *http.Request, form any, v *validator.Validator, tmpl string) {
+
+	// DEBUG
+	app.logger.Debug(fmt.Sprintf("generic errors: %+v", v.NonFieldErrors))
+	app.logger.Debug(fmt.Sprintf("field errors: %+v", v.FieldErrors))
+
+	// retrieving basic template data
+	tmplData := app.newTemplateData(r)
+
+	tmplData.Form = form
+
+	tmplData.FieldErrors = v.FieldErrors
+	tmplData.NonFieldErrors = v.NonFieldErrors
+
+	// render the template
+	app.render(w, r, http.StatusUnprocessableEntity, tmpl, tmplData)
 }
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -117,15 +135,6 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	}
 
 	return isAuthenticated
-}
-
-func (app *application) getToken(r *http.Request, key string) string {
-	token, ok := app.sessionManager.Get(r.Context(), key).(string)
-	if !ok {
-		app.logger.Debug("could not get token from session manager")
-		return ""
-	}
-	return token
 }
 
 func (app *application) getUserID(r *http.Request) int {
@@ -238,16 +247,13 @@ func getPathID(r *http.Request) (int, error) {
 	if param == "" {
 		return 0, fmt.Errorf("id required")
 	}
-	if param != "me" {
-		id, err := strconv.Atoi(param)
-		if err != nil || id < 1 {
-			return 0, fmt.Errorf("invalid id")
-		}
 
-		// return the integer id
-		return id, nil
+	// converting the param to int
+	id, err := strconv.Atoi(param)
+	if err != nil || id < 1 {
+		return 0, fmt.Errorf("invalid id")
 	}
 
-	// return -1 when id == "me"
-	return -1, nil
+	// return the integer id
+	return id, nil
 }

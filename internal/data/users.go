@@ -1,336 +1,384 @@
 package data
 
 import (
-	"Portfolio/internal/api"
 	"Portfolio/internal/validator"
+	"context"
+	"crypto/sha256"
 	"database/sql"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"net/http"
-	"net/url"
+	"golang.org/x/crypto/bcrypt"
+	"time"
 )
+
+var (
+	ErrDuplicateEmail = errors.New("duplicate email")
+	AnonymousUser     = &User{}
+)
+
+type User struct {
+	ID        int       `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  password  `json:"-"`
+	Avatar    string    `json:"avatar,omitempty"`
+	Status    string    `json:"status"`
+	Version   int       `json:"-"`
+}
+
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
+}
+
+type password struct {
+	plaintext *string
+	hash      []byte
+}
+
+func (p *password) Set(plainTextPassword string) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(plainTextPassword), 12)
+	if err != nil {
+		return err
+	}
+
+	p.plaintext = &plainTextPassword
+	p.hash = hash
+
+	return nil
+}
+
+func (p *password) Matches(plainTextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plainTextPassword))
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
+func ValidateEmail(v *validator.Validator, email string) {
+	v.Check(email != "", "email", "must be provided")
+	v.Check(validator.Matches(email, validator.EmailRX), "email", "must be a valid email address")
+}
+
+func ValidatePasswordPlaintext(v *validator.Validator, password string) {
+	v.Check(password != "", "password", "must be provided")
+	v.Check(len(password) >= 8, "password", "must not be more than 8 bytes long")
+	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
+}
+
+func ValidateUser(v *validator.Validator, user *User) {
+	v.Check(user.Name != "", "name", "must be provided")
+	v.Check(len(user.Name) <= 500, "name", "must not be more than 500 bytes long")
+
+	ValidateEmail(v, user.Email)
+
+	if user.Password.plaintext != nil {
+		ValidatePasswordPlaintext(v, *user.Password.plaintext)
+	}
+
+	if user.Password.hash == nil {
+		panic("missing password hash for user")
+	}
+}
 
 type UserModel struct {
 	db *sql.DB
 }
 
-func (m *UserModel) Create(token string, user *User, v *validator.Validator) error {
+func (m UserModel) Create(user *User) error {
 
-	// creating the request body
-	body := envelope{
-		"username": user.Name,
-		"email":    user.Email,
-		"password": user.Password,
-	}
-	reqBody, err := json.Marshal(body)
+	// creating the query
+	query := `
+		INSERT INTO users (name, email, password_hash, status)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, created_at, version;`
+
+	// setting the arguments
+	args := []any{user.Name, user.Email, user.Password.hash, user.Status}
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
 
-	// making the request
-	res, status, err := m.api().Request(token, http.MethodPost, m.endpoint, reqBody, true)
+	// executing the query
+	err = stmt.QueryRowContext(ctx, args...).Scan(&user.ID, &user.CreatedAt, &user.Version)
 	if err != nil {
-		return err
-	}
-
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
-	if v.Valid() {
-
-		// retrieving the user
-		var response = make(map[string]*User)
-		err = json.Unmarshal(res, &response)
-		if err != nil {
+		switch {
+		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
+			return ErrDuplicateEmail
+		default:
 			return err
 		}
-		user = response["user"]
-		if user.ID < 1 {
-			return errors.New("invalid user id")
-		}
 	}
 
 	return nil
 }
 
-func (m *UserModel) Update(token, previousPassword string, user *User, v *validator.Validator) error {
+func (m UserModel) Update(user *User) error {
 
-	// creating the request body
-	body := envelope{
-		"username":     user.Name,
-		"email":        user.Email,
-		"password":     previousPassword,
-		"new_password": user.Password,
-		"avatar":       user.Avatar,
-		"birth":        user.BirthDate,
-		"bio":          user.Bio,
-		"signature":    user.Signature,
+	// creating the query
+	query := `
+		UPDATE users
+		SET name = $1, email = $2, password_hash = $3, status = $4, version = version + 1
+		WHERE id = $5 AND version = $6
+		RETURNING version;`
+
+	// setting the arguments
+	args := []any{
+		user.Name,
+		user.Email,
+		user.Password.hash,
+		user.Status,
+		user.ID,
+		user.Version,
 	}
-	reqBody, err := json.Marshal(body)
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
 
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/%d", m.endpoint, user.ID)
-
-	// making the request
-	res, status, err := m.api().Request(token, http.MethodPut, endpoint, reqBody, true)
+	// executing the query
+	err = stmt.QueryRowContext(ctx, args...).Scan(&user.Version)
 	if err != nil {
-		return err
-	}
-
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
-	if v.Valid() {
-
-		// retrieving the user
-		var response = make(map[string]*User)
-		err = json.Unmarshal(res, &response)
-		if err != nil {
+		switch {
+		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
+			return ErrDuplicateEmail
+		default:
 			return err
 		}
-		user = response["user"]
-		if user.ID < 1 {
-			return errors.New("invalid user id")
-		}
 	}
 
 	return nil
 }
 
-func (m *UserModel) Delete(token string, id string, v *validator.Validator) error {
+func (m UserModel) Activate(user *User) error {
 
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/%s", m.endpoint, id)
+	// setting the user's status as 'active'
+	user.Status = UserActivated
 
-	// making the request
-	res, status, err := m.api().Request(token, http.MethodDelete, endpoint, nil, false)
+	// updating the user with the 'active' status
+	return m.Update(user)
+
+}
+
+func (m UserModel) Delete(user *User) error {
+
+	// creating the query
+	query := `
+		DELETE FROM users
+		WHERE id = $1 AND version = $2;`
+
+	// setting the arguments
+	args := []any{
+		user.ID,
+		user.Version,
+	}
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
 
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
+	// executing the query
+	_, err = stmt.ExecContext(ctx, args...)
 
-	return nil
+	return err
 }
 
-func (m *UserModel) Get(token string, query url.Values, v *validator.Validator) ([]*User, Metadata, error) {
+func (m UserModel) Exists(id int) (bool, error) {
 
-	// making the request
-	res, status, err := m.api().Get(token, m.endpoint, query)
+	// creating the query
+	query := `
+		SELECT EXISTS (
+		SELECT 1 FROM contact WHERE id = $1);`
+
+	// setting the timeout for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, Metadata{}, err
+		return false, err
 	}
+	defer stmt.Close()
 
-	// checking for errors
-	err = api.GetErr(status, res, v)
+	// executing the query
+	var exists bool
+	err = stmt.QueryRowContext(ctx, id).Scan(&exists)
 	if err != nil {
-		return nil, Metadata{}, err
-	}
-	var users []*User
-	var metadata Metadata
-	if v.Valid() {
-
-		// retrieving the results
-		var response = make(map[string]any)
-		err = json.Unmarshal(res, &response)
-		if err != nil {
-			return nil, Metadata{}, err
-		}
-		var ok bool
-		if users, ok = response["users"].([]*User); !ok {
-			return nil, Metadata{}, errors.New("invalid response from Users")
-		}
-		if metadata, ok = response["_metadata"].(Metadata); !ok {
-			return nil, Metadata{}, errors.New("invalid response from Metadata")
-		}
+		return false, err
 	}
 
-	return users, metadata, nil
+	return exists, nil
 }
 
-func (m *UserModel) GetByID(token string, id string, query url.Values, v *validator.Validator) (*User, error) {
+func (m UserModel) GetByID(id int) (*User, error) {
 
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/%s", m.endpoint, id)
+	// creating the query
+	query := `
+		SELECT id, created_at, name, email, password_hash, status, version
+		FROM users
+		WHERE id = $1;`
 
-	// making the request
-	res, status, err := m.api().Get(token, endpoint, query)
+	// setting the user variable
+	var user User
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 
-	// checking for errors
-	err = api.GetErr(status, res, v)
+	// executing the query
+	err = stmt.QueryRowContext(ctx, id).Scan(
+		&user.ID,
+		&user.CreatedAt,
+		&user.Name,
+		&user.Email,
+		&user.Password.hash,
+		&user.Status,
+		&user.Version,
+	)
+
 	if err != nil {
-		return nil, err
-	}
-	var user *User
-	if v.Valid() {
-
-		// retrieving the user
-		var response = make(map[string]*User)
-		err = json.Unmarshal(res, &response)
-		if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
 			return nil, err
 		}
-		user = response["user"]
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (m *UserModel) Activate(activationToken string, v *validator.Validator) error {
+func (m UserModel) GetByEmail(email string) (*User, error) {
 
-	// creating the request body
-	body := envelope{
-		"token": activationToken,
-	}
-	reqBody, err := json.Marshal(body)
+	// creating the query
+	query := `
+		SELECT id, created_at, name, email, password_hash, status, version
+		FROM users
+		WHERE email = $1;`
+
+	// setting the user variable
+	var user User
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	defer stmt.Close()
 
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/activated", m.endpoint)
+	// executing the query
+	err = stmt.QueryRowContext(ctx, email).Scan(
+		&user.ID,
+		&user.CreatedAt,
+		&user.Name,
+		&user.Email,
+		&user.Password.hash,
+		&user.Status,
+		&user.Version,
+	)
 
-	// making the request
-	res, status, err := m.api().Request("", http.MethodPut, endpoint, reqBody, false)
 	if err != nil {
-		return err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
 	}
 
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return &user, nil
 }
 
-func (m *UserModel) ForgotPassword(email string, v *validator.Validator) error {
+func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error) {
 
-	// creating the request body
-	body := envelope{
-		"email": email,
-	}
-	reqBody, err := json.Marshal(body)
+	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
+
+	// creating the query
+	query := `
+		SELECT users.id, users.created_at, users.name, users.email, users.password_hash, users.status, users.version
+		FROM users
+		INNER JOIN tokens
+		ON users.id = tokens.user_id
+		WHERE tokens.hash = $1
+		AND tokens.scope = $2
+		AND tokens.expiry > $3;`
+
+	// setting the arguments
+	args := []any{tokenHash[:], tokenScope, time.Now()}
+
+	// setting the user variable
+	var user User
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	defer stmt.Close()
 
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/forgot-password", m.endpoint)
+	// executing the query
+	err = stmt.QueryRowContext(ctx, args...).Scan(
+		&user.ID,
+		&user.CreatedAt,
+		&user.Name,
+		&user.Email,
+		&user.Password.hash,
+		&user.Status,
+		&user.Version,
+	)
 
-	// making the request
-	res, status, err := m.api().Request("", http.MethodPost, endpoint, reqBody, false)
 	if err != nil {
-		return err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
 	}
 
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UserModel) ResetPassword(body map[string]string, v *validator.Validator) error {
-
-	// formatting the body to JSON
-	reqBody, err := json.Marshal(body)
-	if err != nil {
-		return err
-	}
-
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/password", m.endpoint)
-
-	// making the request
-	res, status, err := m.api().Request("", http.MethodPut, endpoint, reqBody, true)
-	if err != nil {
-		return err
-	}
-
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UserModel) FriendRequest(token string, id int, v *validator.Validator) error {
-
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/%d/friend", m.endpoint, id)
-
-	// making the request
-	res, status, err := m.api().Request(token, http.MethodPost, endpoint, nil, false)
-	if err != nil {
-		return err
-	}
-
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UserModel) FriendResponse(token string, id int, body []byte, v *validator.Validator) error {
-
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/%d/friend", m.endpoint, id)
-
-	// making the request
-	res, status, err := m.api().Request(token, http.MethodPut, endpoint, body, false)
-	if err != nil {
-		return err
-	}
-
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UserModel) FriendDelete(token string, id int, v *validator.Validator) error {
-
-	// building the endpoint's specific URL
-	endpoint := fmt.Sprintf("%s/%d/friend", m.endpoint, id)
-
-	// making the request
-	res, status, err := m.api().Request(token, http.MethodDelete, endpoint, nil, false)
-	if err != nil {
-		return err
-	}
-
-	// checking for errors
-	err = api.GetErr(status, res, v)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return &user, nil
 }

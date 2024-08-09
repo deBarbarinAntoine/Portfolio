@@ -1,20 +1,14 @@
 package main
 
 import (
-	"Portfolio/internal/validator"
 	"context"
 	"fmt"
 	"github.com/justinas/nosurf"
 	"log/slog"
 	"net/http"
-	"time"
 )
 
 const (
-	authTokenSessionManager           = "auth_token"
-	authExpirySessionManager          = "auth_expiry"
-	refreshTokenSessionManager        = "refresh_token"
-	refreshExpirySessionManager       = "refresh_expiry"
 	authenticatedUserIDSessionManager = "authenticated_user_id"
 )
 
@@ -33,7 +27,7 @@ func commonHeaders(next http.Handler) http.Handler {
 		r = r.WithContext(ctx)
 
 		// setting the common headers
-		w.Header().Set("Content-Security-Policy", fmt.Sprintf("script-src 'self' 'nonce-%s' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net", nonce)) // maybe add "default-src 'self' https://ui-avatars.com;" as well if necessary
+		w.Header().Set("Content-Security-Policy", fmt.Sprintf("default-src 'self' https://ui-avatars.com ; script-src 'self' 'nonce-%s' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net", nonce))
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "deny")
@@ -67,7 +61,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				w.Header().Set("Connection", "close")
-				app.serverError(w, r, fmt.Errorf("%s", err))
+				app.serverError(w, r, fmt.Errorf("recovering from panic: %s", err))
 			}
 		}()
 
@@ -94,61 +88,22 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		// getting the userID from the session
 		id := app.sessionManager.GetInt(r.Context(), authenticatedUserIDSessionManager)
 
-		// if user not authenticated
+		// if user is not authenticated
 		if id == 0 {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		// getting the user tokens from the session
-		tokens, err := app.getTokens(r)
-		if nil == err {
+		exists, err := app.models.UserModel.Exists(id)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
 
-			// checking the authentication imminent expiry
-			if time.Until(tokens.Authentication.Expiry) < 1*time.Hour {
-
-				// checking the refresh token validity
-				if time.Until(tokens.Refresh.Expiry) > 0 {
-
-					// request new tokens from API with refresh token
-					v := validator.New()
-					err := app.models.TokenModel.Refresh(tokens.Refresh.Token, tokens, v)
-					if err != nil {
-						app.serverError(w, r, err)
-						return
-					}
-
-					// if refresh token invalid -> logout
-					if !v.Valid() {
-						err = app.logout(r)
-						if err != nil {
-							app.serverError(w, r, err)
-							return
-						}
-						next.ServeHTTP(w, r)
-						return
-					}
-
-					// replacing the tokens in the user session
-					app.putToken(r, *tokens)
-				} else {
-
-					// if refresh token expired -> logout
-					err := app.logout(r)
-					if err != nil {
-						app.serverError(w, r, err)
-						return
-					}
-					next.ServeHTTP(w, r)
-					return
-				}
-			}
-
+		if exists {
 			// setting the user as authenticated in the context
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
 			r = r.WithContext(ctx)
-		} else {
-			app.logger.Error(err.Error())
 		}
 
 		next.ServeHTTP(w, r)

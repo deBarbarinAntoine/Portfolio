@@ -2,8 +2,22 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"html/template"
 	"time"
+)
+
+const (
+	UserToActivate = "to-activate"
+	UserActivated  = "activated"
+
+	TokenActivation = "activation"
+	TokenReset      = "reset"
+)
+
+var (
+	ErrRecordNotFound = errors.New("record not found")
+	ErrEditConflict   = errors.New("edit conflict")
 )
 
 type Models struct {
@@ -35,19 +49,9 @@ type Token struct {
 	Expiry time.Time `json:"expiry"`
 }
 
-type User struct {
-	ID        int       `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"`
-	Avatar    string    `json:"avatar,omitempty"`
-	Status    string    `json:"status"`
-	Version   int       `json:"-"`
-}
-
 type Post struct {
 	ID         int           `json:"id"`
+	Title      string        `json:"title"`
 	Images     []string      `json:"images"`
 	Content    template.HTML `json:"content"`
 	CreatedAt  time.Time     `json:"created_at"`

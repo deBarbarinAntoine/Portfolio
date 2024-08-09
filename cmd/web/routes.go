@@ -32,12 +32,7 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("/home", app.index, http.MethodGet)  // landing page
 	router.HandleFunc("/about", app.about, http.MethodGet) // about page
 
-	router.HandleFunc("/thread/:id", app.threadGet, http.MethodGet)     // thread page
-	router.HandleFunc("/tag/:id", app.tagGet, http.MethodGet)           // tag page
-	router.HandleFunc("/category/:id", app.categoryGet, http.MethodGet) // category page
-
-	router.HandleFunc("/tags", app.TagsGet, http.MethodGet)             // all tags page
-	router.HandleFunc("/categories", app.categoriesGet, http.MethodGet) // all categories page
+	router.HandleFunc("/thread/:id", app.postGet, http.MethodGet) // post page
 
 	router.HandleFunc("/search", app.search, http.MethodGet) // search page
 
@@ -71,47 +66,10 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("/user", app.updateUser, http.MethodGet)     // update user page
 	router.HandleFunc("/user", app.updateUserPut, http.MethodPut)  // update user treatment route
 
-	router.HandleFunc("/post/create", app.createPost, http.MethodGet)         // post creation page
-	router.HandleFunc("/tag/create", app.createTag, http.MethodGet)           // tag creation page
-	router.HandleFunc("/category/create", app.createCategory, http.MethodGet) // category creation page
-	router.HandleFunc("/thread/create", app.createThread, http.MethodGet)     // thread creation page
-
-	router.HandleFunc("/category", app.createCategoryPost, http.MethodPost) // post creation treatment route
-	router.HandleFunc("/thread", app.createThreadPost, http.MethodPost)     // tag creation treatment route
-	router.HandleFunc("/post", app.createPostPost, http.MethodPost)         // category creation treatment route
-	router.HandleFunc("/tag", app.createTagPost, http.MethodPost)           // thread creation treatment route
-
-	router.HandleFunc("/post/:id/update", app.updatePost, http.MethodGet)         // post update page
-	router.HandleFunc("/tag/:id/update", app.updateTag, http.MethodGet)           // tag update page
-	router.HandleFunc("/category/:id/update", app.updateCategory, http.MethodGet) // category update page
-	router.HandleFunc("/thread/:id/update", app.updateThread, http.MethodGet)     // thread update page
-
-	router.HandleFunc("/category/:id/update", app.updateCategoryPut, http.MethodPut) // post update treatment route
-	router.HandleFunc("/thread/:id/update", app.updateThreadPut, http.MethodPut)     // tag update treatment route
-	router.HandleFunc("/post/:id/update", app.updatePostPut, http.MethodPut)         // category update treatment route
-	router.HandleFunc("/tag/:id/update", app.updateTagPut, http.MethodPut)           // thread update treatment route
-
-	/* #############################################################################
-	/*	AJAX endpoints
-	/* #############################################################################*/
-
-	// Post reactions
-	router.HandleFunc("/posts/:id/react", app.reactToPost, http.MethodPost)
-	router.HandleFunc("/posts/:id/react", app.changeReactionPost, http.MethodPatch)
-	router.HandleFunc("/posts/:id/react", app.removeReactionPost, http.MethodDelete)
-
-	// Tag follow
-	router.HandleFunc("/tags/:id/follow", app.followTag, http.MethodPost)
-	router.HandleFunc("/tags/:id/follow", app.unfollowTag, http.MethodDelete)
-
-	// Thread favorite
-	router.HandleFunc("/threads/:id/favorite", app.addToFavoritesThread, http.MethodPost)
-	router.HandleFunc("/threads/:id/favorite", app.removeFromFavoritesThread, http.MethodDelete)
-
-	// Friends
-	router.HandleFunc("/users/:id/friend", app.friendRequest, http.MethodPost)
-	router.HandleFunc("/users/:id/friend", app.friendResponse, http.MethodPut)
-	router.HandleFunc("/users/:id/friend", app.friendDelete, http.MethodDelete)
+	router.HandleFunc("/post/create", app.createPost, http.MethodGet)        // post creation page
+	router.HandleFunc("/post", app.createPostPost, http.MethodPost)          // post creation treatment route
+	router.HandleFunc("/post/:id/update", app.updatePost, http.MethodGet)    // post update page
+	router.HandleFunc("/post/:id/update", app.updatePostPut, http.MethodPut) // category update treatment route
 
 	return router
 }

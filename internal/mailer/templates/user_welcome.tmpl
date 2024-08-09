@@ -1,0 +1,42 @@
+{{define "subject"}}Welcome to Antoine's Portfolio!{{end}}
+
+{{define "plainBody"}}
+Hi {{.username}},
+
+Thanks for signing up for an account on my portfolio website. I'm excited to have you on board!
+
+For future reference, your user ID number is {{.userID}}.
+
+Please visit or click on the following link to activate your account:
+
+https://adebarbarin.com/activation/{{.activationToken}}
+
+Please note that this is a one-time use link, and it will expire in 3 days.
+
+Thanks,
+
+Antoine de Barbarin
+{{end}}
+
+{{define "htmlBody"}}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html, charset=UTF-8" />
+</head>
+
+<body>
+    <p>Hi {{.username}},</p>
+    <p>Thanks for signing up for an ApiTemplate account. We're excited to have you on board!</p>
+    <p>For future reference, your user ID number is {{.userID}}.</p>
+    <p>Please visit or click on the following link to activate your account:</p>
+    <a href="https://adebarbarin.com/activation/{{.activationToken}}">Activate your account</a>
+    <p>Please note that this is a one-time use link, and it will expire in 3 days.</p>
+    <p>Thanks,</p>
+    <p>Antoine de Barbarin</p>
+</body>
+
+</html>
+{{end}}

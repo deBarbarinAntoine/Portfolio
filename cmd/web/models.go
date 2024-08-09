@@ -105,8 +105,7 @@ type resetPasswordForm struct {
 }
 
 type postForm struct {
+	Title               *string `form:"title,omitempty"`
 	Content             *string `form:"content,omitempty"`
-	ThreadID            *int    `form:"thread_id,omitempty"`
-	ParentPostID        *int    `form:"parent_post_id,omitempty"`
 	validator.Validator `form:"-"`
 }
