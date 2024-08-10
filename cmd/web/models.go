@@ -2,11 +2,13 @@ package main
 
 import (
 	"Portfolio/internal/data"
+	"Portfolio/internal/mailer"
 	"Portfolio/internal/validator"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	"html/template"
 	"log/slog"
+	"sync"
 	"time"
 )
 
@@ -31,11 +33,13 @@ type config struct {
 
 type application struct {
 	logger         *slog.Logger
+	mailer         mailer.Mailer
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
 	models         data.Models
 	config         *config
+	wg             *sync.WaitGroup
 }
 
 type templateData struct {
@@ -56,9 +60,9 @@ type templateData struct {
 	NonFieldErrors []string
 	User           data.User
 	Search         string
-	Post           data.Post
+	Post           *data.Post
 	Posts          struct {
-		List     []data.Post
+		List     []*data.Post
 		Metadata data.Metadata
 	}
 }
@@ -106,6 +110,6 @@ type resetPasswordForm struct {
 
 type postForm struct {
 	Title               *string `form:"title,omitempty"`
-	Content             *string `form:"content,omitempty"`
+	Content             []byte  `form:"content,omitempty"`
 	validator.Validator `form:"-"`
 }

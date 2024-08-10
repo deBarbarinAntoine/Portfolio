@@ -6,9 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/alexedwards/flow"
-	"html/template"
 	"net/http"
-	"strings"
+	"time"
 )
 
 /* #############################################################################
@@ -73,11 +72,19 @@ func (app *application) search(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving the research text
 	tmplData.Search = r.URL.Query().Get("q")
-	if tmplData.Search == "" {
-		tmplData.Search = "*"
-	}
 
-	// TODO -> search in the posts
+	// search in the posts
+	var err error
+	tmplData.Posts.List, tmplData.Posts.Metadata, err = app.models.PostModel.Get(tmplData.Search, data.NewPostFilters(r.URL.Query()))
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.clientError(w, r, http.StatusNotFound)
+		default:
+			app.serverError(w, r, err)
+		}
+		return
+	}
 
 	// render the template
 	app.render(w, r, http.StatusOK, "search.tmpl", tmplData)
@@ -147,16 +154,7 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 
 	// return to register page if there is an error
 	if !form.Valid() {
-
-		// DEBUG
-		app.logger.Debug(fmt.Sprintf("errors: %+v", form.FieldErrors))
-
-		// retrieving basic template data
-		tmplData := app.newTemplateData(r)
-		tmplData.Form = form
-
-		// render the template
-		app.render(w, r, http.StatusUnprocessableEntity, "home.tmpl", tmplData)
+		app.failedValidationError(w, r, form, &form.Validator, "register.tmpl")
 		return
 	}
 
@@ -179,11 +177,12 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 	if data.ValidateUser(v, user); !v.Valid() {
 
 		// redirect to login page with errors
-		app.failedValidationError(w, r, form, v, "login.tmpl")
+		app.failedValidationError(w, r, form, v, "register.tmpl")
 		return
 	}
 
-	err = app.models.UserModel.Create(user)
+	// inserting the user in the DB
+	err = app.models.UserModel.Insert(user)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrDuplicateEmail):
@@ -194,6 +193,27 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
+	// Generate an activation token and send a mail to the user
+	token, err := app.models.TokenModel.New(user.ID, 3*24*time.Hour, data.TokenActivation)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.background(func() {
+
+		mailData := map[string]any{
+			"userID":          user.ID,
+			"username":        user.Name,
+			"activationToken": token.Plaintext,
+		}
+
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", mailData)
+		if err != nil {
+			app.logger.Error(err.Error())
+		}
+	})
 
 	app.sessionManager.Put(r.Context(), "flash", "We've sent you a confirmation email!")
 
@@ -249,7 +269,10 @@ func (app *application) confirmPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// activating the user
-	err = app.models.UserModel.Activate(user)
+	user.Status = data.UserActivated
+
+	// updating the user data
+	err = app.models.UserModel.Update(user)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -356,9 +379,39 @@ func (app *application) forgotPasswordPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Generate a reset token and send a mail if the user exists
-	// TODO
+	// fetching the user
+	user, err := app.models.UserModel.GetByEmail(form.Email)
 
+	// if the user exists
+	if nil == err {
+
+		// Generate a reset token and send a mail if the user exists
+		token, err := app.models.TokenModel.New(user.ID, 24*time.Hour, data.TokenReset)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		app.background(func() {
+
+			mailData := map[string]any{
+				"userID":     user.ID,
+				"username":   user.Name,
+				"resetToken": token.Plaintext,
+			}
+
+			err = app.mailer.Send(user.Email, "forgot_password.tmpl", mailData)
+			if err != nil {
+				app.logger.Error(err.Error())
+			}
+		})
+
+	} else if !errors.Is(err, data.ErrRecordNotFound) {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// do this anyway (even if the user doesn't exist)
 	app.sessionManager.Put(r.Context(), "flash", "We've sent you a mail to reset your password!")
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
@@ -412,8 +465,15 @@ func (app *application) resetPasswordPost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// FIXME! TODO -> resetting the user's password
-	err = app.models.UserModel.Activate(user)
+	// setting the new password
+	err = user.Password.Set(form.NewPassword)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// updating the user with the new password
+	err = app.models.UserModel.Update(user)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -537,7 +597,7 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving basic template data
 	tmplData := app.newTemplateData(r)
-	tmplData.Title = "Antoine de Barbarin - Create Post"
+	tmplData.Title = "Antoine de Barbarin - Insert Post"
 
 	// render the template
 	app.render(w, r, http.StatusOK, "post-create.tmpl", tmplData)
@@ -554,7 +614,7 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// DEBUG
-	app.logger.Debug(fmt.Sprintf("content: %+v", *form.Content))
+	app.logger.Debug(fmt.Sprintf("content: %+v", form.Content))
 	app.logger.Debug(fmt.Sprintf("title: %+v", *form.Title))
 
 	// creating the new thread
@@ -564,9 +624,9 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 	if form.Content == nil {
 		form.AddFieldError("content", "must be provided")
 	} else {
-		form.StringCheck(*form.Content, 2, 1_020, true, "content")
-		content := strings.ReplaceAll(*form.Content, "\n", "<br>")
-		post.Content = template.HTML(content)
+		form.Check(len(post.Content) > 2, "content", "must be at least 2 bytes long")
+		form.Check(len(post.Content) < 1_020, "content", "must not be more than 1.020 bytes long")
+		post.Content = form.Content
 	}
 	if form.Title == nil {
 		form.AddFieldError("title", "must be provided")
@@ -581,9 +641,15 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// creating the post
-	err = app.models.PostModel.Create(post)
+	err = app.models.PostModel.Insert(post)
 	if err != nil {
-		app.serverError(w, r, err)
+		switch {
+		case errors.Is(err, data.ErrDuplicatePostTitle):
+			form.AddFieldError("title", "is already in use")
+			app.failedValidationError(w, r, form, &form.Validator, "post-create.tmpl")
+		default:
+			app.serverError(w, r, err)
+		}
 		return
 	}
 
@@ -638,8 +704,9 @@ func (app *application) updatePostPut(w http.ResponseWriter, r *http.Request) {
 
 	// checking the data from the user
 	if form.Content != nil {
-		form.StringCheck(*form.Content, 1, 1_020, false, "content")
-		post.Content = template.HTML(*form.Content)
+		form.Check(len(post.Content) > 2, "content", "must be at least 2 bytes long")
+		form.Check(len(post.Content) < 1_020, "content", "must not be more than 1.020 bytes long")
+		post.Content = form.Content
 	}
 	if form.Title != nil {
 		form.StringCheck(*form.Title, 1, 120, false, "title")
@@ -660,11 +727,14 @@ func (app *application) updatePostPut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// API request to update a post
-	err = app.models.PostModel.Update(post)
+	err = app.models.PostModel.Update(*post)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.clientError(w, r, http.StatusNotFound)
+		case errors.Is(err, data.ErrDuplicatePostTitle):
+			form.AddFieldError("title", "title is already in use")
+			app.failedValidationError(w, r, form, &form.Validator, "post-update.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}

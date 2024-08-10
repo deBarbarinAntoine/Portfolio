@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"errors"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -91,7 +92,7 @@ type UserModel struct {
 	db *sql.DB
 }
 
-func (m UserModel) Create(user *User) error {
+func (m UserModel) Insert(user *User) error {
 
 	// creating the query
 	query := `
@@ -109,7 +110,7 @@ func (m UserModel) Create(user *User) error {
 	// preparing the query
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to prepare query: %w", err)
 	}
 	defer stmt.Close()
 
@@ -153,7 +154,7 @@ func (m UserModel) Update(user *User) error {
 	// preparing the query
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to prepare query: %w", err)
 	}
 	defer stmt.Close()
 
@@ -169,16 +170,6 @@ func (m UserModel) Update(user *User) error {
 	}
 
 	return nil
-}
-
-func (m UserModel) Activate(user *User) error {
-
-	// setting the user's status as 'active'
-	user.Status = UserActivated
-
-	// updating the user with the 'active' status
-	return m.Update(user)
-
 }
 
 func (m UserModel) Delete(user *User) error {
@@ -201,7 +192,7 @@ func (m UserModel) Delete(user *User) error {
 	// preparing the query
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to prepare query: %w", err)
 	}
 	defer stmt.Close()
 
@@ -209,6 +200,35 @@ func (m UserModel) Delete(user *User) error {
 	_, err = stmt.ExecContext(ctx, args...)
 
 	return err
+}
+
+func (m UserModel) DeleteExpired() error {
+
+	// generating the query
+	query := `
+		DELETE u
+		FROM users u
+		LEFT JOIN tokens t ON u.id = t.id_user
+		WHERE u.status = $1 AND (t.expiry IS NULL OR t.expiry < CURRENT_TIMESTAMP);`
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+
+	// executing the query
+	_, err = stmt.ExecContext(ctx, UserToActivate)
+	if err != nil {
+		return fmt.Errorf("failed to delete expired users: %w", err)
+	}
+
+	return nil
 }
 
 func (m UserModel) Exists(id int) (bool, error) {

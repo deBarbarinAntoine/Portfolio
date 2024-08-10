@@ -9,11 +9,20 @@ import (
 )
 
 var functions = template.FuncMap{
-	"humanDate": humanDate,
+	"humanDate":     humanDate,
+	"mdToHTML":      mdToHTML,
+	"bytesToString": bytesToString,
 }
 
 func humanDate(t time.Time) string {
 	return t.Format("02 Jan 2006 at 15:04")
+}
+
+func bytesToString(b []byte) string {
+	if b != nil {
+		return string(b)
+	}
+	return ""
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

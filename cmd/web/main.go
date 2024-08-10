@@ -2,6 +2,7 @@ package main
 
 import (
 	"Portfolio/internal/data"
+	"Portfolio/internal/mailer"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -10,8 +11,8 @@ import (
 	"github.com/go-playground/form/v4"
 	_ "github.com/lib/pq"
 	"log/slog"
-	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -38,6 +39,9 @@ func main() {
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "", "SMTP sender")
 
+	// cleaning frequency
+	frequency := flag.Duration("frequency", time.Hour*2, "expired tokens and unactivated users cleaning frequency")
+
 	flag.Parse()
 
 	// setting the logging level according to the environment
@@ -49,9 +53,6 @@ func main() {
 		opts = &slog.HandlerOptions{Level: slog.LevelInfo}
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
-
-	// setting the address in which the server will listen
-	addr := fmt.Sprintf(":%d", cfg.port)
 
 	// checking the SMTP info
 	if cfg.smtp.username == "" || cfg.smtp.password == "" || cfg.smtp.host == "" {
@@ -80,7 +81,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// initializing the application
+	// initializing the application components
 	formDecoder := form.NewDecoder()
 
 	sessionManager := scs.New()
@@ -90,30 +91,27 @@ func main() {
 
 	app := &application{
 		logger:         logger,
+		mailer:         mailer.New(cfg.smtp.host, int(cfg.smtp.port), cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 		sessionManager: sessionManager,
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		config:         &cfg,
 		models:         data.NewModels(db),
+		wg:             new(sync.WaitGroup),
 	}
 
-	// initializing the server
-	server := http.Server{
-		Addr:     addr,
-		Handler:  app.routes(),
-		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	// Clean expired tokens every N duration with no timeout
+	go app.cleanExpiredTokens(*frequency, time.Hour*0)
 
-		// timeouts setting, for security purposes. The server then automatically closes timed out connections
-		IdleTimeout:       time.Minute,
-		ReadHeaderTimeout: 3 * time.Second,
-		ReadTimeout:       5 * time.Second,
-		WriteTimeout:      10 * time.Second,
+	// Clean expired unactivated users every N duration with 1 hour timeout
+	go app.cleanExpiredUnactivatedUsers(*frequency, time.Hour)
+
+	// Running the server
+	err = app.serve()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
-
-	logger.Info("Starting server", slog.String("addr", server.Addr))
-
-	// run the server through HTTP
-	logger.Error("server error", server.ListenAndServe())
 
 	os.Exit(1)
 }

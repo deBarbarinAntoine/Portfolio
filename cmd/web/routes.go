@@ -32,7 +32,7 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("/home", app.index, http.MethodGet)  // landing page
 	router.HandleFunc("/about", app.about, http.MethodGet) // about page
 
-	router.HandleFunc("/thread/:id", app.postGet, http.MethodGet) // post page
+	router.HandleFunc("/post/:id", app.postGet, http.MethodGet) // post page
 
 	router.HandleFunc("/search", app.search, http.MethodGet) // search page
 
@@ -66,10 +66,14 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("/user", app.updateUser, http.MethodGet)     // update user page
 	router.HandleFunc("/user", app.updateUserPut, http.MethodPut)  // update user treatment route
 
+	// TODO -> add delete user and more to complete the user management options
+
 	router.HandleFunc("/post/create", app.createPost, http.MethodGet)        // post creation page
 	router.HandleFunc("/post", app.createPostPost, http.MethodPost)          // post creation treatment route
 	router.HandleFunc("/post/:id/update", app.updatePost, http.MethodGet)    // post update page
-	router.HandleFunc("/post/:id/update", app.updatePostPut, http.MethodPut) // category update treatment route
+	router.HandleFunc("/post/:id/update", app.updatePostPut, http.MethodPut) // post update treatment route
+
+	// TODO -> add delete post and more to complete the posts management options
 
 	return router
 }

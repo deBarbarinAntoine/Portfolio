@@ -17,6 +17,38 @@ import (
 	"time"
 )
 
+func (app *application) cleanExpiredTokens(frequency, timeout time.Duration) {
+	defer func() {
+		if err := recover(); err != nil {
+			app.logger.Error(fmt.Sprintf("%v", err))
+		}
+	}()
+	time.Sleep(timeout)
+	for {
+		err := app.models.TokenModel.DeleteExpired()
+		if err != nil {
+			app.logger.Error(err.Error())
+		}
+		time.Sleep(frequency)
+	}
+}
+
+func (app *application) cleanExpiredUnactivatedUsers(frequency, timeout time.Duration) {
+	defer func() {
+		if err := recover(); err != nil {
+			app.logger.Error(fmt.Sprintf("%v", err))
+		}
+	}()
+	time.Sleep(timeout)
+	for {
+		err := app.models.UserModel.DeleteExpired()
+		if err != nil {
+			app.logger.Error(err.Error())
+		}
+		time.Sleep(frequency)
+	}
+}
+
 func (app *application) logout(r *http.Request) error {
 
 	err := app.sessionManager.Clear(r.Context())
@@ -126,6 +158,24 @@ func (app *application) serverError(w http.ResponseWriter, r *http.Request, err 
 
 	// rendering the error page
 	app.render(w, r, status, "error.tmpl", tmplData)
+}
+
+func (app *application) background(fn func()) {
+
+	app.wg.Add(1)
+	go func() {
+
+		defer app.wg.Done()
+
+		defer func() {
+			if err := recover(); err != nil {
+				app.logger.Error(fmt.Sprintf("%v", err))
+			}
+		}()
+
+		fn()
+
+	}()
 }
 
 func (app *application) isAuthenticated(r *http.Request) bool {
