@@ -20,7 +20,7 @@ func (app *application) notFound(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Not Found"
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "error.tmpl", tmplData)
 }
 
@@ -34,7 +34,7 @@ func (app *application) methodNotAllowed(w http.ResponseWriter, r *http.Request)
 	tmplData.Error.Title = "Error 405"
 	tmplData.Error.Message = "Something went wrong!"
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "error.tmpl", tmplData)
 }
 
@@ -44,7 +44,7 @@ func (app *application) index(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Home"
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
 }
 
@@ -54,7 +54,7 @@ func (app *application) about(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - About"
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "policies.tmpl", tmplData)
 }
 
@@ -86,7 +86,7 @@ func (app *application) search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "search.tmpl", tmplData)
 }
 
@@ -102,6 +102,9 @@ func (app *application) postGet(w http.ResponseWriter, r *http.Request) {
 	// retrieving basic template data
 	tmplData := app.newTemplateData(r)
 
+	// activating the PostIncrementView AJAX call in the template
+	tmplData.IsPostView = true
+
 	// fetching the post
 	tmplData.Post, err = app.models.PostModel.GetByID(id)
 	if err != nil {
@@ -115,7 +118,7 @@ func (app *application) postGet(w http.ResponseWriter, r *http.Request) {
 	}
 	tmplData.Title = fmt.Sprintf("Antoine de Barbarin - %s", tmplData.Post.Title)
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "post.tmpl", tmplData)
 }
 
@@ -132,7 +135,7 @@ func (app *application) register(w http.ResponseWriter, r *http.Request) {
 	// filling the form with empty values
 	tmplData.Form = newUserRegisterForm()
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "register.tmpl", tmplData)
 }
 
@@ -198,7 +201,7 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate an activation token to send it via mail to the user
+	// Generating an activation token to send it via mail to the user
 	token, err := app.models.TokenModel.New(user.ID, 3*24*time.Hour, data.TokenActivation)
 	if err != nil {
 		app.serverError(w, r, err)
@@ -237,7 +240,7 @@ func (app *application) activate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "activation.tmpl", tmplData)
 }
 
@@ -295,7 +298,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	// filling the form with empty values
 	tmplData.Form = newUserLoginForm()
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "login.tmpl", tmplData)
 }
 
@@ -366,7 +369,7 @@ func (app *application) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	// filling the form with empty values
 	tmplData.Form = newForgotPasswordForm()
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "forgot-password.tmpl", tmplData)
 }
 
@@ -439,7 +442,7 @@ func (app *application) resetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "reset-password.tmpl", tmplData)
 }
 
@@ -503,7 +506,7 @@ func (app *application) dashboard(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Dashboard"
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "dashboard.tmpl", tmplData)
 }
 
@@ -525,23 +528,134 @@ func (app *application) logoutPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func (app *application) updateAuthor(w http.ResponseWriter, r *http.Request) {
+
+	// retrieving basic template data
+	tmplData := app.newTemplateData(r)
+	tmplData.Title = "Antoine de Barbarin - Update Author"
+
+	// filling the form with values
+	author, err := app.models.AuthorModel.Get()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	form := app.newAuthorUpdateForm()
+	form.Name = &author.Name
+	form.Email = &author.Email
+	form.Avatar = &author.Avatar
+	form.Location = &author.Location
+	form.Birth = &author.Birth
+	form.Tags = author.Tags
+	form.CVFile = &author.CVFile
+	form.StatusActivity = &author.StatusActivity
+
+	app.render(w, r, http.StatusOK, "author-update.tmpl", tmplData)
+}
+
+func (app *application) updateAuthorPost(w http.ResponseWriter, r *http.Request) {
+
+	// retrieving the form data
+	form := app.newAuthorUpdateForm()
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// getting the author data
+	author, err := app.models.AuthorModel.Get()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// checking the data from the user
+	var isEmpty = true
+	if form.Name != nil {
+		isEmpty = false
+		author.Name = *form.Name
+	}
+	if form.Email != nil {
+		isEmpty = false
+		author.Email = *form.Email
+	}
+	if form.Avatar != nil {
+		isEmpty = false
+		author.Avatar = *form.Avatar
+	}
+	if form.Location != nil {
+		isEmpty = false
+		author.Location = *form.Location
+	}
+	if form.Birth != nil {
+		isEmpty = false
+		author.Birth = *form.Birth
+	}
+	if form.Tags != nil {
+		isEmpty = false
+		author.Tags = form.Tags
+	}
+	if form.CVFile != nil {
+		isEmpty = false
+		author.CVFile = *form.CVFile
+	}
+	if form.StatusActivity != nil {
+		isEmpty = false
+		author.StatusActivity = *form.StatusActivity
+	}
+	if isEmpty {
+		form.AddNonFieldError("at least one field is required")
+	}
+
+	if author.Validate(&form.Validator); !form.Valid() {
+		app.failedValidationError(w, r, form, &form.Validator, "author-update.tmpl")
+		return
+	}
+
+	// updating the user
+	err = app.models.AuthorModel.Update(author)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.clientError(w, r, http.StatusNotFound)
+		default:
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), "flash", "The author data has been updated successfully!")
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
 func (app *application) updateUser(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving basic template data
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Update user"
 
-	// filling the form with empty values
-	tmplData.Form = newUserUpdateForm()
+	// retrieving user ID
+	id := app.getUserID(r)
 
-	// render the template
+	// fetching user data
+	user, err := app.models.UserModel.GetByID(id)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// filling the form with user values
+	tmplData.Form = newUserUpdateForm(user)
+
+	// rendering the template
 	app.render(w, r, http.StatusOK, "user-update.tmpl", tmplData)
 }
 
 func (app *application) updateUserPut(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving the form data
-	form := newUserUpdateForm()
+	form := newUserUpdateForm(nil)
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, r, http.StatusBadRequest)
@@ -613,16 +727,16 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 	tmplData.Title = "Antoine de Barbarin - Create Post"
 
 	// filling the form with empty values
-	tmplData.Form = newPostForm()
+	tmplData.Form = newPostForm(nil)
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "post-create.tmpl", tmplData)
 }
 
 func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving the form data
-	form := newPostForm()
+	form := newPostForm(nil)
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, r, http.StatusBadRequest)
@@ -701,24 +815,17 @@ func (app *application) updatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// putting the post values in a post form
-	form := newPostForm()
-	form.ID = post.ID
-	form.Title = &post.Title
-	form.Images = post.Images
-	form.Content = &post.Content
-
 	// inserting the post values in the TemplateData's Form
-	tmplData.Form = form
+	tmplData.Form = newPostForm(post)
 
-	// render the template
+	// rendering the template
 	app.render(w, r, http.StatusOK, "post-update.tmpl", tmplData)
 }
 
 func (app *application) updatePostPost(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving the form data
-	form := newPostForm()
+	form := newPostForm(nil)
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, r, http.StatusBadRequest)
@@ -789,4 +896,28 @@ func (app *application) updatePostPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/post/%d", post.ID), http.StatusSeeOther)
 }
 
-// TODO -> add AJAX handler to increment post view count (use app.models.PostModel.IncrementViews(id))
+/* #############################################################################
+/*	AJAX CALLS
+/* #############################################################################*/
+
+func (app *application) postIncrementView(w http.ResponseWriter, r *http.Request) {
+
+	// fetch post id
+	id, err := getPathID(r)
+	if err != nil {
+		// send the error back in JSON
+		app.ajaxResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// increment post view
+	err = app.models.PostModel.IncrementViews(id)
+	if err != nil {
+		// send the error back in JSON
+		app.ajaxResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// send the positive response back in JSON
+	app.ajaxResponse(w, http.StatusOK, "post view incremented successfully!")
+}

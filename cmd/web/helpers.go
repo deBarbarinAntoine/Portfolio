@@ -1,10 +1,12 @@
 package main
 
 import (
+	"Portfolio/internal/data"
 	"Portfolio/internal/validator"
 	"bytes"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/alexedwards/flow"
@@ -12,7 +14,6 @@ import (
 	"github.com/justinas/nosurf"
 	"log/slog"
 	"net/http"
-	"os/exec"
 	"runtime/debug"
 	"strconv"
 	"time"
@@ -161,6 +162,45 @@ func (app *application) serverError(w http.ResponseWriter, r *http.Request, err 
 	app.render(w, r, status, "error.tmpl", tmplData)
 }
 
+func (app *application) ajaxResponse(w http.ResponseWriter, status int, msg string) {
+
+	// setting the response data
+	var resData envelope
+
+	// checking the status code
+	if status < http.StatusBadRequest {
+
+		// wrapping the message in a JSON object
+		resData = envelope{"response": msg}
+
+	} else {
+		// logging the error
+		app.logger.Error(msg)
+
+		// wrapping error in JSON object
+		resData = envelope{"error": "internal server error"}
+	}
+
+	// marshalling the resData
+	jsonData, err := json.Marshal(resData)
+	if err != nil {
+		app.logger.Error(err.Error())
+		return
+	}
+
+	// setting the Content-Type header to JSON
+	w.Header().Set("Content-Type", "application/jsonData")
+
+	// setting the Status response
+	w.WriteHeader(status)
+
+	// send the response with the JSON data
+	_, err = w.Write(jsonData)
+	if err != nil {
+		app.logger.Error(err.Error())
+	}
+}
+
 func (app *application) background(fn func()) {
 
 	app.wg.Add(1)
@@ -214,10 +254,22 @@ func newUserLoginForm() *userLoginForm {
 	}
 }
 
-func newUserUpdateForm() *userUpdateForm {
-	return &userUpdateForm{
-		Validator: *validator.New(),
+func newUserUpdateForm(user *data.User) *userUpdateForm {
+
+	// creating the form
+	var formUpdateUser *userUpdateForm
+
+	// filling the form with the data if any
+	if user != nil {
+		formUpdateUser.Username = &user.Name
+		formUpdateUser.Email = &user.Email
+		formUpdateUser.Avatar = &user.Avatar
 	}
+
+	// setting the validator
+	formUpdateUser.Validator = *validator.New()
+
+	return formUpdateUser
 }
 
 func newForgotPasswordForm() *forgotPasswordForm {
@@ -232,10 +284,27 @@ func newResetPasswordForm() *resetPasswordForm {
 	}
 }
 
-func newPostForm() *postForm {
-	cmd := exec.Command("/bin/bash", "./tail.sh")
-	cmd.Run()
-	return &postForm{
+func newPostForm(post *data.Post) *postForm {
+
+	// creating the form
+	var formNewPost *postForm
+
+	// filling the form with the data if any
+	if post != nil {
+		formNewPost.ID = post.ID
+		formNewPost.Title = &post.Title
+		formNewPost.Content = &post.Content
+		formNewPost.Images = post.Images
+	}
+
+	// setting the validator
+	formNewPost.Validator = *validator.New()
+
+	return formNewPost
+}
+
+func (app *application) newAuthorUpdateForm() *authorUpdateForm {
+	return &authorUpdateForm{
 		Validator: *validator.New(),
 	}
 }
@@ -248,6 +317,12 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	// retrieving the nonce
 	nonce := app.getNonce(r)
 
+	// retrieving the author data
+	author, err := app.models.AuthorModel.Get()
+	if err != nil {
+		app.logger.Error(fmt.Errorf("error getting author: %w", err).Error())
+	}
+
 	// returning the templateData with all information
 	return templateData{
 		CurrentYear:     time.Now().Year(),
@@ -255,6 +330,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		IsAuthenticated: isAuthenticated,
 		Nonce:           nonce,
 		CSRFToken:       nosurf.Token(r),
+		Author:          author,
 		Error: struct {
 			Title   string
 			Message string
@@ -298,13 +374,13 @@ func getPathID(r *http.Request) (int, error) {
 
 	// looking for errors
 	if param == "" {
-		return 0, fmt.Errorf("id required")
+		return 0, fmt.Errorf("id param required")
 	}
 
 	// converting the param to int
 	id, err := strconv.Atoi(param)
 	if err != nil || id < 1 {
-		return 0, fmt.Errorf("invalid id")
+		return 0, fmt.Errorf("invalid id param: %w", err)
 	}
 
 	// return the integer id

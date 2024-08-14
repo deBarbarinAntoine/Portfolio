@@ -19,17 +19,17 @@ var (
 )
 
 type Models struct {
-	TokenModel *TokenModel
-	UserModel  *UserModel
-	PostModel  *PostModel
+	TokenModel  *TokenModel
+	UserModel   *UserModel
+	PostModel   *PostModel
+	AuthorModel *AuthorModel
 }
 
 func NewModels(db *sql.DB) Models {
 	return Models{
-		TokenModel: &TokenModel{db},
-		UserModel:  &UserModel{db},
-		PostModel:  &PostModel{db},
+		TokenModel:  &TokenModel{db},
+		UserModel:   &UserModel{db},
+		PostModel:   &PostModel{db},
+		AuthorModel: &AuthorModel{db},
 	}
 }
-
-type envelope map[string]any

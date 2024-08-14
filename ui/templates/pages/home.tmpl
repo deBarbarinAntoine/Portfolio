@@ -1,30 +1,119 @@
 {{define "page"}}
-<div class="container-accueil">
-    <div class="container-accueil-text">
-        <h3> Welcome to Antoine's Portfolio</h3>
-        <p> Discover who is Antoine and what he is working on in his computer science studies ! </p>
+
+    {{/* #######################################################################################*/}}
+    {{/*                                      OVERVIEW                                          */}}
+    {{/* #######################################################################################*/}}
+
+    <div class="overview">
+
+        <h1 class="main-title">Computer Science Student</h1> {{/* TODO -> Swap with a variable later */}}
+
+        {{/*Contact card*/}}
+        <div class="card-resume">
+
+            {{/*Author photo*/}}
+            <div class="resume-photo">
+                <img src="{{ .Author.Avatar }}" alt="author picture" class="photo" />
+            </div>
+
+            {{/*Author activity*/}}
+            <div class="activity">
+                {{ .Author.Activity }}
+            </div>
+
+            {{/*Author informations*/}}
+            <div class="card-info">
+
+                {{/*Email*/}}
+                <div class="info-line">
+                    <img src="/static/icons/mail.svg" alt="mail icon" class="info-icon" />
+                    <span class="info-text">{{ .Author.Email }}</span>
+                </div>
+
+                {{/*Location*/}}
+                <div class="info-line">
+                    <img src="/static/icons/location.svg" alt="location icon" class="info-icon" />
+                    <span class="info-text">{{ .Author.Location }}</span>
+                </div>
+
+                {{/*Status Activity*/}}
+                <div class="info-line">
+                    <img src="/static/icons/work.svg" alt="work icon" class="info-icon" />
+                    <span class="info-text">{{ .Author.StatusActivity }}</span>
+                </div>
+            </div>
+
+            {{/*Skill Tags*/}}
+            <div class="tags-skill">
+                {{ range .Author.Tags }}
+                    <div class="tag">{{ . }}</div>
+                {{ end }}
+            </div>
+
+            {{/*Download CV*/}}
+            <div class="cv-download-btn relative">
+                <a href="{{ .Author.CVFile }}" target="_blank" class="abs full on-top"></a>
+                <span class="btn-txt">Download CV</span>
+                <img src="/static/icons/download.svg" alt="download icon" class="btn-icon" />
+            </div>
+        </div>
+
+
+
     </div>
 
-    <div class="container-accueil-content borders">
-        <h4> Posts </h4>
-        <div class="container-category">
-            {{if ne (len .Posts.List) 0}}
-                {{range .Posts.List}}
-                    <div class="rectangle-category borders borders-hover relative">
-                        <img src="/static/img/icons/tech-icon.svg" alt="post icon">
-                        <h5> {{.Title}} </h5>
-                        <a href="/post/{{.ID}}" class="category-link abs full on-top"></a>
-                    </div>
-                {{end}}
-            {{else}}
-                <div class="flash">No posts yet :/</div>
-            {{end}}
-        </div>
+
+    {{/* #######################################################################################*/}}
+    {{/*                                         INTRO                                          */}}
+    {{/* #######################################################################################*/}}
+
+    <div class="intro">
+
     </div>
-    {{if .IsAuthenticated}}
-        <div class="flash">You are logged in :D</div>
-    {{else}}
-        <div class="flash">You aren't logged in :/</div>
-    {{end}}
-</div>
+
+
+    {{/* #######################################################################################*/}}
+    {{/*                                       FORMATIONS                                       */}}
+    {{/* #######################################################################################*/}}
+
+    <div class="formations">
+
+    </div>
+
+
+    {{/* #######################################################################################*/}}
+    {{/*                                         SKILLS                                         */}}
+    {{/* #######################################################################################*/}}
+
+    <div class="skills">
+
+    </div>
+
+
+    {{/* #######################################################################################*/}}
+    {{/*                                       EXPERIENCES                                      */}}
+    {{/* #######################################################################################*/}}
+
+    <div class="experiences">
+
+    </div>
+
+
+    {{/* #######################################################################################*/}}
+    {{/*                                        LAST POST                                       */}}
+    {{/* #######################################################################################*/}}
+
+    <div class="last-post">
+
+    </div>
+
+
+    {{/* #######################################################################################*/}}
+    {{/*                                         CONTACT                                        */}}
+    {{/* #######################################################################################*/}}
+
+    <div class="contact">
+
+    </div>
+
 {{end}}

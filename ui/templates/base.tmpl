@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Antoine's Portfolio - Antoine de Barbarin CV & Portfolio">
+    <meta name="description" content="Antoine's Portfolio - Antoine de Barbarin CV & Portfolio - Computer science student: cyber security, IT infrastructures, programming...">
     <meta name="keywords" content="Antoine, Antoine-Marie, de Barbarin, Barbarin, Debarbarin, Portfolio, CV, Curriculum, Curriculum Vitae, Curriculum Vita, Curriculum Vite, Curiculum, Curiculum Vitae, Curiculum Vita, Curiculum Vita, Curiculum Vite, Aix, Aix-en-Provence, Aix-en-Pce, Developer, Developpeur, Informatique, Web, HTML, CSS, JavaScript, JS, NodeJS, Express, TypeScript, ECMAScript, ES, Golang, Go, Angular, React, Vue, Programming, Linux, Dev, Hardware, Software, Forum, C++, Java, SCSS, C#, Ynov, Ynov Campus, Aix Ynov Campus, Rust, Lua, CPP, Go, PHP, MySQL, PostGreSQL, Electronique, Cyber, Godot, Unreal, Unity, Security, API, Computer, SBC, Server, Token, Cookie, Authentification, Console, Terminal, Bash, Powershell, Ubuntu, Debian, Kali, VMWare, GNS3, PacketTracer, Proxmox, Error, Help, Tips, Tuto, Tutos">
     <meta name="author" content="Antoine de Barbarin">
 
@@ -16,249 +16,160 @@
 <body>
 
 
+{{/* #######################################################################################*/}}
+{{/*                                        HEADER                                          */}}
+{{/* #######################################################################################*/}}
 
-    <!--############################-->
-    <!--########## HEADER ##########-->
-    <!--############################-->
+    <header class="header-ctn">
+        <div class="header">
 
-    <header>
-        <div class="logo-searchbar">
-            <a href="/home"><img class="logo" src="/static/img/logo/logo_transparent.png" alt="Threadive logo"></a>
-            <form class="search" method="get" action="/search">
-                <label for="searchbar" class="abs display-none"></label>
-                <input class="searchbar" id="searchbar" name="q" {{with .Search}}value="{{.}}"{{end}} type="text" placeholder="Search for a post...">
-                <button type="submit" class="search-submit"><img class="search-icon" src="/static/img/icons/search-icon.svg" alt="search icon"></button>
-            </form>
-        </div>
-        <div class="notification-profile">
-            {{/*<img class="notification-icon" src="/static/img/icons/notification-icon.svg" alt="notification icon">*/}}
-            <div>{{/*empty div instead of the notification icon: remove when activating the notification icon*/}}</div>
-            <div class="profile">
-                <div class="profile-picture relative">
-                    {{if .IsAuthenticated}}
-                        <img src="{{.User.Avatar}}" alt="profile icon">
-                        <a href="/dashboard" class="abs full on-top"></a>
-                    {{else}}
-                        <img src="/static/img/icons/menu-dots-icon.svg" alt="menu dots icon">
-                    {{end}}
-                </div>
-                <div class="profile-icon-box">
-                    <img class="profile-icon" src="/static/img/icons/down-arrow-icon.svg" alt="arrow icon">
-                </div>
-                <nav class="dropdown">
-                    {{if .IsAuthenticated}}
-                        <div class="item">
-                            <img class="item-icon" src="/static/img/icons/dashboard-icon.svg" alt="dashboard icon">
-                            <a class="item-link" href="/dashboard"></a>
-                            <p class="item-text"> Dashboard </p>
-                        </div>
-                        <form method="post" action="/logout" class="item relative">
-                            <img class="item-icon" src="/static/img/icons/disconnect-icon.svg" alt="disconnect icon">
-                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-                            <button class="logout-link abs full on-top" type="submit"></button>
-                            <p class="item-text"> Disconnect </p>
-                        </form>
-                    {{else}}
-                        <div class="item">
-                            <img class="item-icon" src="/static/img/icons/login-icon.svg" alt="login icon">
-                            <a class="item-link" href="/login"></a>
-                            <p class="item-text"> Login </p>
-                        </div>
-                        <div class="item">
-                            <img class="item-icon" src="/static/img/icons/register-icon.svg" alt="register icon">
-                            <a class="item-link" href="/register"></a>
-                            <p class="item-text"> Register </p>
-                        </div>
-                    {{end}}
-                </nav>
+{{/*            Name left           */}}
+            <div class="name">
+                &lt;Portfolio&sol;&gt; Antoine de Barbarin
             </div>
+
+{{/*            Nav Home Articles           */}}
+            <nav class="header-nav">
+                <a href="/home" class="header-link">Home</a>
+                <a href="/articles" class="header-link">Articles</a>
+            </nav>
+
+{{/*            Search bar          */}}
+            <form action="/search" method="get" class="search-bar">
+
+                {{/*CSRF Token*/}}
+                <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+
+                {{/*Search input*/}}
+                <label for="search-input"></label>
+                <input type="text" name="q" id="search-input" class="search-input" />
+
+                {{/*Submit button*/}}
+                <button type="submit" class="search-btn">
+                    <img src="/static/icons/search.svg" alt="search icon" class="search-icon" />
+                </button>
+            </form>
+
+{{/*            Social links           */}}
+            <div class="header-social">
+
+                {{/*LinkedIn*/}}
+                <div class="social-elem">
+                    <img src="/static/icons/linkedin.svg" alt="linkedin icon" class="social-icon" />
+                    <span class="social-name">LinkedIn</span>
+                </div>
+
+                {{/*Github*/}}
+                <div class="social-elem">
+                    <img src="/static/icons/github.svg" alt="github icon" class="social-icon" />
+                    <span class="social-name">Github</span>
+                </div>
+
+                {{/*Discord*/}}
+                <div class="social-elem">
+                    <img src="/static/icons/discord.svg" alt="discord icon" class="social-icon" />
+                    <span class="social-name">Discord</span>
+                </div>
+            </div>
+
         </div>
     </header>
 
 
+{{/* #######################################################################################*/}}
+{{/*                                 MAIN - TEMPLATE                                        */}}
+{{/* #######################################################################################*/}}
 
-    <!--##############################-->
-    <!--########## NAV LEFT ##########-->
-    <!--##############################-->
+    <main class="template-ctn">
 
-    <div class="nav-left">
-        {{if .IsAuthenticated}}
-            <div class="profile">
-                <div class="personal-info relative">
-                    <a href="/dashboard" class="abs full on-top"></a>
-                    <div class="profile-picture">
-                        <img class="avatar" src="{{.User.Avatar}}" alt="avatar image">
-                        <div class="activity"></div>
-                    </div>
-                    <div class="name-rank">
-                        <p> {{.User.Name}} </p>
-                        <p> Status {{.User.Status}} </p>
-                    </div>
-                </div>
-
-                <div class="stats">
-                    <div class="member-since">
-                        <p> Member since </p>
-                        <p> {{humanDate .User.CreatedAt}} </p>
-                    </div>
-
-                    <div class="posts">
-                        <h4> Email </h4>
-                        <h5> {{.User.Email}} </h5>
-                    </div>
-                </div>
-            </div>
-        {{end}}
-
-        <nav class="page-link borders">
-            <div class="link relative">
-                <img class="link-icon" src="/static/img/icons/home-icon.svg" alt="home icon">
-                <a href="/home" class="abs full on-top"></a>
-                <p class="link-text"> Home </p>
-            </div>
-
-            <div class="link relative">
-                <img class="link-icon" src="/static/img/icons/discover-icon.svg" alt="discover icon">
-                <p class="link-text"> Discover </p>
-                {{/*<a href="/tag/{{(index .PopularTags 0).ID}}" class="abs full on-top"></a>*/}}
-            </div>
-
-            <div class="link relative">
-                <img class="link-icon" src="/static/img/icons/tag.svg" alt="tags icon">
-                <p class="link-text"> Tags </p>
-                {{/*<a href="/tags" class="abs full on-top"></a>*/}}
-            </div>
-
-            <div data-list="list-of-categories-1" class="link has-list">
-                <img class="link-icon" src="/static/img/icons/categories-icon.svg" alt="categories icon">
-                <p class="link-text"> Categories </p>
-                <img class="link-icon" src="/static/img/icons/down-arrow-icon.svg" alt="arrow icon">
-            </div>
-
-            <div id="list-of-categories-1" class="category-list">
-                <div class="category relative">
-                    <p class="category-text italic-link"> All categories </p>
-                    <a href="/categories" class="category-link abs full on-top"></a>
-                </div>
-                {{if .IsAuthenticated}}
-                    <div class="category relative">
-                        <p class="category-text italic-link"> New category </p>
-                        {{/*<a href="/category/create" class="category-link abs full on-top"></a>*/}}
-                    </div>
-                {{end}}
-                <div class="category relative">
-                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
-                    <p class="category-text"> Category </p>
-                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
-                </div>
-                <div class="category relative">
-                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
-                    <p class="category-text"> Category </p>
-                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
-                </div>
-                <div class="category relative">
-                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
-                    <p class="category-text"> Category </p>
-                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
-                </div>
-                <div class="category relative">
-                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
-                    <p class="category-text"> Category </p>
-                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
-                </div>
-                <div class="category relative">
-                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
-                    <p class="category-text"> Category </p>
-                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
-                </div>
-                <div class="category relative">
-                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
-                    <p class="category-text"> Category </p>
-                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
-                </div>
-            </div>
-        </nav>
-
-        <div class="footer borders">
-            <div class="footer-link relative">
-                <img class="footer-icon" src="/static/img/icons/legal-notice-icon.svg" alt="notice icon">
-                <p class="footer-text"> Legal Notice </p>
-                <a href="/about#legal-notice" class="link abs full on-top"></a>
-            </div>
-
-            <div class="footer-link relative">
-                <img class="footer-icon" src="/static/img/icons/privacy-policy-icon.svg" alt="policy icon">
-                <p class="footer-text"> Privacy Policy </p>
-                <a href="/about#privacy-policy" class="link abs full on-top"></a>
-            </div>
-
-            <div class="footer-link relative">
-                <img class="footer-icon" src="/static/img/icons/rules-icon.svg" alt="rules icon">
-                <p class="footer-text"> Rules </p>
-                <a href="/about#rules" class="link abs full on-top"></a>
-            </div>
-
-            <p class="rights"> Antoine's Portfolio, inc © {{.CurrentYear}} - All rights reserved. </p>
-        </div>
-    </div>
-
-
-
-    <!--###############################-->
-    <!--########## NAV RIGHT ##########-->
-    <!--###############################-->
-
-    <div class="nav-right">
-        <div class="nav-right-container borders">
-            <p class="nav-right-title"> Popular tags </p>
-            <div class="all-tags">
-                <div class="tag relative">
-                    <span class="tag-link"> Tag </span>
-                    {{/*<a href="/tag/{{.ID}}" class="abs full on-top"></a>*/}}
-                </div>
-                <div class="tag relative">
-                    <span class="tag-link"> Tag </span>
-                    {{/*<a href="/tag/{{.ID}}" class="abs full on-top"></a>*/}}
-                </div>
-                <div class="tag relative">
-                    <span class="tag-link"> Tag </span>
-                    {{/*<a href="/tag/{{.ID}}" class="abs full on-top"></a>*/}}
-                </div>
-                <div class="tag relative">
-                    <span class="tag-link"> Tag </span>
-                    {{/*<a href="/tag/{{.ID}}" class="abs full on-top"></a>*/}}
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <!--##########################-->
-    <!--########## MAIN ##########-->
-    <!--##########################-->
-
-    <main class="template-container">
-
-        <!--########## FLASH ##########-->
-
+{{/*        FLASH       */}}
+{{/* Test flash messages with position fixed and a translateY transition to make it appear from the top of the screen */}}
         {{with .Flash}}
-            <div class="flash borders">{{.}}</div>
+            <div class="flash">{{.}}</div>
         {{end}}
 
-
-
-        <!--########## IMPORT PAGE ##########-->
-
+{{/*        TEMPLATE PAGE          */}}
         {{template "page" .}}
 
     </main>
 
-    {{/*<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>*/}}
-    <script src="/static/js/script.js"></script>
+
+{{/* #######################################################################################*/}}
+{{/*                                        FOOTER                                          */}}
+{{/* #######################################################################################*/}}
+
+    <footer class="footer-ctn">
+
+        {{/*Copyrights*/}}
+        <div class="copyrights">
+            &copy; {{ .Year }} Antoine de Barbarin. All rights reserved.
+        </div>
+
+        {{/*Nav links*/}}
+        <nav class="footer-links">
+            <a href="/policies#privacy" class="footer-link">Privacy Policy</a>
+            <a href="/policies#terms" class="footer-link">Terms &amp; Conditions</a>
+        </nav>
+
+        {{/*Social links*/}}
+        <div class="footer-social">
+
+            {{/*LinkedIn*/}}
+            <div class="social-elem">
+                <img src="/static/icons/linkedin.svg" alt="linkedin icon" class="social-icon" />
+                <span class="social-name">LinkedIn</span>
+            </div>
+
+            {{/*Github*/}}
+            <div class="social-elem">
+                <img src="/static/icons/github.svg" alt="github icon" class="social-icon" />
+                <span class="social-name">Github</span>
+            </div>
+
+            {{/*Discord*/}}
+            <div class="social-elem">
+                <img src="/static/icons/discord.svg" alt="discord icon" class="social-icon" />
+                <span class="social-name">Discord</span>
+            </div>
+
+        </div>
+    </footer>
+
+
+{{/* #######################################################################################*/}}
+{{/*                                      JS SCRIPTS                                        */}}
+{{/* #######################################################################################*/}}
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script nonce="{{.Nonce}}">
-        console.log('hello there!')
+
+        {{/*DEBUG*/}}
+        console.log('hello there!');
+
+
+{{/*####################################*/}}
+{{/*    AJAX call increment post view   */}}
+{{/*####################################*/}}
+
+        {{ if .IsPostView }}
+
+        {{/*Send AJAX call after 5s (to be sure it is a real view and not a cURL or a missclick)*/}}
+        setTimeout(() => {
+            axios.post(`/post/{{ .ID }}`)
+                .then(function (response) {
+                    {{/*DEBUG*/}}
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    {{/*DEBUG*/}}
+                    console.log(error);
+                });
+        }, 5000);
+
+        {{ end }}
+
     </script>
+
 </body>
 </html>
 {{end}}

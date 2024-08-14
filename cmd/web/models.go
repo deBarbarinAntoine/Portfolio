@@ -58,14 +58,19 @@ type templateData struct {
 	}
 	FieldErrors    map[string]string
 	NonFieldErrors []string
+	Author         *data.Author
 	User           data.User
 	Search         string
 	Post           *data.Post
+	IsPostView     bool
 	Posts          struct {
 		List     []*data.Post
 		Metadata data.Metadata
 	}
 }
+
+// envelope data type for JSON responses
+type envelope map[string]any
 
 type userLoginForm struct {
 	Email               string `form:"email"`
@@ -105,6 +110,18 @@ type resetPasswordForm struct {
 	Token               string `form:"token"`
 	NewPassword         string `form:"new_password"`
 	ConfirmPassword     string `form:"confirm_password"`
+	validator.Validator `form:"-"`
+}
+
+type authorUpdateForm struct {
+	Name                *string  `form:"name"`
+	Email               *string  `form:"email"`
+	Avatar              *string  `form:"avatar"`
+	Birth               *string  `form:"birth"`
+	Location            *string  `form:"location"`
+	StatusActivity      *string  `form:"status_activity"`
+	Tags                []string `form:"tags"`
+	CVFile              *string  `form:"cv_file"`
 	validator.Validator `form:"-"`
 }
 

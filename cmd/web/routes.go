@@ -44,6 +44,9 @@ func (app *application) routes() http.Handler {
 		group.HandleFunc("/post/:id/update", app.updatePost, http.MethodGet)      // post update page
 		group.HandleFunc("/post/:id/update", app.updatePostPost, http.MethodPost) // post update treatment route
 
+		group.HandleFunc("/author", app.updateAuthor, http.MethodGet)      // author update page
+		group.HandleFunc("/author", app.updateAuthorPost, http.MethodPost) // author update treatment route
+
 		// TODO -> add delete post and more to complete the posts management options
 
 	})
@@ -56,7 +59,8 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("/home", app.index, http.MethodGet)  // landing page
 	router.HandleFunc("/about", app.about, http.MethodGet) // about page
 
-	router.HandleFunc("/post/:id", app.postGet, http.MethodGet) // post page
+	router.HandleFunc("/post/:id", app.postIncrementView, http.MethodPost) // AJAX call increment post view
+	router.HandleFunc("/post/:id", app.postGet, http.MethodGet)            // post page
 
 	router.HandleFunc("/search", app.search, http.MethodGet) // search page
 
