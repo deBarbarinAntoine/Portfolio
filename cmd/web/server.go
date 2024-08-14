@@ -36,7 +36,7 @@ func (app *application) serve() error {
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		s := <-quit
 
-		app.logger.Info("shutting down API server", "signal", s.String())
+		app.logger.Info("shutting down Portfolio server", "signal", s.String())
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
@@ -52,7 +52,7 @@ func (app *application) serve() error {
 		shutdownError <- nil
 	}()
 
-	app.logger.Info("starting API server", slog.Any("addr", srv.Addr), slog.Any("env", app.config.env))
+	app.logger.Info("starting Portfolio server", slog.Any("addr", srv.Addr), slog.Any("env", app.config.env))
 
 	// run the server on HTTP (Caddy handles automatically the HTTPS and Let's Encrypt certificate)
 	err := srv.ListenAndServe()
@@ -65,7 +65,7 @@ func (app *application) serve() error {
 		return err
 	}
 
-	app.logger.Info("API server shutdown", slog.Any("addr", srv.Addr))
+	app.logger.Info("Portfolio server shutdown", slog.Any("addr", srv.Addr))
 
 	return nil
 }

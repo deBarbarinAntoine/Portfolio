@@ -6,6 +6,7 @@ require (
 	github.com/alexedwards/flow v0.1.0
 	github.com/alexedwards/scs/postgresstore v0.0.0-20240316134038-7e11d57e8885
 	github.com/alexedwards/scs/v2 v2.8.0
+	github.com/deatil/go-encoding v1.0.2007
 	github.com/go-mail/mail/v2 v2.3.0
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/gomarkdown/markdown v0.0.0-20240730141124-034f12af3bf6

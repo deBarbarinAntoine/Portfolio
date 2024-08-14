@@ -19,15 +19,15 @@ confirm:
 # DEVELOPMENT
 # =================================================================================== #
 
-## run/backend: run the cmd/web application
+## run: run the cmd/web application
 .PHONY: run
 run:
-	@go run ./cmd/web -port=${PORT} -dsn=${DB_DSN}
+	@go run ./cmd/web -port=${PORT} -dsn=${DB_DSN} -smtp-sender=${SMTP_SENDER} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
 
-## db/mysql: connect to the database using mysql
-.PHONY: db/pq
-db/pq:
-	@pq -u ${DB_USER} -p${DB_PASSWORD}
+## db/psql: connect to the database using mysql
+.PHONY: db/psql
+db/psql:
+	@psql ${DB_DSN}
 
 ## db/migrations/new name=$1: create a new database migration
 .PHONY: db/migrations/new
@@ -97,4 +97,4 @@ production/connect:
 .PHONY: bin
 bin:
 	@echo 'Executing binary...'
-	@./bin/linux_amd64 -port=${PORT} -dsn=${DB_DSN} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
+	@./bin/linux_amd64 -port=${PORT} -dsn=${DB_DSN} -smtp-sender=${SMTP_SENDER} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}

@@ -1,4 +1,4 @@
-{{define "login"}}
+{{define "page"}}
 <div class="blur-underlay"></div>
 
     <div class="center-page">
@@ -6,13 +6,23 @@
             <form method="post" action="/login" class="login">
                 <p class="login-title bottom-outset"> Login </p>
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+                {{range .Form.NonFieldErrors}}
+                    <div class="flash">{{.}}</div>
+                {{end}}
     
                 <div class="input-fields">
-                    <label for="mail"> Email </label>
-                    <input class="input borders" type="text" name="email" placeholder="Mail Address" id="mail" autofocus required>
+                    <label for="email"> Email </label>
+                    {{with .Form.FieldErrors.email}}
+                        <div class="flash">{{.}}</div>
+                    {{end}}
+                    <input class="input borders" type="text" name="email" id="email" placeholder="Email Address" value="{{ .Form.Email }}" autofocus required>
         
                     <label for="password"> Password </label>
-                    <input class="input borders" type="password" name="password" placeholder="Password" id="password" required>
+                    {{with .Form.FieldErrors.password}}
+                        <div class="flash">{{.}}</div>
+                    {{end}}
+                    <input class="input borders" type="password" name="password" id="password" placeholder="Password" required>
                 </div>
     
                 <div class="submit">

@@ -15,14 +15,14 @@ var (
 )
 
 type Post struct {
-	ID         int       `json:"id"`
-	Title      string    `json:"title"`
-	Images     []string  `json:"images"`
-	Content    []byte    `json:"content"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	Popularity int       `json:"popularity,omitempty"`
-	Version    int       `json:"version,omitempty"`
+	ID        int       `json:"id"`
+	Title     string    `json:"title"`
+	Images    []string  `json:"images"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Views     int       `json:"views,omitempty"`
+	Version   int       `json:"version,omitempty"`
 }
 
 func (post *Post) Validate(v *validator.Validator) {
@@ -42,7 +42,7 @@ func (m PostModel) Insert(post *Post) error {
 	query := `
 		INSERT INTO posts (title, images, content)
 		VALUES ($1, $2, $3)
-		RETURNING id_posts, created_at, version;`
+		RETURNING id, created_at, version;`
 
 	// setting the arguments
 	args := []any{post.Content, pq.Array(post.Images), post.Content}
@@ -76,16 +76,16 @@ func (m PostModel) Get(search string, filters *Filters) ([]*Post, Metadata, erro
 
 	// generating the query
 	query := fmt.Sprintf(`
-		SELECT count(*) OVER(), id, created_at, title, images, content, version
+		SELECT count(*) OVER(), id, created_at, updated_at, title, images, content, views, version
 		FROM posts
 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
-		AND (to_tsvector('simple', content) @@ plainto_tsquery('simple', $1) OR $1 = '')
-		AND (images @> $1 OR $1 = '{}')
+		OR (to_tsvector('simple', content) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		OR (images @> $2 OR $2 = '{}')
 		ORDER BY %s %s, id ASC
-		LIMIT $2 OFFSET $3;`, filters.sortColumn(), filters.sortDirection())
+		LIMIT $3 OFFSET $4;`, filters.sortColumn(), filters.sortDirection())
 
 	// setting the arguments
-	args := []any{search, filters.limit(), filters.offset()}
+	args := []any{search, pq.Array([]string{search}), filters.limit(), filters.offset()}
 
 	// setting the timeout context for the query execution
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -117,9 +117,11 @@ func (m PostModel) Get(search string, filters *Filters) ([]*Post, Metadata, erro
 			&totalRecords,
 			&post.ID,
 			&post.CreatedAt,
+			&post.UpdatedAt,
 			&post.Title,
 			pq.Array(&post.Images),
 			&post.Content,
+			&post.Views,
 			&post.Version,
 		)
 
@@ -144,7 +146,7 @@ func (m PostModel) GetByID(id int) (*Post, error) {
 
 	// generating the query
 	query := `
-		SELECT id, created_at, title, images, content, version
+		SELECT id, created_at, updated_at, title, images, content, views, version
 		FROM posts
 		WHERE id = $1;`
 
@@ -166,9 +168,11 @@ func (m PostModel) GetByID(id int) (*Post, error) {
 	err = stmt.QueryRowContext(ctx, id).Scan(
 		&post.ID,
 		&post.CreatedAt,
+		&post.UpdatedAt,
 		&post.Title,
 		pq.Array(&post.Images),
 		&post.Content,
+		&post.Views,
 		&post.Version,
 	)
 
@@ -190,9 +194,9 @@ func (m PostModel) Update(post Post) error {
 	// generating the query
 	query := `
 		UPDATE posts 
-		SET title = $1, images= $2, content = $3, version = version + 1
+		SET updated_at = NOW(), title = $1, images= $2, content = $3, version = version + 1
 		WHERE id = $4 AND version = $5
-		RETURNING version;`
+		RETURNING updated_at, version;`
 
 	// setting the arguments
 	args := []any{
@@ -215,7 +219,7 @@ func (m PostModel) Update(post Post) error {
 	defer stmt.Close()
 
 	// executing the query
-	err = stmt.QueryRowContext(ctx, args...).Scan(&post.Version)
+	err = stmt.QueryRowContext(ctx, args...).Scan(&post.UpdatedAt, &post.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -223,6 +227,34 @@ func (m PostModel) Update(post Post) error {
 		default:
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m PostModel) IncrementViews(id int) error {
+
+	// generating the query
+	query := `
+		UPDATE posts 
+		SET views = views + 1
+		WHERE id = $1;`
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// preparing the query
+	stmt, err := m.db.PrepareContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+
+	// executing the query
+	_, err = stmt.ExecContext(ctx, id)
+	if err != nil {
+		return err
 	}
 
 	return nil

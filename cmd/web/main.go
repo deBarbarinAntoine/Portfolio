@@ -69,7 +69,7 @@ func main() {
 	// connecting to the database
 	db, err := openDB(cfg.db.dsn)
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error(fmt.Errorf("openDB error: %w", err).Error())
 		os.Exit(1)
 	}
 	defer db.Close()

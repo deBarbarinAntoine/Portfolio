@@ -25,11 +25,15 @@ func NewPostFilters(q url.Values) *Filters {
 	// getting the page
 	if q.Has("page") {
 		filters.Page, _ = strconv.Atoi(q.Get("page"))
+	} else {
+		filters.Page = 1
 	}
 
 	// getting the sorting order
 	if q.Has("sort") {
 		filters.Sort = q.Get("sort")
+	} else {
+		filters.Sort = "id"
 	}
 
 	return filters

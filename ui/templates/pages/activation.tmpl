@@ -1,0 +1,10 @@
+{{define "page"}}
+<div class="container-error">
+    <h4 class="error-title"> Activate your account! </h4>
+    <form action="/activation" method="post">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <input type="hidden" name="token" value="{{.ActivationToken}}">
+        <button class="button borders borders-hover" type="submit">Activate</button>
+    </form>
+</div>
+{{end}}

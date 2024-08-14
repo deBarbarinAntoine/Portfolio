@@ -5,10 +5,9 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
-	"encoding/base64"
-	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/deatil/go-encoding/base62"
 	"time"
 )
 
@@ -40,7 +39,7 @@ func generateToken(userID int, ttl time.Duration, scope string) (*Token, error) 
 		return nil, err
 	}
 
-	token.Plaintext = base64.StdEncoding.WithPadding(base64.NoPadding).EncodeToString(randomBytes)
+	token.Plaintext = base62.StdEncoding.EncodeToString(randomBytes)
 
 	// generating the hash to store in the DB
 	hash := sha256.Sum256([]byte(token.Plaintext))
@@ -79,11 +78,11 @@ func (m TokenModel) Insert(token *Token) error {
 
 	// generating the query
 	query := `
-		INSERT INTO tokens (hash, id_user, expiry, scope)
+		INSERT INTO tokens (hash, user_id, expiry, scope)
 		VALUES ($1, $2, $3, $4);`
 
 	// setting the arguments
-	args := []any{hex.EncodeToString(token.Hash), token.UserID, token.Expiry, token.Scope}
+	args := []any{token.Hash, token.UserID, token.Expiry, token.Scope}
 
 	// setting the timeout context for the query execution
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -115,7 +114,7 @@ func (m TokenModel) DeleteAllForUser(scope string, userID int) error {
 	// generating the query
 	query := `
 		DELETE FROM tokens
-       	WHERE scope = $1 AND id_user = $2;`
+       	WHERE scope = $1 AND user_id = $2;`
 
 	// setting the timeout context for the query execution
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -125,7 +124,7 @@ func (m TokenModel) DeleteAllForUser(scope string, userID int) error {
 		// regenerating query
 		query = `
 			DELETE FROM tokens
-       		WHERE id_user = ?;`
+       		WHERE user_id = ?;`
 
 		// preparing the query
 		stmt, err := m.db.PrepareContext(ctx, query)
@@ -170,6 +169,6 @@ func (m TokenModel) DeleteExpired() error {
 	defer stmt.Close()
 
 	// executing the query
-	_, err = stmt.ExecContext(ctx, query)
+	_, err = stmt.ExecContext(ctx)
 	return err
 }

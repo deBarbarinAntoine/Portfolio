@@ -1,0 +1,54 @@
+{{define "page"}}
+    <div class="blur-underlay"></div>
+
+    <div class="center-page">
+        <div class="container borders">
+            <form method="post" action="/user" class="login">
+                <p class="login-title bottom-outset"> Register </p>
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+                {{range .Form.NonFieldErrors}}
+                    <div class="flash">{{.}}</div>
+                {{end}}
+
+                <div class="input-fields">
+                    <label for="username"></label>
+                    {{with .Form.FieldErrors.username}}
+                        <div class="flash">{{.}}</div>
+                    {{end}}
+                    <input class="input borders bottom-outset" type="text" name="username" placeholder="Username" id="username" value="{{.Form.Username}}" autofocus required>
+
+                    <label for="email"></label>
+                    {{with .Form.FieldErrors.email}}
+                        <div class="flash">{{.}}</div>
+                    {{end}}
+                    <input class="input borders bottom-outset" type="text" name="email" placeholder="Email Address" id="email" value="{{.Form.Email}}" required>
+
+                    <label for="password"></label>
+                    {{with .Form.FieldErrors.password}}
+                        <div class="flash">{{.}}</div>
+                    {{end}}
+                    <input class="input borders" type="password" name="password" placeholder="Password" id="password" required>
+
+                    <label for="confirm_password"></label>
+                    {{with .Form.FieldErrors.confirm_password}}
+                        <div class="flash">{{.}}</div>
+                    {{end}}
+                    <input class="input borders" type="password" name="confirm_password" placeholder="Confirm Password" id="confirm_password" required>
+                </div>
+
+                <div class="submit">
+                    <button class="button borders top-outset" type="submit"> Register </button>
+                </div>
+            </form>
+
+            <div class="separation">
+                <div class="line"></div>
+                <p class="or"> OR </p>
+                <div class="line"></div>
+            </div>
+
+            <a href="/login" class="switch borders"> Update </a>
+        </div>
+    </div>
+{{end}}

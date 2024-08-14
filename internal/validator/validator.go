@@ -119,15 +119,15 @@ func (v *Validator) ValidatePassword(password string) {
 func (v *Validator) ValidateRegisterPassword(password, confirmationPassword string) {
 	v.StringCheck(password, MinPasswordLength, MaxPasswordLength, true, "password")
 	v.CheckPassword(password, "password")
-	v.Check(confirmationPassword != "", "confirmation_password", "must be provided")
-	v.Check(password == confirmationPassword, "confirmation_password", "must be the same")
+	v.Check(confirmationPassword != "", "confirm_password", "must be provided")
+	v.Check(password == confirmationPassword, "confirm_password", "must be the same")
 }
 
 func (v *Validator) ValidateNewPassword(newPassword, confirmationPassword string) {
 	v.StringCheck(newPassword, MinPasswordLength, MaxPasswordLength, true, "new_password")
 	v.CheckPassword(newPassword, "new_password")
-	v.Check(confirmationPassword != "", "confirmation_password", "must be provided")
-	v.Check(newPassword == confirmationPassword, "confirmation_password", "must be the same")
+	v.Check(confirmationPassword != "", "confirm_password", "must be provided")
+	v.Check(newPassword == confirmationPassword, "confirm_password", "must be the same")
 }
 
 func (v *Validator) ValidateToken(token string) {

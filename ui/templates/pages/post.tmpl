@@ -1,0 +1,25 @@
+{{define "page"}}
+<div class="container-accueil">
+    <div class="container-accueil-content borders">
+        <h4> Favorite Threads </h4>
+        <div class="container-favtag">
+
+            <div class="container-hottopic borders borders-hover">
+                <div class="container-thread-text relative">
+                    <a href="/post/{{.Post.ID}}" class="thread-link"></a>
+                    <h3> {{.Post.Title}} </h3>
+                    <h5> Antoine de Barbarin </h5>
+                    <p> {{humanDate .Post.CreatedAt}} </p>
+                    {{range .Post.Images}}
+                        <img src="{{.}}" alt="post illustration">
+                    {{end}}
+                    <p> {{.Post.Views}} view(s) </p>
+                    <p> {{.Post.Content}} </p>
+                    <a href="/post/{{.Post.ID}}" class="thread-link abs full on-top"></a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{{end}}

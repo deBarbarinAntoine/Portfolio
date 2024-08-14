@@ -74,8 +74,8 @@ func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 }
 
 func ValidateUser(v *validator.Validator, user *User) {
-	v.Check(user.Name != "", "name", "must be provided")
-	v.Check(len(user.Name) <= 500, "name", "must not be more than 500 bytes long")
+	v.Check(user.Name != "", "username", "must be provided")
+	v.Check(len(user.Name) <= 500, "username", "must not be more than 500 bytes long")
 
 	ValidateEmail(v, user.Email)
 
@@ -96,12 +96,12 @@ func (m UserModel) Insert(user *User) error {
 
 	// creating the query
 	query := `
-		INSERT INTO users (name, email, password_hash, status)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO users (name, email, password_hash, avatar, status)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at, version;`
 
 	// setting the arguments
-	args := []any{user.Name, user.Email, user.Password.hash, user.Status}
+	args := []any{user.Name, user.Email, user.Password.hash, user.Avatar, user.Status}
 
 	// setting the timeout context for the query execution
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -133,8 +133,8 @@ func (m UserModel) Update(user *User) error {
 	// creating the query
 	query := `
 		UPDATE users
-		SET name = $1, email = $2, password_hash = $3, status = $4, version = version + 1
-		WHERE id = $5 AND version = $6
+		SET name = $1, email = $2, password_hash = $3, avatar = $4, status = $5, version = version + 1
+		WHERE id = $6 AND version = $7
 		RETURNING version;`
 
 	// setting the arguments
@@ -142,6 +142,7 @@ func (m UserModel) Update(user *User) error {
 		user.Name,
 		user.Email,
 		user.Password.hash,
+		user.Avatar,
 		user.Status,
 		user.ID,
 		user.Version,
@@ -206,10 +207,9 @@ func (m UserModel) DeleteExpired() error {
 
 	// generating the query
 	query := `
-		DELETE u
-		FROM users u
-		LEFT JOIN tokens t ON u.id = t.id_user
-		WHERE u.status = $1 AND (t.expiry IS NULL OR t.expiry < CURRENT_TIMESTAMP);`
+		DELETE FROM users u
+		USING tokens t
+		WHERE u.id = t.user_id AND u.status = $1 AND (t.expiry IS NULL OR t.expiry < CURRENT_TIMESTAMP);`
 
 	// setting the timeout context for the query execution
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -236,7 +236,7 @@ func (m UserModel) Exists(id int) (bool, error) {
 	// creating the query
 	query := `
 		SELECT EXISTS (
-		SELECT 1 FROM contact WHERE id = $1);`
+		SELECT 1 FROM users WHERE id = $1);`
 
 	// setting the timeout for the query execution
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -263,7 +263,7 @@ func (m UserModel) GetByID(id int) (*User, error) {
 
 	// creating the query
 	query := `
-		SELECT id, created_at, name, email, password_hash, status, version
+		SELECT id, created_at, name, email, password_hash, avatar, status, version
 		FROM users
 		WHERE id = $1;`
 
@@ -288,6 +288,7 @@ func (m UserModel) GetByID(id int) (*User, error) {
 		&user.Name,
 		&user.Email,
 		&user.Password.hash,
+		&user.Avatar,
 		&user.Status,
 		&user.Version,
 	)
@@ -308,7 +309,7 @@ func (m UserModel) GetByEmail(email string) (*User, error) {
 
 	// creating the query
 	query := `
-		SELECT id, created_at, name, email, password_hash, status, version
+		SELECT id, created_at, name, email, password_hash, avatar, status, version
 		FROM users
 		WHERE email = $1;`
 
@@ -333,6 +334,7 @@ func (m UserModel) GetByEmail(email string) (*User, error) {
 		&user.Name,
 		&user.Email,
 		&user.Password.hash,
+		&user.Avatar,
 		&user.Status,
 		&user.Version,
 	)
@@ -355,7 +357,7 @@ func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error)
 
 	// creating the query
 	query := `
-		SELECT users.id, users.created_at, users.name, users.email, users.password_hash, users.status, users.version
+		SELECT users.id, users.created_at, users.name, users.email, users.password_hash, users.avatar, users.status, users.version
 		FROM users
 		INNER JOIN tokens
 		ON users.id = tokens.user_id
@@ -387,6 +389,7 @@ func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error)
 		&user.Name,
 		&user.Email,
 		&user.Password.hash,
+		&user.Avatar,
 		&user.Status,
 		&user.Version,
 	)

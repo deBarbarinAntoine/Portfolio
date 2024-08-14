@@ -6,6 +6,8 @@ github.com/alexedwards/scs/v2 v2.8.0 h1:h31yUYoycPuL0zt14c0gd+oqxfRwIj6SOjHdKRZx
 github.com/alexedwards/scs/v2 v2.8.0/go.mod h1:ToaROZxyKukJKT/xLcVQAChi5k6+Pn1Gvmdl7h3RRj8=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
+github.com/deatil/go-encoding v1.0.2007 h1:Z4K4SzAQQmNLuQzvFYdS0G/BUGxJPHD4HotvfJFIr6k=
+github.com/deatil/go-encoding v1.0.2007/go.mod h1:zwGNfO4DySUkTTgTDK4giY0kJzb2lHZSSS+ve5I2uX4=
 github.com/go-mail/mail/v2 v2.3.0 h1:wha99yf2v3cpUzD1V9ujP404Jbw2uEvs+rBJybkdYcw=
 github.com/go-mail/mail/v2 v2.3.0/go.mod h1:oE2UK8qebZAjjV1ZYUpY7FPnbi/kIU53l1dmqPRb4go=
 github.com/go-playground/assert/v2 v2.0.1 h1:MsBgLAaY856+nPRTKrp3/OZK38U/wa0CcBYNjji3q3A=

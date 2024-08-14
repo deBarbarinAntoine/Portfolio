@@ -129,8 +129,11 @@ func (app *application) register(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Register"
 
+	// filling the form with empty values
+	tmplData.Form = newUserRegisterForm()
+
 	// render the template
-	app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
+	app.render(w, r, http.StatusOK, "register.tmpl", tmplData)
 }
 
 func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
@@ -162,6 +165,7 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 	user := &data.User{
 		Name:   form.Username,
 		Email:  form.Email,
+		Avatar: "/static/img/avatar.png", // TODO -> implement avatar in all user handlers
 		Status: data.UserToActivate,
 	}
 
@@ -187,14 +191,14 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, data.ErrDuplicateEmail):
 			v.AddFieldError("email", "a user with this email address already exists")
-			app.failedValidationError(w, r, form, v, "login.tmpl")
+			app.failedValidationError(w, r, form, v, "register.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
 		return
 	}
 
-	// Generate an activation token and send a mail to the user
+	// Generate an activation token to send it via mail to the user
 	token, err := app.models.TokenModel.New(user.ID, 3*24*time.Hour, data.TokenActivation)
 	if err != nil {
 		app.serverError(w, r, err)
@@ -220,11 +224,11 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-func (app *application) confirm(w http.ResponseWriter, r *http.Request) {
+func (app *application) activate(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving basic template data
 	tmplData := app.newTemplateData(r)
-	tmplData.Title = "Antoine de Barbarin - Confirm"
+	tmplData.Title = "Antoine de Barbarin - Activation"
 
 	// retrieving the activation token from the URL
 	tmplData.ActivationToken = flow.Param(r.Context(), "token")
@@ -234,22 +238,22 @@ func (app *application) confirm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// render the template
-	app.render(w, r, http.StatusOK, "confirm.tmpl", tmplData)
+	app.render(w, r, http.StatusOK, "activation.tmpl", tmplData)
 }
 
-func (app *application) confirmPost(w http.ResponseWriter, r *http.Request) {
+func (app *application) activatePost(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving the form data
-	form := newUserConfirmForm()
+	form := newUserActivationForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
 
-	// checking the data from the user and return to confirm page if there is an error
+	// checking the data from the user and return to activation page if there is an error
 	if form.ValidateToken(form.Token); !form.Valid() {
-		app.failedValidationError(w, r, form, &form.Validator, "confirm.tmpl")
+		app.failedValidationError(w, r, form, &form.Validator, "activation.tmpl")
 		return
 	}
 
@@ -261,7 +265,7 @@ func (app *application) confirmPost(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
 			v.AddFieldError("token", "invalid or expired activation link")
-			app.failedValidationError(w, r, form, v, "confirm.tmpl")
+			app.failedValidationError(w, r, form, v, "activation.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
@@ -287,6 +291,9 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	// retrieving basic template data
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Login"
+
+	// filling the form with empty values
+	tmplData.Form = newUserLoginForm()
 
 	// render the template
 	app.render(w, r, http.StatusOK, "login.tmpl", tmplData)
@@ -355,6 +362,9 @@ func (app *application) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	// retrieving basic template data
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Forgot password"
+
+	// filling the form with empty values
+	tmplData.Form = newForgotPasswordForm()
 
 	// render the template
 	app.render(w, r, http.StatusOK, "forgot-password.tmpl", tmplData)
@@ -521,6 +531,9 @@ func (app *application) updateUser(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Update user"
 
+	// filling the form with empty values
+	tmplData.Form = newUserUpdateForm()
+
 	// render the template
 	app.render(w, r, http.StatusOK, "user-update.tmpl", tmplData)
 }
@@ -597,7 +610,10 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving basic template data
 	tmplData := app.newTemplateData(r)
-	tmplData.Title = "Antoine de Barbarin - Insert Post"
+	tmplData.Title = "Antoine de Barbarin - Create Post"
+
+	// filling the form with empty values
+	tmplData.Form = newPostForm()
 
 	// render the template
 	app.render(w, r, http.StatusOK, "post-create.tmpl", tmplData)
@@ -614,8 +630,7 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// DEBUG
-	app.logger.Debug(fmt.Sprintf("content: %+v", form.Content))
-	app.logger.Debug(fmt.Sprintf("title: %+v", *form.Title))
+	app.logger.Debug(fmt.Sprintf("form: %+v", *form))
 
 	// creating the new thread
 	post := &data.Post{}
@@ -624,14 +639,18 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 	if form.Content == nil {
 		form.AddFieldError("content", "must be provided")
 	} else {
-		form.Check(len(post.Content) > 2, "content", "must be at least 2 bytes long")
-		form.Check(len(post.Content) < 1_020, "content", "must not be more than 1.020 bytes long")
-		post.Content = form.Content
+		form.StringCheck(*form.Content, 2, 1_020, true, "content")
+		post.Content = *form.Content
 	}
 	if form.Title == nil {
 		form.AddFieldError("title", "must be provided")
 	} else {
 		form.StringCheck(*form.Title, 2, 120, true, "title")
+	}
+	if form.Images == nil {
+		form.AddFieldError("images", "must be provided")
+	} else {
+		post.Images = form.Images
 	}
 
 	// return to post-create page if there is an error
@@ -682,14 +701,21 @@ func (app *application) updatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// putting the post values in a post form
+	form := newPostForm()
+	form.ID = post.ID
+	form.Title = &post.Title
+	form.Images = post.Images
+	form.Content = &post.Content
+
 	// inserting the post values in the TemplateData's Form
-	tmplData.Form = post
+	tmplData.Form = form
 
 	// render the template
 	app.render(w, r, http.StatusOK, "post-update.tmpl", tmplData)
 }
 
-func (app *application) updatePostPut(w http.ResponseWriter, r *http.Request) {
+func (app *application) updatePostPost(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving the form data
 	form := newPostForm()
@@ -699,30 +725,48 @@ func (app *application) updatePostPut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// DEBUG
+	app.logger.Debug(fmt.Sprintf("form: %+v", *form))
+
 	// creating the updated post
 	post := &data.Post{}
-
-	// checking the data from the user
-	if form.Content != nil {
-		form.Check(len(post.Content) > 2, "content", "must be at least 2 bytes long")
-		form.Check(len(post.Content) < 1_020, "content", "must not be more than 1.020 bytes long")
-		post.Content = form.Content
-	}
-	if form.Title != nil {
-		form.StringCheck(*form.Title, 1, 120, false, "title")
-		post.Title = *form.Title
-	}
-
-	// return to post-update page if there is an error
-	if !form.Valid() {
-		app.failedValidationError(w, r, form, &form.Validator, "post-update.tmpl")
-		return
-	}
 
 	// retrieving the post id from the path
 	post.ID, err = getPathID(r)
 	if err != nil {
 		app.clientError(w, r, http.StatusBadRequest)
+		return
+	}
+
+	// retrieving the post from the DB
+	post, err = app.models.PostModel.GetByID(post.ID)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.clientError(w, r, http.StatusNotFound)
+		default:
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	// checking the data from the user
+	if form.Content != nil {
+		form.StringCheck(*form.Content, 2, 1_020, false, "content")
+		post.Content = *form.Content
+	}
+	if form.Title != nil {
+		form.StringCheck(*form.Title, 1, 120, false, "title")
+		post.Title = *form.Title
+	}
+	if form.Images != nil {
+		form.Check(len(form.Images) < 6, "images", "limit: 5 images max")
+		post.Images = form.Images
+	}
+
+	// return to post-update page if there is an error
+	if !form.Valid() {
+		app.failedValidationError(w, r, form, &form.Validator, "post-update.tmpl")
 		return
 	}
 
@@ -744,3 +788,5 @@ func (app *application) updatePostPut(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Put(r.Context(), "flash", "Post updated successfully!")
 	http.Redirect(w, r, fmt.Sprintf("/post/%d", post.ID), http.StatusSeeOther)
 }
+
+// TODO -> add AJAX handler to increment post view count (use app.models.PostModel.IncrementViews(id))

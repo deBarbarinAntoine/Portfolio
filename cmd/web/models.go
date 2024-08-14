@@ -91,7 +91,7 @@ type userRegisterForm struct {
 	validator.Validator `form:"-"`
 }
 
-type userConfirmForm struct {
+type userActivationForm struct {
 	Token               string `form:"token"`
 	validator.Validator `form:"-"`
 }
@@ -109,7 +109,9 @@ type resetPasswordForm struct {
 }
 
 type postForm struct {
-	Title               *string `form:"title,omitempty"`
-	Content             []byte  `form:"content,omitempty"`
+	ID                  int      `form:"id,omitempty"`
+	Title               *string  `form:"title,omitempty"`
+	Content             *string  `form:"content,omitempty"`
+	Images              []string `form:"images,omitempty"`
 	validator.Validator `form:"-"`
 }

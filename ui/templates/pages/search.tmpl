@@ -1,67 +1,22 @@
 {{define "page"}}
     <div class="container-search">
         <div class="container-your-search">
-            <p> Threads for </p> <div class="your-search"> {{with .Search}} <span class="search-text"> {{.}} </span> {{end}} </div>
+            <p> Posts for </p> <div class="your-search"> {{with .Search}} <span class="search-text"> {{.}} </span> {{end}} </div>
         </div>
         <div class="container-search-content">
 
-            {{if ne (len .ThreadList.List) 0}}
-                {{range .ThreadList.List}}
-                    <div class="search-thread borders borders-hover relative">
-                        <a href="/thread/{{.ID}}" class="abs full on-top"></a>
-                        {{if eq .Status "active"}} {{/* folder vert si ouvert, jaune si terminé et rouge si fermé -> green if active and red if archived (hidden doesn't appear normally...) */}}
-                        <img src="/static/img/icons/greenfolder.svg" alt="active thread icon">
-                        {{else if eq .Status "archived"}}
-                            <img src="/static/img/icons/redfolder-icon.svg" alt="archived thread icon">
-                        {{end}}
-                        <div class="search-text">
-                            <h3> {{.Title}} </h3>
-                            <h5> {{.Author.Name}} </h5>
-                            <p> {{humanDate .CreatedAt}} </p>
-                        </div>
+            {{if ne (len .Posts.List) 0}}
+                {{range .Posts.List}}
+                    <div class="rectangle-category borders borders-hover relative">
+                        <img src="/static/img/icons/tech-icon.svg" alt="post icon">
+                        <h5> {{.Title}} </h5>
+                        <a href="/post/{{.ID}}" class="category-link abs full on-top"></a>
                     </div>
                 {{end}}
             {{else}}
-                <div class="flash">No thread found for {{with .Search}} <span class="search-text"> {{.}} </span> {{end}} :/</div>
+                <div class="flash">No post found for {{with .Search}} <span class="search-text"> {{.}} </span> {{end}} :/</div>
             {{end}}
 
-        </div>
-        <div class="container-row">
-            <div class="container-search-category">
-                <div class="container-your-search">
-                    <p> Categories for </p> <div class="your-search"> {{with .Search}} <span class="search-text"> {{.}} </span> {{end}} </div>
-                </div>
-
-            {{if ne (len .CategoryList.List) 0}}
-                {{range .CategoryList.List}}
-                <div class="container-spe-category relative">
-                    <h5> {{.Name}} </h5>
-                    <a href="/category/{{.ID}}" class="abs full on-top"></a>
-                </div>
-
-                {{end}}
-            {{else}}
-                <div class="flash">No category found for {{with .Search}} <span class="search-text"> {{.}} </span> {{end}} :/</div>
-            {{end}}
-
-            </div>
-            <div class="container-tags-search">
-                <div class="container-your-search">
-                    <p> Tags for </p> <div class="your-search"> {{with .Search}} <span class="search-text"> {{.}} </span> {{end}} </div>
-                </div>
-
-            {{if ne (len .TagList.List) 0}}
-                {{range .TagList.List}}
-                    <div class="container-spe-category relative">
-                        <h5> {{.Name}} </h5>
-                        <a href="/tag/{{.ID}}" class="abs full on-top"></a>
-                    </div>
-                {{end}}
-            {{else}}
-                <div class="flash">No tag found for {{with .Search}} <span class="search-text"> {{.}} </span> {{end}} :/</div>
-            {{end}}
-
-            </div>
         </div>
     </div>
 {{end}}

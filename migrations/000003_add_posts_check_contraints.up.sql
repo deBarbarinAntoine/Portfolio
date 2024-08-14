@@ -1,0 +1,1 @@
+ALTER TABLE posts ADD CONSTRAINT images_length_check CHECK ( array_length(images, 1) BETWEEN 1 AND 5);

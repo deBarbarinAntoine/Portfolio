@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Threadive - Your online tech forum">
-    <meta name="keywords" content="Threadive, Thread, HTML, CSS, JavaScript, JS, NodeJS, Express, TypeScript, ECMAScript, ES, Golang, Go, Angular, React, Vue, Programming, Linux, Dev, Hardware, Software, Forum, C++, Java, SCSS, C#, Ynov, Rust, Lua, CPP, Go, PHP, MySQL, PostGreSQL, Electronique, Cyber, Godot, Unreal, Unity, Security, API, Computer, SBC, Server, Token, Cookie, Authentification, Console, Terminal, Bash, Powershell, Ubuntu, Debian, Kali, VMWare, GNS3, PacketTracer, Proxmox, Error, Help, Tips, Tuto, Tutos">
-    <meta name="author" content="Antoine de Barbarin, Marin Harel, Roméo Sanchez">
+    <meta name="description" content="Antoine's Portfolio - Antoine de Barbarin CV & Portfolio">
+    <meta name="keywords" content="Antoine, Antoine-Marie, de Barbarin, Barbarin, Debarbarin, Portfolio, CV, Curriculum, Curriculum Vitae, Curriculum Vita, Curriculum Vite, Curiculum, Curiculum Vitae, Curiculum Vita, Curiculum Vita, Curiculum Vite, Aix, Aix-en-Provence, Aix-en-Pce, Developer, Developpeur, Informatique, Web, HTML, CSS, JavaScript, JS, NodeJS, Express, TypeScript, ECMAScript, ES, Golang, Go, Angular, React, Vue, Programming, Linux, Dev, Hardware, Software, Forum, C++, Java, SCSS, C#, Ynov, Ynov Campus, Aix Ynov Campus, Rust, Lua, CPP, Go, PHP, MySQL, PostGreSQL, Electronique, Cyber, Godot, Unreal, Unity, Security, API, Computer, SBC, Server, Token, Cookie, Authentification, Console, Terminal, Bash, Powershell, Ubuntu, Debian, Kali, VMWare, GNS3, PacketTracer, Proxmox, Error, Help, Tips, Tuto, Tutos">
+    <meta name="author" content="Antoine de Barbarin">
 
     <title> {{.Title}} </title>
 
@@ -26,7 +26,7 @@
             <a href="/home"><img class="logo" src="/static/img/logo/logo_transparent.png" alt="Threadive logo"></a>
             <form class="search" method="get" action="/search">
                 <label for="searchbar" class="abs display-none"></label>
-                <input class="searchbar" id="searchbar" name="q" {{with .Search}}value="{{.}}"{{end}} type="text" placeholder="Search for a category, a thread...">
+                <input class="searchbar" id="searchbar" name="q" {{with .Search}}value="{{.}}"{{end}} type="text" placeholder="Search for a post...">
                 <button type="submit" class="search-submit"><img class="search-icon" src="/static/img/icons/search-icon.svg" alt="search icon"></button>
             </form>
         </div>
@@ -92,7 +92,7 @@
                     </div>
                     <div class="name-rank">
                         <p> {{.User.Name}} </p>
-                        <p> {{.User.Role}} </p>
+                        <p> Status {{.User.Status}} </p>
                     </div>
                 </div>
 
@@ -103,8 +103,8 @@
                     </div>
 
                     <div class="posts">
-                        <p> Post(s) </p>
-                        <p> {{len .User.Posts}} </p>
+                        <h4> Email </h4>
+                        <h5> {{.User.Email}} </h5>
                     </div>
                 </div>
             </div>
@@ -120,13 +120,13 @@
             <div class="link relative">
                 <img class="link-icon" src="/static/img/icons/discover-icon.svg" alt="discover icon">
                 <p class="link-text"> Discover </p>
-                <a href="/tag/{{(index .PopularTags 0).ID}}" class="abs full on-top"></a>
+                {{/*<a href="/tag/{{(index .PopularTags 0).ID}}" class="abs full on-top"></a>*/}}
             </div>
 
             <div class="link relative">
                 <img class="link-icon" src="/static/img/icons/tag.svg" alt="tags icon">
                 <p class="link-text"> Tags </p>
-                <a href="/tags" class="abs full on-top"></a>
+                {{/*<a href="/tags" class="abs full on-top"></a>*/}}
             </div>
 
             <div data-list="list-of-categories-1" class="link has-list">
@@ -143,16 +143,39 @@
                 {{if .IsAuthenticated}}
                     <div class="category relative">
                         <p class="category-text italic-link"> New category </p>
-                        <a href="/category/create" class="category-link abs full on-top"></a>
+                        {{/*<a href="/category/create" class="category-link abs full on-top"></a>*/}}
                     </div>
                 {{end}}
-                {{range .CategoriesNavLeft}}
-                    <div class="category relative">
-                        <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
-                        <p class="category-text"> {{.Name}} </p>
-                        <a href="/category/{{.ID}}" class="category-link abs full on-top"></a>
-                    </div>
-                {{end}}
+                <div class="category relative">
+                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
+                    <p class="category-text"> Category </p>
+                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
+                </div>
+                <div class="category relative">
+                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
+                    <p class="category-text"> Category </p>
+                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
+                </div>
+                <div class="category relative">
+                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
+                    <p class="category-text"> Category </p>
+                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
+                </div>
+                <div class="category relative">
+                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
+                    <p class="category-text"> Category </p>
+                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
+                </div>
+                <div class="category relative">
+                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
+                    <p class="category-text"> Category </p>
+                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
+                </div>
+                <div class="category relative">
+                    <img class="category-icon" src="/static/img/icons/tech-icon.svg" alt="tech icon">
+                    <p class="category-text"> Category </p>
+                    {{/*<a href="/category/{{.ID}}" class="category-link abs full on-top"></a>*/}}
+                </div>
             </div>
         </nav>
 
@@ -175,7 +198,7 @@
                 <a href="/about#rules" class="link abs full on-top"></a>
             </div>
 
-            <p class="rights"> Threadive, inc © {{.CurrentYear}} - All rights reserved. </p>
+            <p class="rights"> Antoine's Portfolio, inc © {{.CurrentYear}} - All rights reserved. </p>
         </div>
     </div>
 
@@ -189,12 +212,22 @@
         <div class="nav-right-container borders">
             <p class="nav-right-title"> Popular tags </p>
             <div class="all-tags">
-                {{range .PopularTags}}
-                    <div class="tag relative">
-                        <span class="tag-link"> {{.Name}} </span>
-                        <a href="/tag/{{.ID}}" class="abs full on-top"></a>
-                    </div>
-                {{end}}
+                <div class="tag relative">
+                    <span class="tag-link"> Tag </span>
+                    {{/*<a href="/tag/{{.ID}}" class="abs full on-top"></a>*/}}
+                </div>
+                <div class="tag relative">
+                    <span class="tag-link"> Tag </span>
+                    {{/*<a href="/tag/{{.ID}}" class="abs full on-top"></a>*/}}
+                </div>
+                <div class="tag relative">
+                    <span class="tag-link"> Tag </span>
+                    {{/*<a href="/tag/{{.ID}}" class="abs full on-top"></a>*/}}
+                </div>
+                <div class="tag relative">
+                    <span class="tag-link"> Tag </span>
+                    {{/*<a href="/tag/{{.ID}}" class="abs full on-top"></a>*/}}
+                </div>
             </div>
         </div>
     </div>
@@ -221,186 +254,10 @@
 
     </main>
 
-    
-
-    <!--#####################################-->
-    <!--########## OVERLAY CONTENT ##########-->
-    <!--#####################################-->
-
-    {{if eq .Overlay "login"}}
-        {{block "login" .}}{{end}}
-    {{else if eq .Overlay "register"}}
-        {{block "register" .}}{{end}}
-    {{else if eq .Overlay "forgot-password"}}
-        {{block "forgot-password" .}}{{end}}
-    {{else if eq .Overlay "reset-password"}}
-        {{block "reset-password" .}}{{end}}
-    {{end}}
-
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    {{/*<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>*/}}
     <script src="/static/js/script.js"></script>
     <script nonce="{{.Nonce}}">
-
-
-        {{/* ######################################################################################*/}}
-        {{/* # HIDE OVERLAY                                                                        */}}
-        {{/* ######################################################################################*/}}
-
-        {{if ne .Overlay "default"}}
-            const overlay = document.querySelector('.blur-underlay');
-            const centerPage = document.querySelector('.center-page');
-
-            centerPage.addEventListener('click', (event) => {
-                if (event.target === centerPage) {
-                    centerPage.style.display = 'none';
-                    overlay.style.display = 'none';
-                }
-            })
-        {{end}}
-
-        {{if .IsAuthenticated}}
-
-            {{/* ######################################################################################*/}}
-            {{/* # AJAX: FRIENDS                                                                       */}}
-            {{/* ######################################################################################*/}}
-
-            {{/*Friend requests*/}}
-
-            {{/*Friend response*/}}
-
-            {{/*Friend remove*/}}
-
-            {{/* ######################################################################################*/}}
-            {{/* # AJAX: POST REACTIONS                                                                */}}
-            {{/* ######################################################################################*/}}
-
-            const emojis = document.querySelectorAll('.emoji-ctn .emoji');
-
-            function addReaction(emojiCtn) {
-                emojiCtn.classList.toggle('selected');
-                emojiCtn.querySelector('.emoji').dataset.status = 'selected';
-                let reactionNb = emojiCtn.querySelector('.reactions-nb');
-                if (!!reactionNb) {
-                    const nb = parseInt(reactionNb.innerText);
-                    reactionNb.innerText = nb + 1;
-                } else {
-                    reactionNb = document.createElement('div');
-                    reactionNb.classList.add('reactions-nb');
-                    reactionNb.innerText = '1';
-                    emojiCtn.appendChild(reactionNb);
-                }
-            }
-
-            function removeReaction(emojiCtn, status = 'reacted') {
-                emojiCtn.classList.toggle('selected');
-                let reactionNb = emojiCtn.querySelector('.reactions-nb');
-                const nb = parseInt(reactionNb.innerText);
-                if (nb === 1) {
-                    emojiCtn.removeChild(reactionNb);
-                } else {
-                    reactionNb.innerText = nb - 1;
-                }
-                if (status === 'selected') {
-                    emojiCtn.parentNode.querySelectorAll('.emoji').forEach(emoji => {
-                        emoji.dataset.status = 'none';
-                    });
-                }
-            }
-
-            function updateReaction(emojiCtn, status) {
-                switch (status) {
-                    case "reacted":
-                        removeReaction(emojiCtn.parentNode.querySelector('.selected'));
-                        addReaction(emojiCtn);
-                        break;
-                    case "selected":
-                        removeReaction(emojiCtn, status)
-                        break;
-                    case "none":
-                        addReaction(emojiCtn);
-                        break;
-                }
-            }
-
-            emojis.forEach(emoji => {
-                emoji.addEventListener('click', () => {
-
-                    {{/*getting the user's reaction's status on this post*/}}
-                    const status = emoji.dataset.status;
-
-                    {{/*getting the post ID*/}}
-                    const id = emoji.dataset.id;
-
-                    {{/*including the CSRF token in the axios requests*/}}
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = {{.CSRFToken}};
-
-                    {{/*choose the ajax request according to the reaction's status*/}}
-                    switch (status) {
-
-                        {{/*the user reacted to this post, but not with this emoji*/}}
-                        case "reacted":
-                            {{/*send ajax request to update the reaction*/}}
-                            axios.patch(`/posts/${id}/react`, {reaction: emoji.dataset.value},
-                                {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
-                                .then(function (response) {
-                                    updateReaction(emoji.parentNode, status)
-                                    console.log(response);
-                                })
-                                .catch(function (error) {
-                                    {{/*handle error*/}}
-                                    console.log(error);
-                                });
-                            break;
-
-                        {{/*the user reacted to this post with this emoji*/}}
-                        case "selected":
-                            {{/*send ajax request to remove the reaction*/}}
-                            axios.delete(`/posts/${id}/react`)
-                                .then(function (response) {
-                                    updateReaction(emoji.parentNode, status)
-                                    console.log(response);
-                                })
-                                .catch(function (error) {
-                                    {{/*handle error*/}}
-                                    console.log(error);
-                                });
-                            break;
-
-                        {{/*the user didn't react to this post*/}}
-                        case "none":
-                            {{/*send ajax request to update the reaction*/}}
-                            axios.post(`/posts/${id}/react`, {reaction: emoji.dataset.value},
-                                {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
-                                .then(function (response) {
-                                    updateReaction(emoji.parentNode, status)
-                                    console.log(response);
-                                })
-                                .catch(function (error) {
-                                    {{/*handle error*/}}
-                                    console.log(error);
-                                });
-                            break;
-                    }
-                })
-            })
-
-            {{/* ######################################################################################*/}}
-            {{/* # AJAX: TAG FOLLOW/UNFOLLOW                                                           */}}
-            {{/* ######################################################################################*/}}
-
-            {{/*Tag follow*/}}
-
-            {{/*Tag unfollow*/}}
-
-            {{/* ######################################################################################*/}}
-            {{/* # AJAX: THREAD FAVORITE                                                               */}}
-            {{/* ######################################################################################*/}}
-
-            {{/*Thread add to favorites*/}}
-
-            {{/*Thread remove from favorites*/}}
-
-        {{end}}
+        console.log('hello there!')
     </script>
 </body>
 </html>

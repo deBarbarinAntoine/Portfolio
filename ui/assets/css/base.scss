@@ -10,7 +10,7 @@ $font: "Dosis", sans-serif;
 
 @font-face {
     font-family: $font;
-    src: url(../font/Dosis-VariableFont_wght.ttf); // FIXME -> change to /static/font/... for online testing
+    src: url(/static/font/Dosis-VariableFont_wght.ttf); // FIXME -> change to /static/font/... for online testing
 }
 
 * {
@@ -656,6 +656,7 @@ header {
     align-items: center;
     gap: 16px;
     width: calc(100% - 515px);
+    min-height: calc(90dvh - 160px);
     margin: 120px 0 10% 0;
     left: 270px;
     padding: 20px;
