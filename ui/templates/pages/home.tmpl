@@ -6,106 +6,171 @@
 
     <div class="overview">
 
-        <h1 class="main-title">Computer Science Student</h1> {{/* TODO -> Swap with a variable later */}}
+        <h1 class="main-title abs display-none">Antoine's Resume</h1>
 
-        {{/*Contact card*/}}
+        {{/*Contact Card*/}}
         <div class="card-resume">
 
-            {{/*Author photo*/}}
-            <div class="resume-photo">
-                <img src="{{ .Author.Avatar }}" alt="author picture" class="photo" />
+            {{/*Top Stripe*/}}
+            <div class="top-stripe">
+                <span class="nationality">French nationality</span>
             </div>
 
-            {{/*Author activity*/}}
-            <div class="activity">
-                {{ .Author.Activity }}
-            </div>
+            {{/*Middle Stripe*/}}
+            <div class="middle-stripe">
 
-            {{/*Author informations*/}}
-            <div class="card-info">
-
-                {{/*Email*/}}
-                <div class="info-line">
-                    <img src="/static/icons/mail.svg" alt="mail icon" class="info-icon" />
-                    <span class="info-text">{{ .Author.Email }}</span>
+                {{/*Author Photo*/}}
+                <div class="resume-photo">
+                    <img src="{{ .Author.Avatar }}" alt="author picture" class="photo" />
                 </div>
 
-                {{/*Location*/}}
-                <div class="info-line">
-                    <img src="/static/icons/location.svg" alt="location icon" class="info-icon" />
-                    <span class="info-text">{{ .Author.Location }}</span>
-                </div>
+                {{/*Main Content*/}}
+                <div class="resume-main relative">
 
-                {{/*Status Activity*/}}
-                <div class="info-line">
-                    <img src="/static/icons/work.svg" alt="work icon" class="info-icon" />
-                    <span class="info-text">{{ .Author.StatusActivity }}</span>
+                    {{/*RF Background*/}}
+                    <span class="rf-background">RF</span>
+
+                    {{/*Author Name*/}}
+                    <div class="resume-line">
+                        <span class="label">Name: </span>
+                        <span class="value">{{ .Author.Name }}</span>
+                    </div>
+
+                    {{/*Author Birthdate*/}}
+                    <div class="resume-line">
+                        <span class="label">Birthdate: </span>
+                        <span class="value">{{ .Author.Birth }}</span>
+                    </div>
+
+                    {{/*Author Email*/}}
+                    <div class="resume-line">
+                        <span class="label">Email: </span>
+                        <span class="value">{{ .Author.Email }}</span>
+                    </div>
+
+                    {{/*Author Location*/}}
+                    <div class="resume-line">
+                        <span class="label">Location: </span>
+                        <span class="value">{{ .Author.Location }}</span>
+                    </div>
+
+                    {{/*Author Skill Tags*/}}
+                    <div class="resume-tags">
+                        {{ range .Author.Tags }}
+                            <div class="tag">{{ . }}</div>
+                        {{ end }}
+                    </div>
                 </div>
             </div>
 
-            {{/*Skill Tags*/}}
-            <div class="tags-skill">
-                {{ range .Author.Tags }}
-                    <div class="tag">{{ . }}</div>
-                {{ end }}
+            {{/*Bottom Stripe*/}}
+            <div class="bottom-stripe">
+
+                {{/*Download CV*/}}
+                <div class="cv-download-btn relative">
+                    <a href="{{ .Author.CVFile }}" target="_blank" class="abs full on-top"></a>
+                    <span class="btn-txt">Download CV</span>
+                    <img src="/static/icons/download.svg" alt="download icon" class="btn-icon" />
+                </div>
             </div>
 
-            {{/*Download CV*/}}
-            <div class="cv-download-btn relative">
-                <a href="{{ .Author.CVFile }}" target="_blank" class="abs full on-top"></a>
-                <span class="btn-txt">Download CV</span>
-                <img src="/static/icons/download.svg" alt="download icon" class="btn-icon" />
+        </div>
+    </div>
+
+
+    {{/* #######################################################################################*/}}
+    {{/*                                       ABOUT ME                                         */}}
+    {{/* #######################################################################################*/}}
+
+    {{ with .Author.Presentation }}
+        <div class="about-me">
+            <div class="intro-title">About me</div>
+            <div class="about-ctn">
+                {{ . }}
             </div>
         </div>
-
-
-
-    </div>
-
-
-    {{/* #######################################################################################*/}}
-    {{/*                                         INTRO                                          */}}
-    {{/* #######################################################################################*/}}
-
-    <div class="intro">
-
-    </div>
+    {{ end }}
 
 
     {{/* #######################################################################################*/}}
     {{/*                                       FORMATIONS                                       */}}
     {{/* #######################################################################################*/}}
 
-    <div class="formations">
+    {{ with .Author.Formations }}
+        <div class="formations">
+            {{ range . }}
+                <div class="formation-line">{{ . }}</div>
+            {{ end }}
+        </div>
+    {{ end }}
 
-    </div>
 
 
     {{/* #######################################################################################*/}}
     {{/*                                         SKILLS                                         */}}
     {{/* #######################################################################################*/}}
 
-    <div class="skills">
+    {{ with .Author.Skills }}
+        <div class="skills">
+            {{ range . }}
+                <div class="skill-line">{{ . }}</div>
+            {{ end }}
+        </div>
+    {{ end }}
 
-    </div>
 
 
     {{/* #######################################################################################*/}}
     {{/*                                       EXPERIENCES                                      */}}
     {{/* #######################################################################################*/}}
 
-    <div class="experiences">
+    {{ with .Author.Experiences }}
+        <div class="experiences">
+            {{ range . }}
+                <div class="experience-line">{{ . }}</div>
+            {{ end }}
+        </div>
+    {{ end }}
 
-    </div>
 
 
     {{/* #######################################################################################*/}}
-    {{/*                                        LAST POST                                       */}}
+    {{/*                                        POST FEED                                       */}}
     {{/* #######################################################################################*/}}
 
-    <div class="last-post">
+    {{ with .PostFeed }}
 
-    </div>
+        {{ with .Last }}
+            <div class="last-post relative">
+                <a href="/post/{{ .ID }}" class="abs full on-top"></a>
+                <img src="{{ index .Images 0 }}" alt="post image" class="post-img" />
+                <div class="post-views abs">{{ .Views }} views</div>
+                <div class="post-title">{{ .Title }}</div>
+                <div class="post-created-at">Published: {{ .CreatedAt }}</div>
+                <div class="post-updated-at">Edited: {{ .UpdatedAt }}</div>
+            </div>
+        {{ end }}
+
+        {{ with .Popular }}
+            <div class="popular-posts">
+                {{ range . }}
+                    <div class="popular-line relative">
+                        <a href="/post/{{ .ID }}" class="abs full on-top"></a>
+                        <div class="img-ctn">
+                            <img src="{{ index .Images 0 }}" alt="post image" class="post-img" />
+                        </div>
+                        <div class="post-summary">
+                            <div class="post-title relative">{{ .Title }}</div>
+                            <div class="post-views abs">{{ .Views }} views</div>
+                            <div class="post-created-at">Published: {{ .CreatedAt }}</div>
+                            <div class="post-updated-at">Edited: {{ .UpdatedAt }}</div>
+                        </div>
+                    </div>
+                {{ end }}
+            </div>
+        {{ end }}
+
+    {{ end }}
 
 
     {{/* #######################################################################################*/}}
@@ -113,7 +178,34 @@
     {{/* #######################################################################################*/}}
 
     <div class="contact">
+        <div class="contact-title">Contact</div>
 
+        {{/*Contact Form*/}}
+        <form action="/contact" method="post" class="contact-form">
+
+            {{/*Contact Top Stripe*/}}
+            <div class="contact-form-top">
+
+                {{/*Name*/}}
+                <div class="contact-input">
+                    <label for="name">Name*</label>
+                    <input type="text" name="name" id="name" class="contact-name" placeholder="Type your name..." value="{{ .Form.Name }}" />
+                </div>
+
+                {{/*Email*/}}
+                <div class="contact-input">
+                    <label for="email">Email*</label>
+                    <input type="email" name="email" id="email" class="contact-email" placeholder="Type your email..." value="{{ .Form.Email }}" />
+                </div>
+            </div>
+
+            {{/*Message Body*/}}
+            <label for="message">Message*</label>
+            <input type="text" name="message" id="message" class="contact-msg" placeholder="Type your message..." value="{{ .Form.Message }}" />
+
+            {{/*Submit Button*/}}
+            <button type="submit" class="button contact-send-btn">Send</button>
+        </form>
     </div>
 
 {{end}}

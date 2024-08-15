@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Paste Test</title>
+</head>
+<body>
+
+<h1>Paste Test</h1>
+
+<!--Creation/Edition form-->
+<form action="">
+
+<!--  Content field-->
+  <label for="content"></label>
+  <textarea name="content" id="content" cols="30" rows="10"></textarea>
+
+<!--  File field-->
+  <input type="file" name="file" id="file">
+</form>
+
+<script>
+
+  // getting the inputs
+  const contentInput = document.querySelector('#content');
+  const fileInput = document.querySelector('#file');
+
+  function displayImage(file) {
+
+    // creating a FileReader to get the image value
+    const reader = new FileReader();
+
+    reader.onload = function(e)  {
+
+      // creating an HTML image element
+      const image = document.createElement("img");
+
+      // setting the image's source as the result image data
+      image.src = e.target.result;
+
+      // add the image element to the page
+      document.body.appendChild(image);
+    }
+
+    // you have to declare the file loading
+    reader.readAsDataURL(file);
+  }
+
+  function processImage(img) {
+
+    // display the image in a new HTML image element
+    displayImage(img);
+
+    // getting the files present in the file input and add the new image in it
+    let files = Array.from(fileInput.files);
+    files.push(img);
+
+    // creating a container to hold all the images (necessary because the FileList object is read-only)
+    let container = new DataTransfer();
+    files.forEach(file => {
+      container.items.add(file);
+    })
+
+    // setting a new FileList element in the file input with all images
+    fileInput.files = container.files;
+
+    console.log(fileInput);
+  }
+
+  // 'paste' event listener
+  contentInput.addEventListener('paste', (e) => {
+
+    // setting variables (type and file)
+    let elemType;
+    let fileValue;
+
+    // skimming through the clipboard data (I don't know exactly why it is like this though)
+    for (let i = 0; i < e.clipboardData.items.length; ++i) {
+      let item = e.clipboardData.items[i];
+      console.log("kind:", item.kind, "type:", item.type);
+      elemType = item.type;
+
+      // if the pasted element is an image
+      if (elemType.includes('image')) {
+        fileValue = item.getAsFile();
+        console.log(fileValue);
+      }
+    }
+
+    // if the pasted element is an image
+    if (elemType.includes('image')) {
+      processImage(fileValue);
+    }
+  });
+</script>
+
+</body>
+</html>

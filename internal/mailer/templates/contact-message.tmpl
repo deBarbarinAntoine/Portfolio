@@ -1,0 +1,31 @@
+{{define "subject"}}Message from {{ .Name }} ({{ .Email }}){{end}}
+
+{{define "plainBody"}}
+{{ .Name }} wants to contact you.
+
+Here is his message:
+
+{{ .Message }}
+
+Contact him at {{ .Email }}
+{{end}}
+
+{{define "htmlBody"}}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html, charset=UTF-8" />
+</head>
+
+<body>
+    <p>{{ .Name }} wants to contact you.</p>
+    <div>
+        <p>{{ .Message }}</p>
+    </div>
+    <p>Contact him at {{ .Email }}</p>
+</body>
+
+</html>
+{{end}}

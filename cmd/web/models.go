@@ -63,6 +63,7 @@ type templateData struct {
 	Search         string
 	Post           *data.Post
 	IsPostView     bool
+	PostFeed       data.PostFeed
 	Posts          struct {
 		List     []*data.Post
 		Metadata data.Metadata
@@ -71,6 +72,13 @@ type templateData struct {
 
 // envelope data type for JSON responses
 type envelope map[string]any
+
+type contactForm struct {
+	Name                string `form:"name"`
+	Email               string `form:"email"`
+	Message             string `form:"message"`
+	validator.Validator `form:"-"`
+}
 
 type userLoginForm struct {
 	Email               string `form:"email"`
@@ -117,9 +125,12 @@ type authorUpdateForm struct {
 	Name                *string  `form:"name"`
 	Email               *string  `form:"email"`
 	Avatar              *string  `form:"avatar"`
+	Presentation        *string  `form:"presentation"`
 	Birth               *string  `form:"birth"`
 	Location            *string  `form:"location"`
 	StatusActivity      *string  `form:"status_activity"`
+	Formations          []string `form:"formations"`
+	Experiences         []string `form:"experiences"`
 	Tags                []string `form:"tags"`
 	CVFile              *string  `form:"cv_file"`
 	validator.Validator `form:"-"`

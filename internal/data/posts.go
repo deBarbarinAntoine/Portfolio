@@ -32,6 +32,11 @@ func (post *Post) Validate(v *validator.Validator) {
 	v.Check(len(post.Images) > 1, "images", "must contain at least 1 image")
 }
 
+type PostFeed struct {
+	Last    *Post
+	Popular []*Post
+}
+
 type PostModel struct {
 	db *sql.DB
 }
@@ -140,6 +145,83 @@ func (m PostModel) Get(search string, filters *Filters) ([]*Post, Metadata, erro
 	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
 
 	return posts, metadata, nil
+}
+
+func (m PostModel) GetFeed() (*PostFeed, error) {
+
+	// generating the first query (popular posts)
+	query := `
+		SELECT id, created_at, updated_at, title, images, content, views, version
+		FROM posts
+		ORDER BY views DESC
+		LIMIT 5;`
+
+	// setting the timeout context for the query execution
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// setting the transaction
+	tx, err := m.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	// preparing the first query
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+
+	// executing the query
+	rows, err := stmt.QueryContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query rows: %w", err)
+	}
+	defer rows.Close()
+
+	// getting the popular posts
+	var postFeed PostFeed
+	for rows.Next() {
+
+		// getting each popular post one at a time
+		var post Post
+		err := rows.Scan(&post.ID, &post.CreatedAt, &post.UpdatedAt, &post.Title, pq.Array(&post.Images), &post.Content, &post.Views, &post.Version)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+
+		// add it to the slice
+		postFeed.Popular = append(postFeed.Popular, &post)
+	}
+
+	// generating the second query (last post)
+	query = `
+		SELECT id, created_at, updated_at, title, images, content, views, version
+		FROM posts
+		ORDER BY created_at DESC
+		LIMIT 1;`
+
+	// preparing the second query
+	stmt, err = tx.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+
+	// executing the query
+	err = stmt.QueryRowContext(ctx).Scan(&postFeed.Last.ID, &postFeed.Last.CreatedAt, &postFeed.Last.UpdatedAt, &postFeed.Last.Title, pq.Array(&postFeed.Last.Images), &postFeed.Last.Content, &postFeed.Last.Views, &postFeed.Last.Version)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan row: %w", err)
+	}
+
+	// executing the transaction
+	if err = tx.Commit(); err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return &postFeed, nil
 }
 
 func (m PostModel) GetByID(id int) (*Post, error) {

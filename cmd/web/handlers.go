@@ -122,6 +122,48 @@ func (app *application) postGet(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "post.tmpl", tmplData)
 }
 
+func (app *application) contact(w http.ResponseWriter, r *http.Request) {
+
+	// retrieving the form data
+	form := newContactForm()
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, r, http.StatusBadRequest)
+		return
+	}
+
+	// checking the form data
+	form.StringCheck(form.Name, 2, 70, true, "name")
+	form.ValidateEmail(form.Email)
+	form.StringCheck(form.Message, 10, 2_500, true, "message")
+
+	// redirect if the data is invalid
+	if !form.Valid() {
+		app.failedValidationError(w, r, form, &form.Validator, "home.tmpl")
+		return
+	}
+
+	// retrieving the author email address
+	author, err := app.models.AuthorModel.Get()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// sending the mail
+	app.background(func() {
+
+		err = app.mailer.Send(author.Email, "contact-message.tmpl", form)
+		if err != nil {
+			app.logger.Error(err.Error())
+		}
+	})
+
+	// notifying the user with a flash message and redirecting to the home page
+	app.sessionManager.Put(r.Context(), "flash", "Your message has been sent successfully!")
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
+}
+
 /* #############################################################################
 /*	USER ACCESS
 /* #############################################################################*/
@@ -145,7 +187,6 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 	form := newUserRegisterForm()
 	err := app.decodePostForm(r, &form)
 	if err != nil {
-		app.logger.Error(err.Error())
 		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
@@ -571,41 +612,30 @@ func (app *application) updateAuthorPost(w http.ResponseWriter, r *http.Request)
 	}
 
 	// checking the data from the user
-	var isEmpty = true
 	if form.Name != nil {
-		isEmpty = false
 		author.Name = *form.Name
 	}
 	if form.Email != nil {
-		isEmpty = false
 		author.Email = *form.Email
 	}
 	if form.Avatar != nil {
-		isEmpty = false
 		author.Avatar = *form.Avatar
 	}
+	author.Presentation = form.Presentation
 	if form.Location != nil {
-		isEmpty = false
 		author.Location = *form.Location
 	}
 	if form.Birth != nil {
-		isEmpty = false
 		author.Birth = *form.Birth
 	}
-	if form.Tags != nil {
-		isEmpty = false
-		author.Tags = form.Tags
-	}
+	author.Formations = form.Formations
+	author.Experiences = form.Experiences
+	author.Tags = form.Tags
 	if form.CVFile != nil {
-		isEmpty = false
 		author.CVFile = *form.CVFile
 	}
 	if form.StatusActivity != nil {
-		isEmpty = false
 		author.StatusActivity = *form.StatusActivity
-	}
-	if isEmpty {
-		form.AddNonFieldError("at least one field is required")
 	}
 
 	if author.Validate(&form.Validator); !form.Valid() {

@@ -236,6 +236,12 @@ func (app *application) getUserID(r *http.Request) int {
 	return id
 }
 
+func newContactForm() *contactForm {
+	return &contactForm{
+		Validator: *validator.New(),
+	}
+}
+
 func newUserRegisterForm() *userRegisterForm {
 	return &userRegisterForm{
 		Validator: *validator.New(),
@@ -323,8 +329,14 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		app.logger.Error(fmt.Errorf("error getting author: %w", err).Error())
 	}
 
+	// retrieving the post feed
+	postFeed, err := app.models.PostModel.GetFeed()
+	if err != nil {
+		app.logger.Error(fmt.Errorf("error getting post feed: %w", err).Error())
+	}
+
 	// returning the templateData with all information
-	return templateData{
+	var tmplData = templateData{
 		CurrentYear:     time.Now().Year(),
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: isAuthenticated,
@@ -339,6 +351,13 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 			Message: "We didn't find what you were looking for :(",
 		},
 	}
+
+	// checking if post feed is not nil
+	if postFeed != nil {
+		tmplData.PostFeed = *postFeed
+	}
+
+	return tmplData
 }
 
 func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data templateData) {
