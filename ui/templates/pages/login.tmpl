@@ -1,43 +1,61 @@
-{{define "page"}}
-<div class="blur-underlay"></div>
+{{ define "page" }}
 
     <div class="center-page">
-        <div class="container borders">
-            <form method="post" action="/login" class="login">
-                <p class="login-title bottom-outset"> Login </p>
-                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
-                {{range .Form.NonFieldErrors}}
-                    <div class="flash">{{.}}</div>
-                {{end}}
-    
-                <div class="input-fields">
-                    <label for="email"> Email </label>
-                    {{with .Form.FieldErrors.email}}
-                        <div class="flash">{{.}}</div>
-                    {{end}}
-                    <input class="input borders" type="text" name="email" id="email" placeholder="Email Address" value="{{ .Form.Email }}" autofocus required>
-        
-                    <label for="password"> Password </label>
-                    {{with .Form.FieldErrors.password}}
-                        <div class="flash">{{.}}</div>
-                    {{end}}
-                    <input class="input borders" type="password" name="password" id="password" placeholder="Password" required>
+        {{/*Login Form*/}}
+        <form method="post" action="/login" class="form-center">
+
+            {{/*Title*/}}
+            <span class="title">Antoine's Portfolio</span>
+
+            {{/*CSRF Token*/}}
+            <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+
+            {{/*Generic error messages*/}}
+            {{ range .Form.NonFieldErrors }}
+                <div class="form-error">{{ . }}</div>
+            {{ end }}
+
+            {{/*User Input*/}}
+            <div class="input-fields">
+
+                {{/*Email*/}}
+                <div class="form-input">
+                    <label for="email" class="input-label"> Email </label>
+                    {{ with .Form.FieldErrors.email }} {{/*Error Message*/}}
+                    <div class="form-error">{{ . }}</div>
+                    {{ end }}
+                    <input class="input-text" type="text" name="email" id="email" value="{{ .Form.Email }}" autofocus required />
                 </div>
-    
-                <div class="submit">
-                    <a href="/forgot-password" class="classic-link"> Forgot password ? </a>
-                    <button class="button borders" type="submit"> Submit </button>
+
+
+                {{/*Password*/}}
+                <div class="form-input">
+                    <label for="password" class="input-label"> Password </label>
+                    {{ with .Form.FieldErrors.password }} {{/*Error Message*/}}
+                    <div class="form-error">{{ . }}</div>
+                    {{ end }}
+                    <input class="input-password" type="password" name="password" id="password" required />
+
+                    {{/*Forgot Password Option*/}}
+                    <a href="/forgot-password" class="forgot-link"> Forgot your password? </a>
                 </div>
-            </form>
-    
-            <div class="separation"> 
-                <div class="line"></div>
-                <p class="or"> OR </p>
-                <div class="line"></div>
+
             </div>
-    
-            <a href="/register" class="switch borders"> Register </a>
-        </div>
+
+            {{/*Submit Button*/}}
+            <div class="submit">
+                <button class="form-button" type="submit"> Sign in </button>
+            </div>
+
+            {{/*Alternative Action*/}}
+            <div class="form-alt">
+                <span class="text"> Don't have an account yet? </span>
+                <a href="/register" class="form-link"> Register now </a>
+            </div>
+
+        </form>
+
     </div>
-{{end}}
+
+{{ end }}

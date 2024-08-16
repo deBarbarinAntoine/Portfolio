@@ -73,6 +73,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close()
+	logger.Info("DB pool connection opened successfully!")
 
 	// caching the templates
 	templateCache, err := newTemplateCache()

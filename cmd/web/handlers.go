@@ -44,6 +44,9 @@ func (app *application) index(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Home"
 
+	// setting the contact form
+	tmplData.Form = newContactForm()
+
 	// rendering the template
 	app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
 }
@@ -585,11 +588,15 @@ func (app *application) updateAuthor(w http.ResponseWriter, r *http.Request) {
 	form.Name = &author.Name
 	form.Email = &author.Email
 	form.Avatar = &author.Avatar
+	form.Presentation = author.Presentation
+	form.Experiences = author.Experiences
+	form.Formations = author.Formations
 	form.Location = &author.Location
 	form.Birth = &author.Birth
 	form.Tags = author.Tags
 	form.CVFile = &author.CVFile
 	form.StatusActivity = &author.StatusActivity
+	tmplData.Form = form
 
 	app.render(w, r, http.StatusOK, "author-update.tmpl", tmplData)
 }
@@ -682,7 +689,7 @@ func (app *application) updateUser(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "user-update.tmpl", tmplData)
 }
 
-func (app *application) updateUserPut(w http.ResponseWriter, r *http.Request) {
+func (app *application) updateUserPost(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving the form data
 	form := newUserUpdateForm(nil)
@@ -760,7 +767,7 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 	tmplData.Form = newPostForm(nil)
 
 	// rendering the template
-	app.render(w, r, http.StatusOK, "post-create.tmpl", tmplData)
+	app.render(w, r, http.StatusOK, "post-form.tmpl", tmplData)
 }
 
 func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
@@ -769,6 +776,8 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 	form := newPostForm(nil)
 	err := app.decodePostForm(r, &form)
 	if err != nil {
+		// DEBUG
+		app.logger.Debug(fmt.Errorf("decoding postForm error: %w", err).Error())
 		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
@@ -780,16 +789,13 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 	post := &data.Post{}
 
 	// checking the data from the user
-	if form.Content == nil {
-		form.AddFieldError("content", "must be provided")
-	} else {
-		form.StringCheck(*form.Content, 2, 1_020, true, "content")
-		post.Content = *form.Content
-	}
+	form.StringCheck(form.Content, 2, 10_000, true, "content")
+	post.Content = []byte(form.Content)
 	if form.Title == nil {
 		form.AddFieldError("title", "must be provided")
 	} else {
 		form.StringCheck(*form.Title, 2, 120, true, "title")
+		post.Title = *form.Title
 	}
 	if form.Images == nil {
 		form.AddFieldError("images", "must be provided")
@@ -799,7 +805,7 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 
 	// return to post-create page if there is an error
 	if !form.Valid() {
-		app.failedValidationError(w, r, form, &form.Validator, "post-create.tmpl")
+		app.failedValidationError(w, r, form, &form.Validator, "post-form.tmpl")
 		return
 	}
 
@@ -809,7 +815,7 @@ func (app *application) createPostPost(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, data.ErrDuplicatePostTitle):
 			form.AddFieldError("title", "is already in use")
-			app.failedValidationError(w, r, form, &form.Validator, "post-create.tmpl")
+			app.failedValidationError(w, r, form, &form.Validator, "post-form.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
@@ -849,7 +855,7 @@ func (app *application) updatePost(w http.ResponseWriter, r *http.Request) {
 	tmplData.Form = newPostForm(post)
 
 	// rendering the template
-	app.render(w, r, http.StatusOK, "post-update.tmpl", tmplData)
+	app.render(w, r, http.StatusOK, "post-form.tmpl", tmplData)
 }
 
 func (app *application) updatePostPost(w http.ResponseWriter, r *http.Request) {
@@ -888,10 +894,8 @@ func (app *application) updatePostPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// checking the data from the user
-	if form.Content != nil {
-		form.StringCheck(*form.Content, 2, 1_020, false, "content")
-		post.Content = *form.Content
-	}
+	form.StringCheck(form.Content, 2, 10_000, true, "content")
+	post.Content = []byte(form.Content)
 	if form.Title != nil {
 		form.StringCheck(*form.Title, 1, 120, false, "title")
 		post.Title = *form.Title
@@ -903,7 +907,7 @@ func (app *application) updatePostPost(w http.ResponseWriter, r *http.Request) {
 
 	// return to post-update page if there is an error
 	if !form.Valid() {
-		app.failedValidationError(w, r, form, &form.Validator, "post-update.tmpl")
+		app.failedValidationError(w, r, form, &form.Validator, "post-form.tmpl")
 		return
 	}
 
@@ -915,7 +919,7 @@ func (app *application) updatePostPost(w http.ResponseWriter, r *http.Request) {
 			app.clientError(w, r, http.StatusNotFound)
 		case errors.Is(err, data.ErrDuplicatePostTitle):
 			form.AddFieldError("title", "title is already in use")
-			app.failedValidationError(w, r, form, &form.Validator, "post-update.tmpl")
+			app.failedValidationError(w, r, form, &form.Validator, "post-form.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}

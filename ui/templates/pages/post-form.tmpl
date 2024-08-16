@@ -1,0 +1,69 @@
+{{ define "page" }}
+
+    {{ $isCreated := (ne .Form.ID 0) }}
+
+    {{/*Post Creation Form*/}}
+    <form method="post" action="/post/{{ if $isCreated }}{{ .Form.ID }}/update{{ else }}create{{ end }}" class="form-center">
+
+        {{/*Title*/}}
+        <span class="title"> Create a new post </span>
+
+        {{/*CSRF Token*/}}
+        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+
+        {{/*Post ID (if any)*/}}
+        {{ if $isCreated }}
+            <input type="hidden" name="id" value="{{ .Form.ID }}">
+        {{ end }}
+
+        {{/*Generic error messages*/}}
+        {{ range .Form.NonFieldErrors }}
+            <div class="form-error">{{ . }}</div>
+        {{ end }}
+
+        {{/*User Input*/}}
+        <div class="input-fields">
+
+            {{/*Post Title*/}}
+            <div class="form-input">
+                <label for="title" class="input-label"> Title </label>
+                {{ with .Form.FieldErrors.title }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="title" id="title" placeholder="Title" value="{{ .Form.Title }}" autofocus required />
+            </div>
+
+            {{/*Post Images*/}}
+            <div class="form-input">
+                <label for="images" class="input-label"> Images </label>
+                {{ with .Form.FieldErrors.images }}
+                    <div class="form-error">{{ . }}</div>
+                {{end}}
+                {{ $index := 0 }}
+                {{ range $index, $img := .Form.Images }}
+                    <input class="input-text" type="text" name="images[{{ $index }}]" id="images" placeholder="Image URL" value="{{ $img }}" {{ if eq $index 0 }} required {{ end }} />
+                {{end}}
+                <input class="input-text" type="text" name="images[{{ increment $index }}]" id="images" placeholder="Image URL" {{ if eq $index 0 }} required {{ end }} />
+            </div>
+
+            {{/*Post Content*/}}
+            <div class="form-input">
+                <label for="content" class="input-label"> Content </label>
+                {{ with .Form.FieldErrors.content }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <textarea name="content" id="content" cols="30" rows="50" class="input-post-content" placeholder="Type the content here..." required>
+                    {{ .Form.Content }}
+                </textarea>
+            </div>
+
+        </div>
+
+        {{/*Submit Button*/}}
+        <div class="submit">
+            <button class="form-button" type="submit"> Save </button>
+        </div>
+
+    </form>
+
+    {{ end }}

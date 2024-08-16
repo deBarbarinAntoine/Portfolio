@@ -12,6 +12,8 @@ var functions = template.FuncMap{
 	"humanDate":     humanDate,
 	"mdToHTML":      mdToHTML,
 	"bytesToString": bytesToString,
+	"increment":     increment,
+	"decrement":     decrement,
 }
 
 func humanDate(t time.Time) string {
@@ -23,6 +25,14 @@ func bytesToString(b []byte) string {
 		return string(b)
 	}
 	return ""
+}
+
+func increment(n int) int {
+	return n + 1
+}
+
+func decrement(n int) int {
+	return n - 1
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

@@ -1,25 +1,56 @@
-{{define "page"}}
-<div class="container-accueil">
-    <div class="container-accueil-content borders">
-        <h4> Favorite Threads </h4>
-        <div class="container-favtag">
+{{ define "page" }}
 
-            <div class="container-hottopic borders borders-hover">
-                <div class="container-thread-text relative">
-                    <a href="/post/{{.Post.ID}}" class="thread-link"></a>
-                    <h3> {{.Post.Title}} </h3>
-                    <h5> Antoine de Barbarin </h5>
-                    <p> {{humanDate .Post.CreatedAt}} </p>
-                    {{range .Post.Images}}
-                        <img src="{{.}}" alt="post illustration">
-                    {{end}}
-                    <p> {{.Post.Views}} view(s) </p>
-                    <p> {{.Post.Content}} </p>
-                    <a href="/post/{{.Post.ID}}" class="thread-link abs full on-top"></a>
-                </div>
+    {{ with .Post }}
+
+        <div class="post-ctn">
+
+            {{/*Post Title*/}}
+            <div class="title"> {{ .Title }} </div>
+
+            {{/*Post Info & Stats*/}}
+            <div class="separator"></div>
+            <div class="post-info-ctn">
+                <div class="post-info"> <span class="bold"> Published: </span> {{ .CreatedAt }} </div>
+                <div class="post-info"> <span class="bold"> Edited: </span> {{ .UpdatedAt }} </div>
+                <div class="post-info"> {{ .Views }} views </div>
+            </div>
+            <div class="separator"></div>
+
+            {{/*Post Cover*/}}
+            <div class="post-cover">
+                {{ if gt (len .Images) 0 }}
+                    <img src="{{ index .Images 0 }}" alt="post cover image" class="post-cover-img" />
+                {{ else }}
+                    <img src="/static/img/not-found.jpg" alt="image not found" class="post-cover-img" />
+                {{ end }}
             </div>
 
+            {{/*Post Content*/}}
+            <div class="post-content">
+                {{ mdToHTML .Content }}
+            </div>
+
+            {{/*Post Info & Stats*/}}
+            <div class="separator"></div>
+            <div class="post-info-ctn">
+                <div class="post-info"> <span class="bold"> Published: </span> {{ .CreatedAt }} </div>
+                <div class="post-info"> <span class="bold"> Edited: </span> {{ .UpdatedAt }} </div>
+                <div class="post-info"> {{ .Views }} views </div>
+            </div>
+            <div class="separator"></div>
+
         </div>
-    </div>
-</div>
-{{end}}
+
+    {{ else }}
+
+        {{/*No Post Found Error*/}}
+        <div class="alert"> No post found :/ </div>
+
+    {{ end }}
+
+    {{/*Display Popular Posts*/}}
+    {{ with .PostFeed.Popular }}
+        {{ template "post-list" . }}
+    {{ end }}
+
+{{ end }}

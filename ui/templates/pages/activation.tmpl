@@ -1,10 +1,26 @@
-{{define "page"}}
-<div class="container-error">
-    <h4 class="error-title"> Activate your account! </h4>
-    <form action="/activation" method="post">
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-        <input type="hidden" name="token" value="{{.ActivationToken}}">
-        <button class="button borders borders-hover" type="submit">Activate</button>
+{{ define "page" }}
+
+<div class="center-page">
+
+    {{/*Activation Form*/}}
+    <form class="form-center" action="/activation" method="post">
+
+        {{/*Title*/}}
+        <span class="title">Antoine's Portfolio</span>
+
+        {{/*CSRF Token*/}}
+        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+
+        {{/*Activation Token*/}}
+        <input type="hidden" name="token" value="{{ .ActivationToken }}">
+
+        {{/*Submit Button*/}}
+        <div class="submit">
+            <button class="form-button" type="submit"> Activate </button>
+        </div>
+
     </form>
+
 </div>
-{{end}}
+
+{{ end }}

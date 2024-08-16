@@ -1,0 +1,140 @@
+{{ define "page" }}
+
+    {{/*Author Update Form*/}}
+    <form method="post" action="/author" class="form-center">
+
+        {{/*Title*/}}
+        <span class="title"> Update author data </span>
+
+        {{/*CSRF Token*/}}
+        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+
+        {{/*Generic error messages*/}}
+        {{ range .Form.NonFieldErrors }}
+            <div class="form-error">{{ . }}</div>
+        {{ end }}
+
+        {{/*User Input*/}}
+        <div class="input-fields">
+
+            {{/*Author Name*/}}
+            <div class="form-input">
+                <label for="name" class="input-label"> Name </label>
+                {{ with .Form.FieldErrors.name }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="name" id="name" placeholder="Name" value="{{ .Form.Name }}" autofocus required />
+            </div>
+
+            {{/*Author Email*/}}
+            <div class="form-input">
+                <label for="email" class="input-label"> Email </label>
+                {{ with .Form.FieldErrors.email }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="email" id="email" placeholder="Email" value="{{ .Form.Email }}" required />
+            </div>
+
+            {{/*Author Presentation*/}}
+            <div class="form-input">
+                <label for="presentation" class="input-label"> Presentation </label>
+                {{ with .Form.FieldErrors.presentation }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="presentation" id="presentation" placeholder="Presentation" value="{{ .Form.Presentation }}" />
+            </div>
+
+            {{/*Author Avatar*/}}
+            <div class="form-input">
+                <label for="avatar" class="input-label"> Avatar </label>
+                {{ with .Form.FieldErrors.avatar }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="avatar" id="avatar" placeholder="Avatar" value="{{ .Form.Avatar }}" required />
+            </div>
+
+            {{/*Author Birth Date*/}}
+            <div class="form-input">
+                <label for="birth" class="input-label"> Birth Date </label>
+                {{ with .Form.FieldErrors.birth }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="birth" id="birth" placeholder="Birth" value="{{ .Form.Birth }}" required />
+            </div>
+
+            {{/*Author Location*/}}
+            <div class="form-input">
+                <label for="location" class="input-label"> Location </label>
+                {{ with .Form.FieldErrors.location }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="location" id="location" placeholder="Location" value="{{ .Form.Location }}" required />
+            </div>
+
+            {{/*Author Activity Status*/}}
+            <div class="form-input">
+                <label for="status_activity" class="input-label"> Activity Status </label>
+                {{ with .Form.FieldErrors.status_activity }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="status_activity" id="status_activity" placeholder="Activity Status" value="{{ .Form.StatusActivity }}" required />
+            </div>
+
+            {{/*Author Formations*/}}
+            <div class="form-input">
+                <label for="formations" class="input-label"> Formations </label>
+                {{ with .Form.FieldErrors.formations }}
+                    <div class="form-error">{{ . }}</div>
+                {{end}}
+
+                {{ range $index, $item := .Form.Formations }}
+                    <input class="input-text" type="text" name="formations[{{ $index }}]" id="formations" placeholder="Formation" value="{{ $item }}" />
+                {{end}}
+                <input class="input-text" type="text" name="formations[{{ len .Form.Formations }}]" id="formations" placeholder="Formation" />
+            </div>
+
+            {{/*Author Experiences*/}}
+            <div class="form-input">
+                <label for="experiences" class="input-label"> Experiences </label>
+                {{ with .Form.FieldErrors.experiences }}
+                    <div class="form-error">{{ . }}</div>
+                {{end}}
+
+                {{ range $index, $item := .Form.Experiences }}
+                    <input class="input-text" type="text" name="experiences[{{ $index }}]" id="experiences" placeholder="Experience" value="{{ $item }}" />
+                {{end}}
+                <input class="input-text" type="text" name="experiences[{{ len .Form.Experiences }}]" id="experiences" placeholder="Experience" />
+            </div>
+
+            {{/*Author Tags*/}}
+            <div class="form-input">
+                <label for="tags" class="input-label"> Tags </label>
+                {{ with .Form.FieldErrors.tags }}
+                    <div class="form-error">{{ . }}</div>
+                {{end}}
+
+                {{ range $index, $item := .Form.Tags }}
+                    <input class="input-text" type="text" name="tags[{{ $index }}]" id="tags" placeholder="Tag" value="{{ $item }}" />
+                {{end}}
+                <input class="input-text" type="text" name="tags[{{ len .Form.Tags }}]" id="tags" placeholder="Tag" />
+            </div>
+
+            {{/*Author CV File*/}}
+            <div class="form-input">
+                <label for="cv_file" class="input-label"> CV File </label>
+                {{ with .Form.FieldErrors.cv_file }}
+                    <div class="form-error">{{ . }}</div>
+                {{ end }}
+                <input class="input-text" type="text" name="cv_file" id="cv_file" placeholder="CV File URL" value="{{ .Form.CVFile }}" required />
+            </div>
+
+        </div>
+
+        {{/*Submit Button*/}}
+        <div class="submit">
+            <button class="form-button" type="submit"> Save </button>
+        </div>
+
+    </form>
+
+    {{ end }}

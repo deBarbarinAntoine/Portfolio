@@ -18,7 +18,7 @@ type Post struct {
 	ID        int       `json:"id"`
 	Title     string    `json:"title"`
 	Images    []string  `json:"images"`
-	Content   string    `json:"content"`
+	Content   []byte    `json:"content"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Views     int       `json:"views,omitempty"`
@@ -35,6 +35,13 @@ func (post *Post) Validate(v *validator.Validator) {
 type PostFeed struct {
 	Last    *Post
 	Popular []*Post
+}
+
+func NewPostFeed() *PostFeed {
+	return &PostFeed{
+		Last:    new(Post),
+		Popular: make([]*Post, 0),
+	}
 }
 
 type PostModel struct {
@@ -182,7 +189,7 @@ func (m PostModel) GetFeed() (*PostFeed, error) {
 	defer rows.Close()
 
 	// getting the popular posts
-	var postFeed PostFeed
+	var postFeed = NewPostFeed()
 	for rows.Next() {
 
 		// getting each popular post one at a time
@@ -221,7 +228,7 @@ func (m PostModel) GetFeed() (*PostFeed, error) {
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return &postFeed, nil
+	return postFeed, nil
 }
 
 func (m PostModel) GetByID(id int) (*Post, error) {

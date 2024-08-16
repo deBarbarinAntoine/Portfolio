@@ -263,7 +263,7 @@ func newUserLoginForm() *userLoginForm {
 func newUserUpdateForm(user *data.User) *userUpdateForm {
 
 	// creating the form
-	var formUpdateUser *userUpdateForm
+	var formUpdateUser = new(userUpdateForm)
 
 	// filling the form with the data if any
 	if user != nil {
@@ -293,13 +293,13 @@ func newResetPasswordForm() *resetPasswordForm {
 func newPostForm(post *data.Post) *postForm {
 
 	// creating the form
-	var formNewPost *postForm
+	var formNewPost = new(postForm)
 
 	// filling the form with the data if any
 	if post != nil {
 		formNewPost.ID = post.ID
 		formNewPost.Title = &post.Title
-		formNewPost.Content = &post.Content
+		formNewPost.Content = string(post.Content)
 		formNewPost.Images = post.Images
 	}
 

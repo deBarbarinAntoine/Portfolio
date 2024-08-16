@@ -110,7 +110,7 @@
     {{/*                                         SKILLS                                         */}}
     {{/* #######################################################################################*/}}
 
-    {{ with .Author.Skills }}
+    {{ with .Author.Tags }}
         <div class="skills">
             {{ range . }}
                 <div class="skill-line">{{ . }}</div>
@@ -159,9 +159,9 @@
                         <div class="img-ctn">
                             <img src="{{ index .Images 0 }}" alt="post image" class="post-img" />
                         </div>
-                        <div class="post-summary">
-                            <div class="post-title relative">{{ .Title }}</div>
+                        <div class="post-summary relative">
                             <div class="post-views abs">{{ .Views }} views</div>
+                            <div class="post-title">{{ .Title }}</div>
                             <div class="post-created-at">Published: {{ .CreatedAt }}</div>
                             <div class="post-updated-at">Edited: {{ .UpdatedAt }}</div>
                         </div>
@@ -182,6 +182,9 @@
 
         {{/*Contact Form*/}}
         <form action="/contact" method="post" class="contact-form">
+
+            {{/*CSRF Token*/}}
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
             {{/*Contact Top Stripe*/}}
             <div class="contact-form-top">

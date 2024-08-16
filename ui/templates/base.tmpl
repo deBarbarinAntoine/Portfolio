@@ -1,4 +1,4 @@
-{{define "base"}}
+{{ define "base" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +8,7 @@
     <meta name="keywords" content="Antoine, Antoine-Marie, de Barbarin, Barbarin, Debarbarin, Portfolio, CV, Curriculum, Curriculum Vitae, Curriculum Vita, Curriculum Vite, Curiculum, Curiculum Vitae, Curiculum Vita, Curiculum Vita, Curiculum Vite, Aix, Aix-en-Provence, Aix-en-Pce, Developer, Developpeur, Informatique, Web, HTML, CSS, JavaScript, JS, NodeJS, Express, TypeScript, ECMAScript, ES, Golang, Go, Angular, React, Vue, Programming, Linux, Dev, Hardware, Software, Forum, C++, Java, SCSS, C#, Ynov, Ynov Campus, Aix Ynov Campus, Rust, Lua, CPP, Go, PHP, MySQL, PostGreSQL, Electronique, Cyber, Godot, Unreal, Unity, Security, API, Computer, SBC, Server, Token, Cookie, Authentification, Console, Terminal, Bash, Powershell, Ubuntu, Debian, Kali, VMWare, GNS3, PacketTracer, Proxmox, Error, Help, Tips, Tuto, Tutos">
     <meta name="author" content="Antoine de Barbarin">
 
-    <title> {{.Title}} </title>
+    <title> {{ .Title }} </title>
 
     <link rel="icon" type="image/png" href="/static/img/logo/logo_icon.png">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -84,12 +84,12 @@
 
 {{/*        FLASH       */}}
 {{/* Test flash messages with position fixed and a translateY transition to make it appear from the top of the screen */}}
-        {{with .Flash}}
-            <div class="flash">{{.}}</div>
-        {{end}}
+        {{ with .Flash }}
+            <div class="flash">{{ . }}</div>
+        {{ end }}
 
 {{/*        TEMPLATE PAGE          */}}
-        {{template "page" .}}
+        {{ template "page" . }}
 
     </main>
 
@@ -102,7 +102,7 @@
 
         {{/*Copyrights*/}}
         <div class="copyrights">
-            &copy; {{ .Year }} Antoine de Barbarin. All rights reserved.
+            &copy; {{ .CurrentYear }} Antoine de Barbarin. All rights reserved.
         </div>
 
         {{/*Nav links*/}}
@@ -141,10 +141,14 @@
 {{/* #######################################################################################*/}}
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script nonce="{{.Nonce}}">
+    <script nonce="{{ .Nonce }}">
 
         {{/*DEBUG*/}}
-        console.log('hello there!');
+        console.log('hello there!\nNonce: {{ .Nonce }}');
+
+
+        {{/*including the CSRF token in the axios requests*/}}
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = {{.CSRFToken}};
 
 
 {{/*####################################*/}}
@@ -153,18 +157,22 @@
 
         {{ if .IsPostView }}
 
-        {{/*Send AJAX call after 5s (to be sure it is a real view and not a cURL or a missclick)*/}}
-        setTimeout(() => {
-            axios.post(`/post/{{ .ID }}`)
-                .then(function (response) {
-                    {{/*DEBUG*/}}
-                    console.log(response);
-                })
-                .catch(function (error) {
-                    {{/*DEBUG*/}}
-                    console.log(error);
-                });
-        }, 5000);
+            {{ with .Post }}
+
+                {{/*Send AJAX call after 5s (to be sure it is a real view and not a cURL or a missclick)*/}}
+                setTimeout(() => {
+                    axios.post(`/post/{{ .ID }}`)
+                        .then(function (response) {
+                            {{/*DEBUG*/}}
+                            console.log(response);
+                        })
+                        .catch(function (error) {
+                            {{/*DEBUG*/}}
+                            console.log(error);
+                        });
+                }, 5000);
+
+            {{ end }}
 
         {{ end }}
 
@@ -172,4 +180,4 @@
 
 </body>
 </html>
-{{end}}
+{{ end }}

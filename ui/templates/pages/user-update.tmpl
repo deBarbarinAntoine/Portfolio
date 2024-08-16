@@ -1,54 +1,84 @@
-{{define "page"}}
-    <div class="blur-underlay"></div>
+{{ define "page" }}
 
     <div class="center-page">
-        <div class="container borders">
-            <form method="post" action="/user" class="login">
-                <p class="login-title bottom-outset"> Register </p>
-                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
-                {{range .Form.NonFieldErrors}}
-                    <div class="flash">{{.}}</div>
-                {{end}}
+        {{/*Login Form*/}}
+        <form method="post" action="/user" class="form-center">
 
-                <div class="input-fields">
-                    <label for="username"></label>
-                    {{with .Form.FieldErrors.username}}
-                        <div class="flash">{{.}}</div>
-                    {{end}}
-                    <input class="input borders bottom-outset" type="text" name="username" placeholder="Username" id="username" value="{{.Form.Username}}" autofocus required>
+            {{/*Title*/}}
+            <span class="title">Update user data</span>
 
-                    <label for="email"></label>
-                    {{with .Form.FieldErrors.email}}
-                        <div class="flash">{{.}}</div>
-                    {{end}}
-                    <input class="input borders bottom-outset" type="text" name="email" placeholder="Email Address" id="email" value="{{.Form.Email}}" required>
+            {{/*CSRF Token*/}}
+            <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
 
-                    <label for="password"></label>
-                    {{with .Form.FieldErrors.password}}
-                        <div class="flash">{{.}}</div>
-                    {{end}}
-                    <input class="input borders" type="password" name="password" placeholder="Password" id="password" required>
+            {{/*Generic error messages*/}}
+            {{ range .Form.NonFieldErrors }}
+                <div class="form-error">{{ . }}</div>
+            {{ end }}
 
-                    <label for="confirm_password"></label>
+            {{/*User Input*/}}
+            <div class="input-fields">
+
+                {{/*Username*/}}
+                <div class="form-input">
+                    <label for="username" class="input-label"> Username </label>
+                    {{ with .Form.FieldErrors.username }} {{/*Error Message*/}}
+                    <div class="form-error">{{ . }}</div>
+                    {{ end }}
+                    <input class="input-text" type="text" name="username" id="username" value="{{ .Form.Username }}" autofocus />
+                </div>
+
+                {{/*Email*/}}
+                <div class="form-input">
+                    <label for="email" class="input-label"> Email </label>
+                    {{ with .Form.FieldErrors.email }} {{/*Error Message*/}}
+                    <div class="form-error">{{ . }}</div>
+                    {{ end }}
+                    <input class="input-text" type="email" name="email" id="email" value="{{ .Form.Email }}" />
+                </div>
+
+                {{/*Password*/}}
+                <div class="form-input">
+                    <label for="password" class="input-label"> New Password </label>
+                    {{ with .Form.FieldErrors.password }} {{/*Error Message*/}}
+                    <div class="form-error">{{ . }}</div>
+                    {{ end }}
+                    <input class="input-password" type="password" name="password" id="password" />
+
+                    {{/*Form Info*/}}
+                    <details class="form-info">
+                        <summary>Requirements &#9432;</summary>
+                        <div>Minimum length 8 characters</div>
+                        <div>Needs at least:</div>
+                        <ul>
+                            <li>1 uppercase [A-Z]</li>
+                            <li>1 lowercase [a-z]</li>
+                            <li>1 number [0-9]</li>
+                            <li>1 symbol (any other character)</li>
+                        </ul>
+                    </details>
+                </div>
+
+                {{/*Confirm Password*/}}
+                <div class="form-input">
+                    <label for="confirm_password" class="input-label"> Confirm Password </label>
                     {{with .Form.FieldErrors.confirm_password}}
                         <div class="flash">{{.}}</div>
                     {{end}}
-                    <input class="input borders" type="password" name="confirm_password" placeholder="Confirm Password" id="confirm_password" required>
+                    <input class="input-password" type="password" name="confirm_password" id="confirm_password" />
                 </div>
 
-                <div class="submit">
-                    <button class="button borders top-outset" type="submit"> Register </button>
-                </div>
-            </form>
-
-            <div class="separation">
-                <div class="line"></div>
-                <p class="or"> OR </p>
-                <div class="line"></div>
             </div>
 
-            <a href="/login" class="switch borders"> Update </a>
-        </div>
+            {{/*Submit Button*/}}
+            <div class="submit">
+                <button class="form-button" type="submit"> Update </button>
+            </div>
+
+        </form>
+
     </div>
-{{end}}
+
+{{ end }}
+
+

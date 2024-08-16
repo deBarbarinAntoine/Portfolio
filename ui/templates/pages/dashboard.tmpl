@@ -1,48 +1,34 @@
-{{define "page"}}
-<div class="container-dashboard">
-    <h4 class="dashboard-title"> Dashboard </h4>
-    <div class="container-profile-friendsrequest">
-        <div class="container-profile borders">
-            <div class="profilte-picture-name">
-                <div class="pic">
-                    <img class="avatar" src="{{.User.Avatar}}" alt="avatar image">
+{{ define "page" }}
+
+    <div class="container-dashboard">
+        <h4 class="dashboard-title"> Dashboard </h4>
+        <div class="container-profile-friendsrequest">
+            <div class="container-profile borders">
+                <div class="profilte-picture-name">
+                    <div class="pic">
+                        <img class="avatar" src="{{ .User.Avatar }}" alt="avatar image">
+                    </div>
+                    <div class="text-profile">
+                        <h4> {{ .User.Name }} </h4>
+                        <h5> Administrator </h5>
+                    </div>
                 </div>
-                <div class="text-profile">
-                    <h4> {{.User.Name}} </h4>
-                    <h5> Administrator </h5>
+                <div class="profil-post">
+                    <div class="container-colonne">
+                        <h4> Member since </h4>
+                        <h5> {{ humanDate .User.CreatedAt }} </h5>
+                    </div>
+                    <div class="container-colonne">
+                        <h4> Email </h4>
+                        <h5> {{ .User.Email }} </h5>
+                    </div>
+                    <div class="container-colonne">
+                        <h4> Status </h4>
+                        <h5> {{ .User.Status }} </h5>
+                    </div>
                 </div>
-            </div>
-            <div class="profil-post">
-                <div class="container-colonne">
-                    <h4> Member since </h4>
-                    <h5> {{humanDate .User.CreatedAt}} </h5>
-                </div>
-                <div class="container-colonne">
-                    <h4> Email </h4>
-                    <h5> {{.User.Email}} </h5>
-                </div>
-                <div class="container-colonne">
-                    <h4> Status </h4>
-                    <h5> {{.User.Status}} </h5>
-                </div>
-            </div>
-        </div>
-        <div class="container-friends-request borders">
-            <h4> Friend Requests </h4>
-            <div class="container-row">
-                <div class="flash">No pending friend requests!</div>
             </div>
         </div>
     </div>
-    <section class="container-row">
-        <div class="container-mythread borders">
-            <h4> My Threads </h4>
-            <div class="flash">No thread created yet :/</div>
-        </div>
-        <div class="friends-container borders">
-            <h4> Friends </h4>
-            <div class="flash">No friend yet :/</div>
-        </div>
-    </section>
-</div>
-{{end}}
+
+{{ end }}

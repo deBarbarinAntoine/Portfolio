@@ -139,7 +139,7 @@ type authorUpdateForm struct {
 type postForm struct {
 	ID                  int      `form:"id,omitempty"`
 	Title               *string  `form:"title,omitempty"`
-	Content             *string  `form:"content,omitempty"`
+	Content             string   `form:"content,omitempty"`
 	Images              []string `form:"images,omitempty"`
 	validator.Validator `form:"-"`
 }

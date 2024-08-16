@@ -32,10 +32,10 @@ func (app *application) routes() http.Handler {
 
 		group.Use(app.requireAuthentication)
 
-		group.HandleFunc("/dashboard", app.dashboard, http.MethodGet) // dashboard page
-		group.HandleFunc("/logout", app.logoutPost, http.MethodPost)  // logout route
-		group.HandleFunc("/user", app.updateUser, http.MethodGet)     // update user page
-		group.HandleFunc("/user", app.updateUserPut, http.MethodPut)  // update user treatment route
+		group.HandleFunc("/dashboard", app.dashboard, http.MethodGet)  // dashboard page
+		group.HandleFunc("/logout", app.logoutPost, http.MethodPost)   // logout route
+		group.HandleFunc("/user", app.updateUser, http.MethodGet)      // update user page
+		group.HandleFunc("/user", app.updateUserPost, http.MethodPost) // update user treatment route
 
 		// TODO -> add delete user and more to complete the user management options
 
@@ -63,6 +63,8 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("/post/:id", app.postGet, http.MethodGet)            // post page
 
 	router.HandleFunc("/search", app.search, http.MethodGet) // search page
+
+	router.HandleFunc("/contact", app.contact, http.MethodPost) // contact message treatment page
 
 	/* #############################################################################
 	/*	USER ACCESS
