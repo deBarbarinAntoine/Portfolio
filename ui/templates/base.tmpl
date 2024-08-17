@@ -15,43 +15,105 @@
 </head>
 <body>
 
+    <div class="page-ctn">
 
 {{/* #######################################################################################*/}}
 {{/*                                        HEADER                                          */}}
 {{/* #######################################################################################*/}}
 
-    <header class="header-ctn">
-        <div class="header">
+            <header class="header-ctn">
+            <div class="header">
 
 {{/*            Name left           */}}
-            <div class="name">
-                &lt;Portfolio&sol;&gt; Antoine de Barbarin
-            </div>
+                <div class="name">
+                    &lt;Portfolio&sol;&gt; Antoine de Barbarin
+                </div>
 
 {{/*            Nav Home Articles           */}}
-            <nav class="header-nav">
-                <a href="/home" class="header-link">Home</a>
-                <a href="/articles" class="header-link">Articles</a>
-            </nav>
+                <nav class="header-nav">
+                    <a href="/home" class="header-link">Home</a>
+                    <a href="/articles" class="header-link">Articles</a>
+                </nav>
 
 {{/*            Search bar          */}}
-            <form action="/search" method="get" class="search-bar">
+                <form action="/search" method="get" class="search-bar">
 
-                {{/*CSRF Token*/}}
-                <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+                    {{/*CSRF Token*/}}
+                    <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
 
-                {{/*Search input*/}}
-                <label for="search-input"></label>
-                <input type="text" name="q" id="search-input" class="search-input" />
+                    {{/*Search input*/}}
+                    <label for="search-input"></label>
+                    <input type="text" name="q" id="search-input" class="search-input" />
 
-                {{/*Submit button*/}}
-                <button type="submit" class="search-btn">
-                    <img src="/static/icons/search.svg" alt="search icon" class="search-icon" />
-                </button>
-            </form>
+                    {{/*Submit button*/}}
+                    <button type="submit" class="search-btn">
+                        <img src="/static/img/icons/search-icon.svg" alt="search icon" class="search-icon" />
+                    </button>
+                </form>
 
 {{/*            Social links           */}}
-            <div class="header-social">
+                <div class="header-social">
+
+                    {{/*LinkedIn*/}}
+                    <div class="social-elem">
+                        <img src="/static/img/icons/linkedin-icon.svg" alt="linkedin icon" class="social-icon" />
+                        <span class="social-name">LinkedIn</span>
+                    </div>
+
+                    {{/*Github*/}}
+                    <div class="social-elem">
+                        <img src="/static/img/icons/github-icon.svg" alt="github icon" class="social-icon" />
+                        <span class="social-name">Github</span>
+                    </div>
+
+                    {{/*Discord*/}}
+                    <div class="social-elem">
+                        <img src="/static/img/icons/discord-icon.svg" alt="discord icon" class="social-icon" />
+                        <span class="social-name">Discord</span>
+                    </div>
+                </div>
+
+            </div>
+        </header>
+
+
+{{/* #######################################################################################*/}}
+{{/*                                 MAIN - TEMPLATE                                        */}}
+{{/* #######################################################################################*/}}
+
+        <main class="template-ctn">
+
+{{/*        FLASH       */}}
+{{/* Test flash messages with position fixed and a translateY transition to make it appear from the top of the screen */}}
+            {{ with .Flash }}
+                <div class="flash">{{ . }}</div>
+            {{ end }}
+
+{{/*        TEMPLATE PAGE          */}}
+            {{ template "page" . }}
+
+        </main>
+
+
+{{/* #######################################################################################*/}}
+{{/*                                        FOOTER                                          */}}
+{{/* #######################################################################################*/}}
+
+        <footer class="footer-ctn">
+
+            {{/*Copyrights*/}}
+            <div class="copyrights">
+                &copy; {{ .CurrentYear }} Antoine de Barbarin. All rights reserved.
+            </div>
+
+            {{/*Nav links*/}}
+            <nav class="footer-links">
+                <a href="/policies#privacy" class="footer-link">Privacy Policy</a>
+                <a href="/policies#terms" class="footer-link">Terms &amp; Conditions</a>
+            </nav>
+
+            {{/*Social links*/}}
+            <div class="footer-social">
 
                 {{/*LinkedIn*/}}
                 <div class="social-elem">
@@ -70,71 +132,11 @@
                     <img src="/static/icons/discord.svg" alt="discord icon" class="social-icon" />
                     <span class="social-name">Discord</span>
                 </div>
+
             </div>
+        </footer>
 
-        </div>
-    </header>
-
-
-{{/* #######################################################################################*/}}
-{{/*                                 MAIN - TEMPLATE                                        */}}
-{{/* #######################################################################################*/}}
-
-    <main class="template-ctn">
-
-{{/*        FLASH       */}}
-{{/* Test flash messages with position fixed and a translateY transition to make it appear from the top of the screen */}}
-        {{ with .Flash }}
-            <div class="flash">{{ . }}</div>
-        {{ end }}
-
-{{/*        TEMPLATE PAGE          */}}
-        {{ template "page" . }}
-
-    </main>
-
-
-{{/* #######################################################################################*/}}
-{{/*                                        FOOTER                                          */}}
-{{/* #######################################################################################*/}}
-
-    <footer class="footer-ctn">
-
-        {{/*Copyrights*/}}
-        <div class="copyrights">
-            &copy; {{ .CurrentYear }} Antoine de Barbarin. All rights reserved.
-        </div>
-
-        {{/*Nav links*/}}
-        <nav class="footer-links">
-            <a href="/policies#privacy" class="footer-link">Privacy Policy</a>
-            <a href="/policies#terms" class="footer-link">Terms &amp; Conditions</a>
-        </nav>
-
-        {{/*Social links*/}}
-        <div class="footer-social">
-
-            {{/*LinkedIn*/}}
-            <div class="social-elem">
-                <img src="/static/icons/linkedin.svg" alt="linkedin icon" class="social-icon" />
-                <span class="social-name">LinkedIn</span>
-            </div>
-
-            {{/*Github*/}}
-            <div class="social-elem">
-                <img src="/static/icons/github.svg" alt="github icon" class="social-icon" />
-                <span class="social-name">Github</span>
-            </div>
-
-            {{/*Discord*/}}
-            <div class="social-elem">
-                <img src="/static/icons/discord.svg" alt="discord icon" class="social-icon" />
-                <span class="social-name">Discord</span>
-            </div>
-
-        </div>
-    </footer>
-
+    </div>
 
 {{/* #######################################################################################*/}}
 {{/*                                      JS SCRIPTS                                        */}}

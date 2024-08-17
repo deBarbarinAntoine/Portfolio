@@ -10,9 +10,9 @@
             {{/*Post Info & Stats*/}}
             <div class="separator"></div>
             <div class="post-info-ctn">
-                <div class="post-info"> <span class="bold"> Published: </span> {{ .CreatedAt }} </div>
-                <div class="post-info"> <span class="bold"> Edited: </span> {{ .UpdatedAt }} </div>
-                <div class="post-info"> {{ .Views }} views </div>
+                <div class="post-info"> <span class="bold"> Published: </span> {{ humanDate .CreatedAt }} </div>
+                <div class="post-info"> <span class="bold"> Edited: </span> {{ humanDate .UpdatedAt }} </div>
+                <div class="post-info"><img src="/static/img/icons/view-icon.svg" alt="view icon" class="view-icon"> {{ .Views }} </div>
             </div>
             <div class="separator"></div>
 
@@ -33,9 +33,9 @@
             {{/*Post Info & Stats*/}}
             <div class="separator"></div>
             <div class="post-info-ctn">
-                <div class="post-info"> <span class="bold"> Published: </span> {{ .CreatedAt }} </div>
-                <div class="post-info"> <span class="bold"> Edited: </span> {{ .UpdatedAt }} </div>
-                <div class="post-info"> {{ .Views }} views </div>
+                <div class="post-info"> <span class="bold"> Published: </span> {{ humanDate .CreatedAt }} </div>
+                <div class="post-info"> <span class="bold"> Edited: </span> {{ humanDate .UpdatedAt }} </div>
+                <div class="post-info"><img src="/static/img/icons/view-icon.svg" alt="view icon" class="view-icon"> {{ .Views }} </div>
             </div>
             <div class="separator"></div>
 

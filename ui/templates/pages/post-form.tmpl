@@ -43,7 +43,7 @@
                 {{ range $index, $img := .Form.Images }}
                     <input class="input-text" type="text" name="images[{{ $index }}]" id="images" placeholder="Image URL" value="{{ $img }}" {{ if eq $index 0 }} required {{ end }} />
                 {{end}}
-                <input class="input-text" type="text" name="images[{{ increment $index }}]" id="images" placeholder="Image URL" {{ if eq $index 0 }} required {{ end }} />
+                <input class="input-text" type="text" name="images[{{ len .Form.Images }}]" id="images" placeholder="Image URL" {{ if eq (len .Form.Images) 0 }} required {{ end }} />
             </div>
 
             {{/*Post Content*/}}

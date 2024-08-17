@@ -24,8 +24,8 @@
                 <div class="post-summary">
                     <div class="post-title relative">{{ .Title }}</div>
                     <div class="post-views abs">{{ .Views }} views</div>
-                    <div class="post-created-at">Published: {{ .CreatedAt }}</div>
-                    <div class="post-updated-at">Edited: {{ .UpdatedAt }}</div>
+                    <div class="post-created-at">Published: {{ humanDate .CreatedAt }}</div>
+                    <div class="post-updated-at">Edited: {{ humanDate .UpdatedAt }}</div>
                 </div>
 
             </div>

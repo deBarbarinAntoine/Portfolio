@@ -1,0 +1,6 @@
+{
+  "ext": "go,css,svg,jpg,json,tmpl",
+  "events": {
+    "restart": "sh -c 'lsof -i :${PORT:-4000} -t | xargs kill'"
+  }
+}

@@ -24,6 +24,11 @@ confirm:
 run:
 	@go run ./cmd/web -port=${PORT} -dsn=${DB_DSN} -smtp-sender=${SMTP_SENDER} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
 
+## nodemon: live run the cmd/web application
+.PHONY: nodemon
+nodemon:
+	@nodemon --exec make run
+
 ## db/psql: connect to the database using mysql
 .PHONY: db/psql
 db/psql:
