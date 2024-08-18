@@ -565,6 +565,169 @@ footer.footer-ctn .footer-social {
   color: #75DDDD;
 }
 
+.home-ctn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 12rem;
+}
+.home-ctn .overview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.home-ctn .overview .card-resume {
+  width: 37vw;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 10/7;
+  border-radius: 0.7rem;
+  overflow: hidden;
+  box-shadow: rgba(230, 230, 250, 0.55) 0 0.5rem 1.2rem;
+}
+.home-ctn .overview .card-resume .top-stripe {
+  height: 7%;
+  width: 100%;
+  background-color: #034163;
+  padding: 0.15%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.home-ctn .overview .card-resume .top-stripe span.nationality {
+  text-transform: uppercase;
+  font-size: 1.3vw;
+  letter-spacing: 0.6ch;
+}
+.home-ctn .overview .card-resume .middle-stripe {
+  position: relative;
+  display: flex;
+  align-items: end;
+  width: 100%;
+  flex: 1;
+  background: linear-gradient(180deg, rgba(117, 221, 221, 0.83) 35%, #034163 100%);
+}
+.home-ctn .overview .card-resume .middle-stripe::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  backdrop-filter: blur(3px) grayscale(27%) contrast(82%);
+  z-index: 3;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-photo {
+  height: 90%;
+  width: 30%;
+  overflow: hidden;
+  z-index: 5;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-photo img.photo {
+  object-fit: cover;
+  object-position: center;
+  transform: scale(210%) translateY(-2%) translateX(2%);
+  filter: grayscale(37%);
+  height: 100%;
+  width: 100%;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-main.relative {
+  height: 100%;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 5% 0 5% 1.5vw;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-main.relative span.rf-background {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 23vw;
+  color: #E6E6FA;
+  font-weight: 300;
+  transform: translateY(21.5%) translateX(5%);
+  z-index: 2;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-main.relative .resume-line {
+  display: flex;
+  gap: 0.8vw;
+  z-index: 5;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-main.relative .resume-line span.label {
+  font-size: 1.12vw;
+  color: #02263C;
+  font-weight: bold;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-main.relative .resume-line span.value {
+  text-transform: uppercase;
+  font-size: 1.1vw;
+  color: #02263C;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-main.relative .resume-tags {
+  display: flex;
+  flex-flow: wrap row;
+  gap: 1.2vw 0.8vw;
+  z-index: 5;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-main.relative .resume-tags .tag {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #034163;
+  height: 1.3vw;
+  width: max-content;
+  padding: 0.17ch 1.2ch;
+  border-radius: 0.65vw;
+}
+.home-ctn .overview .card-resume .middle-stripe .resume-main.relative .resume-tags .tag span.tag-text {
+  font-size: 0.8vw;
+  color: #E6E6FA;
+}
+.home-ctn .overview .card-resume .bottom-stripe {
+  position: relative;
+  width: 100%;
+  height: 22%;
+  background-color: #E6E6FA;
+  color: #02263C;
+  transition: background-color 200ms ease-out 20ms;
+  z-index: 5;
+}
+.home-ctn .overview .card-resume .bottom-stripe::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  backdrop-filter: grayscale(27%) contrast(82%);
+  z-index: 6;
+}
+.home-ctn .overview .card-resume .bottom-stripe .cv-download-btn.relative {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  outline: none;
+  border: none;
+  z-index: 10;
+}
+.home-ctn .overview .card-resume .bottom-stripe .cv-download-btn.relative span.btn-txt {
+  color: #02263C;
+  font-size: 1.7vw;
+}
+.home-ctn .overview .card-resume .bottom-stripe .cv-download-btn.relative img.btn-icon {
+  height: 30%;
+  aspect-ratio: 1;
+}
+.home-ctn .overview .card-resume .bottom-stripe:hover {
+  background-color: #FB8500;
+}
 .search-title {
   margin: 3rem 0;
 }
