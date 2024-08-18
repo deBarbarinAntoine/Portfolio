@@ -78,66 +78,63 @@
                 page-break-after: avoid;
             }
         }
+        p:has(a:only-child img:only-child), p:has(img:only-child) {
+            width: 40%;
+            margin: 0 auto;
 
-        p,
-        .splendor-p {
+            a {
+                display: inline-block;
+            }
+            * {
+                max-width: 100%;
+                width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+        }
+        p {
             width: 60%;
             text-align: justify;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin-bottom: 1.3rem;
+
+            * {
+                font-size: 1.3rem;
+            }
         }
 
         h1,
-        .splendor-h1,
         h2,
-        .splendor-h2,
         h3,
-        .splendor-h3,
-        h4,
-        .splendor-h4 {
+        h4 {
             margin: 1.414rem 0 .5rem;
             font-weight: inherit;
             line-height: 1.42;
+            text-align: left;
+            width: 60%;
         }
-
-        h1,
-        .splendor-h1 {
+        h1 {
             margin-top: 0;
-            font-size: 3.998rem;
+            font-size: 3.2rem;
         }
-
-        h2,
-        .splendor-h2 {
-            font-size: 2.827rem;
+        h2 {
+            font-size: 2.5rem;
         }
-
-        h3,
-        .splendor-h3 {
-            font-size: 1.999rem;
+        h3 {
+            font-size: 1.8rem;
         }
-
-        h4,
-        .splendor-h4 {
-            font-size: 1.414rem;
+        h4 {
+            font-size: 1.6rem;
         }
-
-        h5,
-        .splendor-h5 {
-            font-size: 1.121rem;
+        h5 {
+            font-size: 1.35rem;
         }
-
-        h6,
-        .splendor-h6 {
-            font-size: .88rem;
+        h6 {
+            font-size: 1.2rem;
         }
-
-        small,
-        .splendor-small {
-            font-size: .707em;
+        small {
+            font-size: .8em;
         }
-
-        /* https://github.com/mrmrs/fluidity */
-
         img,
         canvas,
         iframe,
@@ -147,29 +144,26 @@
         textarea {
             max-width: 60%;
         }
-
-        /* === A bit of a gross hack so we can have bleeding divs/blockquotes. */
-
         p,
-        *:not(div):not(img):not(body):not(html):not(li):not(blockquote):not(p):not(pre):not(code) {
+        *:not(div):not(img):not(li):not(blockquote):not(p):not(pre):not(code):not(table):not(thead):not(th):not(tbody):not(tr):not(td) {
             margin: 1rem auto 1rem;
             max-width: 60%;
             padding: .25rem;
         }
-
-        div {
+        div,
+        ul {
             width: 60%;
         }
-
         div img {
             width: 100%;
+            margin: 0 auto;
         }
-
         blockquote {
             position: relative;
             width: 45%;
             border-radius: .5rem;
             background-color: transparentize($blue, 0.92);
+
             &::before {
                 position: absolute;
                 top: 0;
@@ -186,38 +180,53 @@
                 font-size: 4.5rem;
                 color: transparentize($white, 0.75);
             }
-
             p {
                 font-size: 1.5rem;
                 font-style: italic;
                 margin: 1rem auto 1rem;
             }
         }
+        table {
+            width: 60%;
+            border-collapse: collapse;
 
+            thead, tr td:first-child {
+                background-color: $medium-blue;
+                font-size: 1.2rem;
+
+                * {
+                    font-size: 1.2rem;
+                }
+            }
+            td, th {
+                padding: 1rem 2.2rem;
+                border: 2px solid $blue;
+            }
+            td, td strong {
+                font-size: 1.15rem;
+            }
+         }
         li {
+            font-size: 1.3rem;
             margin-left: 2rem;
+
+            * {
+                font-size: 1.3rem;
+            }
         }
-
-        /* Counteract the specificity of the gross *:not() chain. */
-
         h1 {
             padding: 4rem 0 !important;
         }
-
-        /*  === End gross hack */
-
         p {
             color: $white;
             height: auto;
             line-height: 1.45;
         }
-
         pre,
         code {
             font-family: Menlo, Monaco, "Courier New", monospace;
             color: $yellow;
         }
-
         pre {
             width: 60%;
             background-color: $medium-blue;
@@ -226,12 +235,10 @@
             padding: 2.5rem;
             border-radius: .4rem;
         }
-
         a,
         a:visited {
             color: $orange;
         }
-
         a:hover,
         a:focus,
         a:active {
@@ -412,31 +419,73 @@
 //##############################################################################################################
 
 .search-title {
+    margin: 3rem 0;
 
-    span {
+    span:not(.search-text, .alert) {
+        font-size: 1.7rem;
+        color: $blue;
+    }
+    .search-text {
+        padding: 0 1.2ch;
+        font-size: 1.7rem;
+        font-weight: bold;
+        color: $bright-blue;
+    }
+    .alert {
 
-        .search-text {
-
-        }
-        .alert {
-
-        }
     }
 }
 .search-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5rem;
+    width: 80%;
 
     .pagination {
+        height: 2.2rem;
+        padding: .2rem 0;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
 
-        .pag-link.relative {
+        .pag-link {
+            height: 100%;
 
+            &:has(img) {
+                aspect-ratio: 1;
+            }
             span.pag-current {
-
+                width: max-content;
+                font-size: 1.4rem;
+                color: $bright-blue;
+                cursor: default;
             }
-            a.abs.full.on-top {
+            svg.pag-icon {
+                object-fit: contain;
+                object-position: center;
+                height: 100%;
+                width: 100%;
+                cursor: pointer;
 
-            }
-            img.pag-icon {
+                &:has(path[stroke]) {
+                    cursor: not-allowed;
+                }
+                path:not([stroke]) {
+                    stroke: $blue;
+                }
+                &.big-icon {
+                    padding: .15rem;
 
+                    path {
+                        stroke-width: 2.5;
+                    }
+                }
+                &:hover {
+                    path:not([stroke]) {
+                        stroke: $orange;
+                    }
+                }
             }
         }
     }
@@ -457,50 +506,160 @@
 //##############################################################################################################
 
 .center-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+form.form-center {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    width: 40%;
+    padding: 4rem;
 
-    form.form-center {
+    &.big-form {
+        width: 80%;
+    }
 
-        span.title {
+    span.title {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        font-size: 2.7rem;
+        color: $bright-blue;
+    }
+    .form-error {
+        margin: .7rem 0;
+        padding: .7rem 1.4rem;
+        font-size: 1.4rem;
+        text-align: center;
+        background-color: $orange;
+        border: $red solid 1.5px;
+        border-radius: .4rem;
+        color: $red;
+    }
+    .input-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 1.7rem;
 
-        }
-        .form-error {
+        .form-input {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
 
-        }
-        .input-fields {
 
-            .form-input {
+            label.input-label {
+                font-size: 1.3rem;
+                color: $blue;
+                font-weight: bold;
+                margin-bottom: .3rem;
+            }
+            .form-error {
+                margin: .4rem 0;
+                padding: .7rem 1.4rem;
+                font-size: 1.4rem;
+                text-align: center;
+                background-color: $orange;
+                border: $red solid 1.5px;
+                border-radius: .4rem;
+                color: $red;
+            }
+            // TODO -> handle different input types here
+            input {
+                padding: .5rem 1rem;
+                border-radius: .4rem;
+                border: $blue solid 1.5px;
+                color: $white;
+                background-color: $input-background;
+                appearance: none;
+                outline: none;
 
-                label.input-label {
-
+                &:focus,
+                &:focus-visible,
+                &:focus-within,
+                &:active {
+                    border: $orange solid 1.5px;
                 }
-                .form-error {
+            }
+            input.input-password {
 
+            }
+            input.input-text{
+
+            }
+            textarea.input-post-content {
+                width: 100%;
+                height: 65dvh;
+                overflow-y: auto;
+                resize: none;
+                padding: .7rem 1.4rem;
+                background-color: $input-background;
+                border-radius: .4rem;
+                border: $blue solid 1.5px;
+                appearance: none;
+                outline: none;
+                color: $white;
+                font-family: $font-mono;
+                font-size: 1.3rem;
+                font-weight: normal;
+                scrollbar-width: thin;
+
+                &:focus,
+                &:focus-visible,
+                &:focus-within,
+                &:active {
+                    border: $orange solid 3px;
                 }
-                // TODO -> handle different input types here
-                input.input-password {
+            }
+            a.forgot-link {
+                align-self: end;
+                color: $bright-blue;
 
-                }
-                input.input-text{
-
-                }
-                a.forgot-link {
-
+                &:hover {
+                    color: $orange;
                 }
             }
         }
-        .submit {
+        details.form-info {
+            width: 100%;
+            padding: .7rem 0;
 
-            button.form-button {
+             summary {
+                 cursor: pointer;
+                 margin-bottom: .5rem;
+             }
+             ul {
+                 margin: .3rem 2rem;
 
-            }
+                 li {
+                     margin: .2rem 0;
+                 }
+             }
+         }
+
+    }
+    .submit {
+
+        button.form-button {
+
         }
-        .form-alt {
+    }
+    .form-alt {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 1ch;
 
-            span.text {
+        span.text {
 
-            }
-            a.form-link {
+        }
+        a.form-link {
+            color: $bright-blue;
 
+            &:hover {
+                color: $orange;
             }
         }
     }
@@ -511,7 +670,7 @@
 //                                                 ACTIVATION                                                  #
 //##############################################################################################################
 
-// FIXME -> change some class here to not conflict with the generic forms defined before ^^
+// FIXME -> change some class here to not conflict with the generic forms defined before ^^ (if necessary, else, remove this division)
 .center-page {
 
     form.form-center {
@@ -534,27 +693,26 @@
 //##############################################################################################################
 
 .container-mentions {
-    height: 100%;
-    padding-top: 20px;
-    padding-left: 50px;
-    margin-left: 5px;
-    width: 100%;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px transparentize($blue, 0.8), 0 -4px 8px transparentize($blue, 0.8), 4px 0 8px transparentize($blue, 0.8), -4px 0 8px transparentize($blue, 0.8);
-    font-family: "Varela-Round", sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem 0;
+    width: 80%;
+    font-family: $font;
 
     h2 {
-        font-size: 50px;
-        margin-bottom: 20px;
-    }
-    p {
-        font-size: 20px;
-        margin-bottom: 20px;
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
     }
     h3 {
-        margin-top: 25px;
-        margin-bottom: 20px;
-        font-size: 30px;
+        font-size: 2.5rem;
+    }
+    p {
+        font-size: 1.3rem;
+
+        span {
+            font-size: 1.4rem;
+        }
     }
 }
 
@@ -565,7 +723,7 @@
 .post-ctn {
 
     .title {
-        font-size: 4rem;
+        font-size: 4.2rem;
         color: $bright-blue;
         font-weight: 500;
     }
@@ -580,12 +738,13 @@
             display: flex;
             gap: 1rem;
             align-items: center;
+            font-size: 1.1rem;
 
             .view-icon {
                 height: 1.5rem;
             }
             span {
-                font-size: .9rem;
+                font-size: 1.2rem;
                 color: $blue;
             }
         }
@@ -605,6 +764,151 @@
     }
 }
 
+
+//##############################################################################################################
+//                                                  POST LIST                                                  #
+//##############################################################################################################
+
+.post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    width: 100%;
+    padding: 0 15%;
+
+    .post-line.relative {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 20rem;
+        border-radius: .7rem;
+        overflow: hidden;
+        box-shadow: transparentize($white, 0.85) 0 .3rem 1.8rem;
+        transition: all 200ms ease-out 20ms;
+
+        .img-ctn {
+            height: 100%;
+            aspect-ratio: 4/3;
+
+            img.post-img {
+                object-fit: cover;
+                object-position: center;
+                height: 100%;
+                width: 100%;
+            }
+        }
+        .post-summary {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 100%;
+            padding: 2rem 1.5rem 2rem 3rem;
+            background-color: $medium-blue;
+
+            .post-views {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 4rem;
+                right: 1.2rem;
+                bottom: 1.2rem;
+                height: 1.5rem;
+                font-size: 1rem;
+
+                img.view-icon {
+                    object-fit: contain;
+                    object-position: left;
+                    height: 100%;
+                }
+            }
+            .post-title {
+                font-size: 2.1rem;
+                width: max-content;
+            }
+            .post-dates {
+                display: flex;
+                flex-direction: column;
+                gap: 1.2rem;
+
+                .post-created-at,
+                .post-updated-at {
+                    font-size: 1rem;
+
+                    .bold {
+                        color: $blue;
+                    }
+                }
+            }
+        }
+        &:hover {
+            transform: scale(101%);
+        }
+    }
+}
+
+
+//##############################################################################################################
+//                                                ADMIN ACTIONS                                                #
+//##############################################################################################################
+
+.admin-actions-ctn {
+    position: fixed;
+    height: 100%;
+    width: 3rem;
+    top: 0;
+    right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .admin-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1.7rem;
+        padding: .5rem;
+        border-radius: 1.5rem;
+        border: 3px $blue solid;
+        background-color: $medium-blue;
+        transition: all 200ms ease-out;
+
+        .edit, .delete {
+            display: none;
+        }
+        .dots {
+            display: block;
+        }
+        .admin-elem {
+            width: 100%;
+            aspect-ratio: 1;
+
+            .admin-icon {
+                object-position: center;
+                object-fit: contain;
+                height: 100%;
+                width: 100%;
+
+                path {
+                    stroke: $blue;
+                }
+            }
+            a:hover ~ .admin-icon path {
+                stroke: $orange;
+            }
+        }
+        &:hover {
+            padding: 1.5rem .5rem;
+
+            .dots {
+                display: none;
+            }
+            .edit, .delete {
+                display: block;
+            }
+        }
+    }
+}
 
 //##############################################################################################################
 //                                                  DASHBOARD                                                  #

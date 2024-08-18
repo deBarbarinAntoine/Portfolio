@@ -3,7 +3,7 @@
     {{ $isCreated := (ne .Form.ID 0) }}
 
     {{/*Post Creation Form*/}}
-    <form method="post" action="/post/{{ if $isCreated }}{{ .Form.ID }}/update{{ else }}create{{ end }}" class="form-center">
+    <form method="post" action="/post/{{ if $isCreated }}{{ .Form.ID }}/update{{ else }}create{{ end }}" class="form-center big-form">
 
         {{/*Title*/}}
         <span class="title"> Create a new post </span>

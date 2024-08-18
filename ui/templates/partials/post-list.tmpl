@@ -21,11 +21,14 @@
                 </div>
 
                 {{/*Post Info*/}}
-                <div class="post-summary">
-                    <div class="post-title relative">{{ .Title }}</div>
-                    <div class="post-views abs">{{ .Views }} views</div>
-                    <div class="post-created-at">Published: {{ humanDate .CreatedAt }}</div>
-                    <div class="post-updated-at">Edited: {{ humanDate .UpdatedAt }}</div>
+                <div class="post-summary relative">
+                    <div class="post-views abs"><img src="/static/img/icons/view-icon.svg" alt="view icon" class="view-icon"> {{ .Views }} </div>
+                    <div class="post-title">{{ .Title }}</div>
+                    <div class="post-dates">
+                        <div class="post-created-at"><span class="bold"> Published: </span> {{ humanDate .CreatedAt }}</div>
+                        <div class="post-updated-at"><span class="bold"> Edited: </span> {{ humanDate .UpdatedAt }}</div>
+                    </div>
+
                 </div>
 
             </div>

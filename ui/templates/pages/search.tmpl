@@ -23,7 +23,9 @@
                     {{ if ne .Posts.Metadata.CurrentPage .Posts.Metadata.FirstPage }}
                         <a href="?pag={{ .Posts.Metadata.FirstPage }}" class="abs full on-top"></a>
                     {{ end }}
-                    <img src="/static/icons/first.svg" alt="first page icon" class="pag-icon" />
+                    <svg class="pag-icon" width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 17L13 12L18 7M11 17L6 12L11 7" {{ if eq .Posts.Metadata.CurrentPage .Posts.Metadata.FirstPage }}stroke="#034163"{{ end }} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
 
                 {{/*Previous Page*/}}
@@ -31,7 +33,9 @@
                     {{ if ne .Posts.Metadata.CurrentPage .Posts.Metadata.FirstPage }}
                         <a href="?pag={{ decrement .Posts.Metadata.CurrentPage }}" class="abs full on-top"></a>
                     {{ end }}
-                    <img src="/static/icons/previous.svg" alt="previous page icon" class="pag-icon" />
+                    <svg class="pag-icon big-icon" width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" {{ if eq .Posts.Metadata.CurrentPage .Posts.Metadata.FirstPage }}stroke="#034163"{{ end }} stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
 
                 {{/*Current Page*/}}
@@ -44,7 +48,9 @@
                     {{ if ne .Posts.Metadata.CurrentPage .Posts.Metadata.LastPage }}
                         <a href="?pag={{ increment .Posts.Metadata.CurrentPage }}" class="abs full on-top"></a>
                     {{ end }}
-                    <img src="/static/icons/next.svg" alt="next page icon" class="pag-icon" />
+                    <svg class="pag-icon big-icon" width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" {{ if eq .Posts.Metadata.CurrentPage .Posts.Metadata.LastPage }}stroke="#034163"{{ end }} stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
 
                 {{/*Last Page*/}}
@@ -52,7 +58,9 @@
                     {{ if ne .Posts.Metadata.CurrentPage .Posts.Metadata.LastPage }}
                         <a href="?pag={{ .Posts.Metadata.LastPage }}" class="abs full on-top"></a>
                     {{ end }}
-                    <img src="/static/icons/last.svg" alt="last page icon" class="pag-icon" />
+                    <svg class="pag-icon" width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 17L11 12L6 7M13 17L18 12L13 7" {{ if eq .Posts.Metadata.CurrentPage .Posts.Metadata.LastPage }}stroke="#034163"{{ end }} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
             </div>
 

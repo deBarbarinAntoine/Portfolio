@@ -3,6 +3,7 @@
 //##############################################################################################################
 
 $dark-blue: #02263C;
+$input-background: #02344F;
 $medium-blue: #034163;
 $blue: #5995ED;
 $bright-blue: #75DDDD;
@@ -11,14 +12,39 @@ $orange: #FB8500;
 $yellow: #FFB703;
 $white: #E6E6FA;
 
-@import url('/static/font/VarelaRound-Regular.ttf');
-$font: "Varela-Round", sans-serif;
-$font-weight: 400;
+$font: "Dosis", sans-serif;
+$font-mono: "Ubuntu Mono", sans-serif;
+$font-weight: 600; // 400 regular 500 medium 600 semi-bold 700 bold 800 extra-bold
 
 @font-face {
-    font-family: $font;
-    font-weight: $font-weight;
+    src: url('/static/font/Dosis-VariableFont_wght.ttf') format('truetype');
+    font-family: Dosis;
+    font-weight: 400 800;
     font-style: normal;
+}
+@font-face {
+    src: url('/static/font/UbuntuMono-Regular.ttf') format('truetype');
+    font-family: "Ubuntu Mono";
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    src: url('/static/font/UbuntuMono-Italic.ttf') format('truetype');
+    font-family: "Ubuntu Mono";
+    font-weight: 400;
+    font-style: italic;
+}
+@font-face {
+    src: url('/static/font/UbuntuMono-Bold.ttf') format('truetype');
+    font-family: "Ubuntu Mono";
+    font-weight: 700;
+    font-style: normal;
+}
+@font-face {
+    src: url('/static/font/UbuntuMono-BoldItalic.ttf') format('truetype');
+    font-family: "Ubuntu Mono";
+    font-weight: 700;
+    font-style: italic;
 }
 
 //##############################################################################################################
@@ -30,6 +56,8 @@ $font-weight: 400;
     padding: 0;
     box-sizing: border-box;
     font-size: clamp(10px, calc(6px + .45vw), 32px);
+    font-weight: $font-weight;
+    letter-spacing: .07ch;
 
     a {
         text-decoration: none;
@@ -66,7 +94,7 @@ $font-weight: 400;
     display: none;
 }
 .bold {
-    font-weight: bold;
+    font-weight: 800;
 }
 
 //##############################################################################################################
@@ -78,7 +106,14 @@ $font-weight: 400;
 
 }
 .alert {
-
+    margin: 1.2rem 0;
+    padding: .7rem 1.4rem;
+    font-size: 1.4rem;
+    text-align: center;
+    background-color: $orange;
+    border: $red solid 2px;
+    border-radius: .4rem;
+    color: $red;
 }
 .separator {
     width: 100%;
@@ -87,6 +122,111 @@ $font-weight: 400;
     background-color: $blue;
     margin: 2.5rem 0;
 }
+.form-button,
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: .5rem;
+    padding: .7rem 2rem;
+    appearance: none;
+    outline: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: all 200ms ease-out 20ms;
+    height: fit-content;
+    width: 100%;
+
+    // blue button (previously)
+    background-color: $blue;
+    color: $white;
+    border: none;
+
+    &:hover:not(.disabled, &[disabled]) {
+        background-color: $bright-blue;
+        color: $dark-blue;
+    }
+    // end of blue button (previously)
+
+    &.white {
+        border: 1.5px solid $blue;
+        background-color: $white;
+        color: $blue;
+
+        &:hover:not(.disabled, &[disabled]) {
+            background-color: $blue;
+            color: $white;
+        }
+    }
+    &.orange {
+        border: 1.5px solid $red;
+        background-color: $white;
+        color: $red;
+
+        &:hover:not(.disabled, &[disabled]) {
+            border: 1.5px solid $red;
+            background-color: $orange;
+            color: $red;
+        }
+    }
+    &.disabled, &[disabled] {
+        background-color: $medium-blue;
+        color: $blue;
+        border: 1.5px solid $blue;
+        cursor: not-allowed;
+    }
+    &.big-btn {
+        border-radius: .7rem;
+        padding: 1.7rem 3.4rem;
+        font-size: 2rem;
+    }
+}
+.social-elem {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    transition: color 200ms ease-out 20ms;
+
+    img.social-icon {
+        height: 100%;
+    }
+    span.social-name {
+        font-size: .9rem;
+    }
+    &:hover {
+        color: $orange;
+
+        img.social-icon {
+            animation: 650ms normal 1 vibrate;
+        }
+    }
+}
+
+@keyframes vibrate {
+    15% {
+        transform: rotate(-30deg);
+    }
+    30% {
+        transform: rotate(30deg);
+    }
+    45% {
+        transform: rotate(-30deg);
+    }
+    60% {
+        transform: rotate(30deg);
+    }
+    75% {
+        transform: rotate(-30deg);
+    }
+    90% {
+        transform: rotate(30deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}
 
 //##############################################################################################################
 //                                                BASIC LAYOUT                                                 #
@@ -94,13 +234,13 @@ $font-weight: 400;
 
 
 body {
-    min-height: 100dvh;
     background-color: $dark-blue;
     font-family: $font;
     font-weight: $font-weight;
     color: $white;
 
     .page-ctn {
+        min-height: 100dvh;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -129,7 +269,13 @@ header.header-ctn {
             gap: 2.5rem;
 
             a.header-link {
+                font-size: 1.2rem;
+                color: $blue;
+                transition: color 200ms ease-out 20ms;
 
+                &:hover {
+                    color: $orange;
+                }
             }
         }
         form.search-bar {
@@ -137,17 +283,18 @@ header.header-ctn {
             justify-content: space-between;
             align-items: center;
             flex: 1 2 initial;
-            min-width: 6.7rem;
-            gap: 1.8rem;
-            padding: .3rem 1.3rem;
-            width: 28rem;
-            height: 2rem;
-            border-radius: .6rem;
-            border: 2.5px solid $blue;
-            background-color: $white;
+            width: calc(1.7rem + 9ch);
+            height: 2.2rem;
+            margin-left: calc(calc(28rem - 1.7rem) - 9ch);
             margin-right: 3.6rem;
             transition: border 200ms ease-in-out 50ms;
+            overflow: hidden;
 
+            .search-label {
+                cursor: pointer;
+                color: $blue;
+                font-size: 1.2rem;
+            }
             button.search-btn {
                 flex-shrink: 0;
                 padding: 0;
@@ -167,45 +314,38 @@ header.header-ctn {
                 }
             }
             input#search-input.search-input {
-                flex: 1;
+                width: calc(calc(100% - 1.7rem) - 9ch);
                 appearance: none;
                 border: none;
                 background: none;
                 outline: none;
-                font-family: "Dosis", sans-serif;
+                font-family: $font;
                 color: $blue;
-                font-weight: 550;
+                font-weight: bold;
                 font-size: 1.1rem;
             }
+            &:has(input#search-input.search-input:focus, input#search-input.search-input:focus-within, input#search-input.search-input:focus-visible, input#search-input.search-input:active, input#search-input.search-input:valid) {
+                border-radius: .6rem;
+                border: 1.5px solid $orange;
+                min-width: 6.3rem;
+                width: 28rem;
+                margin-left: 0;
+                padding: .5rem 1.3rem;
 
-            &:has(input.search-input:focus, input.search-input:active) {
-                border: 2.5px solid $orange;
-
-                .search-input {
+                input#search-input.search-input {
                     outline: none;
                     appearance: none;
                     border: none;
                     background: none;
+                }
+                .search-label {
+                    display: none;
                 }
             }
         }
         .header-social {
             display: flex;
             gap: 1.2rem;
-
-            .social-elem {
-                display: flex;
-                align-items: center;
-                gap: .5rem;
-                height: 1.5rem;
-
-                img.social-icon {
-                    height: 100%;
-                }
-                span.social-name {
-                    font-size: .9rem;
-                }
-            }
         }
     }
 }
@@ -225,26 +365,32 @@ main.template-ctn {
 //##############################################################################################################
 
 footer.footer-ctn {
+    height: 12rem;
+    padding: 2.5rem 10% 1.2rem 10%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     .copyrights {
-
+        font-size: 1rem;
+        color: $blue;
     }
     nav.footer-links {
+        display: flex;
+        gap: 2.5rem;
 
         a.footer-link {
+            font-size: 1.2rem;
+            color: $blue;
+            transition: color 200ms ease-out 20ms;
 
+            &:hover {
+                color: $orange;
+            }
         }
     }
     .footer-social {
-
-        .social-elem {
-
-            img.social-icon {
-
-            }
-            span.social-name {
-
-            }
-        }
+        display: flex;
+        gap: 1.2rem;
     }
 }

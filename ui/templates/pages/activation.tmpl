@@ -8,11 +8,21 @@
         {{/*Title*/}}
         <span class="title">Antoine's Portfolio</span>
 
+        {{/*Generic error messages*/}}
+        {{ range .Form.NonFieldErrors }}
+            <div class="form-error">{{ . }}</div>
+        {{ end }}
+
+        {{/*Token error message*/}}
+        {{ with .Form.FieldErrors.token }}
+            <div class="form-error">{{ . }}</div>
+        {{ end }}
+
         {{/*CSRF Token*/}}
         <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
 
         {{/*Activation Token*/}}
-        <input type="hidden" name="token" value="{{ .ActivationToken }}">
+        <input type="hidden" name="token" value="{{ .Form.ActivationToken }}">
 
         {{/*Submit Button*/}}
         <div class="submit">

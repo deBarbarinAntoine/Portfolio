@@ -10,7 +10,7 @@
 
     <title> {{ .Title }} </title>
 
-    <link rel="icon" type="image/png" href="/static/img/logo/logo_icon.png">
+    <link rel="icon" type="image/png" href="/static/img/logo/logo.png">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -41,9 +41,12 @@
                     {{/*CSRF Token*/}}
                     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
 
+                    {{/*Shortcut Message*/}}
+                    <span class="search-label">Ctrl+K</span>
+
                     {{/*Search input*/}}
-                    <label for="search-input"></label>
-                    <input type="text" name="q" id="search-input" class="search-input" />
+                    <label class="abs display-none" for="search-input"></label>
+                    <input type="text" name="q" id="search-input" class="search-input" required />
 
                     {{/*Submit button*/}}
                     <button type="submit" class="search-btn">
@@ -117,19 +120,19 @@
 
                 {{/*LinkedIn*/}}
                 <div class="social-elem">
-                    <img src="/static/icons/linkedin.svg" alt="linkedin icon" class="social-icon" />
+                    <img src="/static/img/icons/linkedin-icon.svg" alt="linkedin icon" class="social-icon" />
                     <span class="social-name">LinkedIn</span>
                 </div>
 
                 {{/*Github*/}}
                 <div class="social-elem">
-                    <img src="/static/icons/github.svg" alt="github icon" class="social-icon" />
+                    <img src="/static/img/icons/github-icon.svg" alt="github icon" class="social-icon" />
                     <span class="social-name">Github</span>
                 </div>
 
                 {{/*Discord*/}}
                 <div class="social-elem">
-                    <img src="/static/icons/discord.svg" alt="discord icon" class="social-icon" />
+                    <img src="/static/img/icons/discord-icon.svg" alt="discord icon" class="social-icon" />
                     <span class="social-name">Discord</span>
                 </div>
 
@@ -143,14 +146,42 @@
 {{/* #######################################################################################*/}}
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
     <script nonce="{{ .Nonce }}">
 
-        {{/*DEBUG*/}}
-        console.log('hello there!\nNonce: {{ .Nonce }}');
-
-
         {{/*including the CSRF token in the axios requests*/}}
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = {{.CSRFToken}};
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = {{ .CSRFToken }};
+
+        {{/*Prevent predefined messages when search is invalid*/}}
+        const searchInput = document.querySelector('input#search-input.search-input');
+        searchInput.addEventListener('invalid', (function () {
+            return function (e) {
+                e.preventDefault();
+                searchInput.focus();
+            };
+        })(), true);
+
+        {{/*Access search input when typing Ctrl+K*/}}
+        document.addEventListener("keydown", (e) => {
+            e = e || window.event;
+            if (e.ctrlKey && e.key === "k") {
+                searchInput.focus();
+                e.preventDefault();
+            }
+        });
+
+        {{/*Access search input when clicking on tag Ctrl+K*/}}
+        const searchTag = document.querySelector('.search-label');
+        searchTag.addEventListener('click', () => searchInput.focus());
+
+
+{{/*####################################*/}}
+{{/*    Remove CSRF token from URL      */}}
+{{/*####################################*/}}
+
+        if (window.location.href.includes('csrf_token')) {
+            window.history.pushState({}, "{{ .Title }}", window.location.href.replace(/csrf_token[^&]+&?/, ''));
+        }
 
 
 {{/*####################################*/}}

@@ -51,11 +51,11 @@ func (app *application) index(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "home.tmpl", tmplData)
 }
 
-func (app *application) about(w http.ResponseWriter, r *http.Request) {
+func (app *application) policies(w http.ResponseWriter, r *http.Request) {
 
 	// retrieving basic template data
 	tmplData := app.newTemplateData(r)
-	tmplData.Title = "Antoine de Barbarin - About"
+	tmplData.Title = "Antoine de Barbarin - Policies"
 
 	// rendering the template
 	app.render(w, r, http.StatusOK, "policies.tmpl", tmplData)
@@ -224,11 +224,10 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// verifying the user data
-	v := validator.New()
-	if data.ValidateUser(v, user); !v.Valid() {
+	if data.ValidateUser(&form.Validator, user); !form.Valid() {
 
 		// redirect to login page with errors
-		app.failedValidationError(w, r, form, v, "register.tmpl")
+		app.failedValidationError(w, r, form, &form.Validator, "register.tmpl")
 		return
 	}
 
@@ -237,8 +236,8 @@ func (app *application) registerPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrDuplicateEmail):
-			v.AddFieldError("email", "a user with this email address already exists")
-			app.failedValidationError(w, r, form, v, "register.tmpl")
+			form.AddFieldError("email", "a user with this email address already exists")
+			app.failedValidationError(w, r, form, &form.Validator, "register.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
@@ -277,12 +276,16 @@ func (app *application) activate(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Activation"
 
-	// retrieving the activation token from the URL
-	tmplData.ActivationToken = flow.Param(r.Context(), "token")
-	if tmplData.ActivationToken == "" {
-		app.clientError(w, r, http.StatusBadRequest)
+	// retrieving the activation token from the URL and checking it
+	form := newUserActivationForm()
+	form.ActivationToken = flow.Param(r.Context(), "token")
+	if form.ValidateToken(form.ActivationToken); !form.Valid() {
+		app.failedValidationError(w, r, form, &form.Validator, "activation.tmpl")
 		return
 	}
+
+	// putting the form in the template data
+	tmplData.Form = form
 
 	// rendering the template
 	app.render(w, r, http.StatusOK, "activation.tmpl", tmplData)
@@ -299,20 +302,18 @@ func (app *application) activatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// checking the data from the user and return to activation page if there is an error
-	if form.ValidateToken(form.Token); !form.Valid() {
+	if form.ValidateToken(form.ActivationToken); !form.Valid() {
 		app.failedValidationError(w, r, form, &form.Validator, "activation.tmpl")
 		return
 	}
 
-	v := validator.New()
-
 	// fetching the user with the token
-	user, err := app.models.UserModel.GetForToken(data.TokenActivation, form.Token)
+	user, err := app.models.UserModel.GetForToken(data.TokenActivation, form.ActivationToken)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
-			v.AddFieldError("token", "invalid or expired activation link")
-			app.failedValidationError(w, r, form, v, "activation.tmpl")
+			form.AddFieldError("token", "invalid or expired activation link")
+			app.failedValidationError(w, r, form, &form.Validator, "activation.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
@@ -507,15 +508,13 @@ func (app *application) resetPasswordPost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	v := validator.New()
-
 	// fetching the user with the token
 	user, err := app.models.UserModel.GetForToken(data.TokenReset, form.Token)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
-			v.AddFieldError("token", "invalid or expired link")
-			app.failedValidationError(w, r, form, v, "reset-password.tmpl")
+			form.AddFieldError("token", "invalid or expired link")
+			app.failedValidationError(w, r, form, &form.Validator, "reset-password.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}
@@ -738,15 +737,14 @@ func (app *application) updateUserPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// updating the user
-	v := validator.New()
 	err = app.models.UserModel.Update(user)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.clientError(w, r, http.StatusNotFound)
 		case errors.Is(err, data.ErrDuplicateEmail):
-			v.AddFieldError("email", "email is already in use")
-			app.failedValidationError(w, r, form, v, "user-update.tmpl")
+			form.AddFieldError("email", "email is already in use")
+			app.failedValidationError(w, r, form, &form.Validator, "user-update.tmpl")
 		default:
 			app.serverError(w, r, err)
 		}

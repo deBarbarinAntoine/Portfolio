@@ -55,9 +55,9 @@ func (app *application) routes() http.Handler {
 	/*	COMMON
 	/* #############################################################################*/
 
-	router.HandleFunc("/", app.index, http.MethodGet)      // landing page
-	router.HandleFunc("/home", app.index, http.MethodGet)  // landing page
-	router.HandleFunc("/about", app.about, http.MethodGet) // about page
+	router.HandleFunc("/", app.index, http.MethodGet)            // landing page
+	router.HandleFunc("/home", app.index, http.MethodGet)        // landing page
+	router.HandleFunc("/policies", app.policies, http.MethodGet) // policies page
 
 	router.HandleFunc("/post/:id", app.postIncrementView, http.MethodPost) // AJAX call increment post view
 	router.HandleFunc("/post/:id", app.postGet, http.MethodGet)            // post page

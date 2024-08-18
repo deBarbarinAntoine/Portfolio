@@ -131,8 +131,8 @@ func (v *Validator) ValidateNewPassword(newPassword, confirmationPassword string
 }
 
 func (v *Validator) ValidateToken(token string) {
-	v.Check(token != "", "token", "must be provided")
-	v.Check(len(token) == 86, "token", "must be 86 bytes long")
+	v.Check(token != "", "token", "you need a special link to access here")
+	v.Check(len(token) == 86, "token", "invalid link")
 }
 
 func NotBlank(fieldName string) bool {

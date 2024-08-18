@@ -50,7 +50,6 @@ type templateData struct {
 	IsAuthenticated bool
 	Nonce           string
 	CSRFToken       string
-	ActivationToken string
 	ResetToken      string
 	Error           struct {
 		Title   string
@@ -105,7 +104,7 @@ type userRegisterForm struct {
 }
 
 type userActivationForm struct {
-	Token               string `form:"token"`
+	ActivationToken     string `form:"token"`
 	validator.Validator `form:"-"`
 }
 

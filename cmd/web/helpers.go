@@ -133,9 +133,6 @@ func (app *application) failedValidationError(w http.ResponseWriter, r *http.Req
 
 	tmplData.Form = form
 
-	tmplData.FieldErrors = v.FieldErrors
-	tmplData.NonFieldErrors = v.NonFieldErrors
-
 	// render the template
 	app.render(w, r, http.StatusUnprocessableEntity, page, tmplData)
 }
