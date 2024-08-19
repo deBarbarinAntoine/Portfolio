@@ -258,20 +258,54 @@
     width: 100%;
     gap: 12rem;
 
+    .background-img-ctn {
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 12%;
+            background: linear-gradient(180deg, $dark-blue 20%, transparentize($dark-blue, 1) 100%);
+            z-index: 5;
+        }
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            height: 12%;
+            background: linear-gradient(180deg, transparentize($dark-blue, 1) 0%, $dark-blue 80%);
+            z-index: 5;
+        }
+        .background-img {
+            object-fit: cover;
+            object-position: center;
+            height: 100%;
+            width: 100%;
+            z-index: 3;
+        }
+    }
+
     .overview {
         display: flex;
         flex-direction: column;
+        justify-content: center;
         align-items: center;
         width: 100%;
+        padding-bottom: 12rem;
+        min-height: calc(100dvh - 12rem);
 
         .card-resume {
-            width: 37vw;
+            width: clamp(270px, 37vw, 800px);
             display: flex;
             flex-direction: column;
             aspect-ratio: 10/7;
             border-radius: .7rem;
             overflow: hidden;
-            box-shadow: transparentize($white, 0.45) 0 .5rem 1.2rem;
+            box-shadow: 0 0 1rem .4rem transparentize($white, 0.45);
 
             .top-stripe {
                 height: 7%;
@@ -284,7 +318,7 @@
 
                 span.nationality {
                     text-transform: uppercase;
-                    font-size: 1.3vw;
+                    font-size: clamp(1.15rem, 1.3vw, 2.3rem);
                     letter-spacing: .6ch;
                 }
             }
@@ -334,7 +368,7 @@
                         position: absolute;
                         bottom: 0;
                         right: 0;
-                        font-size: 23vw;
+                        font-size: clamp(165px, 23vw, 500px);
                         color: $white;
                         font-weight: 300;
                         transform: translateY(21.5%) translateX(5%);
@@ -346,13 +380,13 @@
                         z-index: 5;
 
                         span.label {
-                            font-size: 1.12vw;
+                            font-size: clamp(1.05rem, 1.12vw, 2.1rem);
                             color: $dark-blue;
                             font-weight: bold;
                         }
                         span.value {
                             text-transform: uppercase;
-                            font-size: 1.1vw;
+                            font-size: clamp(1rem, 1.1vw, 2rem);
                             color: $dark-blue;
                         }
                     }
@@ -367,13 +401,13 @@
                             justify-content: center;
                             align-items: center;
                             background-color: $medium-blue;
-                            height: 1.3vw;
+                            height: clamp(1.15rem, 1.3vw, 2.3rem);
                             width: max-content;
                             padding: .17ch 1.2ch;
-                            border-radius: .65vw;
+                            border-radius: clamp(.6rem, .65vw, 1.15rem);
 
                             span.tag-text {
-                                font-size: .8vw;
+                                font-size: clamp(.8rem, .8vw, 1.8rem);
                                 color: $white;
                             }
                         }
@@ -414,7 +448,7 @@
 
                     span.btn-txt {
                         color: $dark-blue;
-                        font-size: 1.7vw;
+                        font-size: clamp(1.5rem, 1.7vw, 2.5rem);
                     }
                     img.btn-icon {
                         height: 30%;
@@ -428,33 +462,113 @@
         }
     }
     .about-me {
+        min-height: 100dvh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-        .intro-title {
-
-        }
         .about-ctn {
+            display: flex;
+            flex-direction: column;
+            gap: 3.5rem;
+            width: 65%;
+            min-height: 37dvh;
+            padding: 3rem 5rem;
+            background-color: $medium-blue;
+            border-radius: .5rem;
+            box-shadow: 0 0 1.5rem .25rem transparentize($white, 0.45);
 
+            &::before {
+                position: absolute;
+                top: .35rem;
+                left: 1.8rem;
+                content: '“';
+                font-size: 7rem;
+                color: transparentize($white, 0.75);
+            }
+            &::after {
+                position: absolute;
+                top: calc(100% - 5.5rem);
+                right: 1.8rem;
+                content: '”';
+                font-size: 7rem;
+                color: transparentize($white, 0.75);
+            }
+            .intro-title {
+                font-size: 3.5rem;
+                color: $bright-blue;
+                margin-bottom: 2rem;
+                text-align: center;
+            }
+            .about-txt {
+                font-size: 1.4rem;
+                color: $white;
+                text-align: justify;
+                line-height: 2.7rem;
+            }
+            .ynov-logo {
+                left: 1.5rem;
+                bottom: 1rem;
+                height: 4rem;
+            }
+        }
+        .img-copyright {
+            left: 0;
+            bottom: 3%;
+            transform: rotate(270deg) translateX(5ch) translateY(-3ch);
+            z-index: 10;
+
+            a {
+                font-size: .7rem;
+                color: $white;
+
+                &:hover {
+                    color: $white;
+                }
+            }
         }
     }
     .formations {
+        min-height: 100dvh;
 
         .formation-line {
 
         }
     }
-    .skills {
+    .skills-ctn {
+        min-height: 100dvh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-        .skill-line {
+        .skills {
+            display: flex;
+            flex-direction: column;
+            gap: 3.5rem;
+            width: 65%;
+            min-height: 37dvh;
+            padding: 3rem 5rem;
+            background-color: $medium-blue;
+            border-radius: .5rem;
+            box-shadow: 0 0 1.5rem .25rem transparentize($white, 0.45);
+            z-index: 5;
 
+            .skill-line {
+
+            }
         }
     }
     .experiences {
+        min-height: 100dvh;
 
         .experience-line {
 
         }
     }
     .last-post.relative {
+        min-height: 100dvh;
 
         a.abs.full.on-top {}
         img.post-img {
@@ -474,6 +588,7 @@
         }
     }
     .popular-posts {
+        min-height: 100dvh;
 
         .popular-line.relative {
 
@@ -502,6 +617,11 @@
         }
     }
     .contact {
+        min-height: calc(100dvh - 12rem);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
 
         .contact-title {
 

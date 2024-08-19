@@ -185,7 +185,7 @@ $font-weight: 600; // 400 regular 500 medium 600 semi-bold 700 bold 800 extra-bo
     display: flex;
     align-items: center;
     gap: .5rem;
-    height: 1.5rem;
+    height: 1.6rem;
     cursor: pointer;
     transition: color 200ms ease-out 20ms;
 
@@ -193,7 +193,7 @@ $font-weight: 600; // 400 regular 500 medium 600 semi-bold 700 bold 800 extra-bo
         height: 100%;
     }
     span.social-name {
-        font-size: .9rem;
+        font-size: 1.12rem;
     }
     &:hover {
         color: $orange;
@@ -262,14 +262,14 @@ header.header-ctn {
 
         .name {
             width: max-content;
-            font-size: 1.7rem;
+            font-size: 1.8rem;
         }
         nav.header-nav {
             display: flex;
             gap: 2.5rem;
 
             a.header-link {
-                font-size: 1.2rem;
+                font-size: 1.4rem;
                 color: $blue;
                 transition: color 200ms ease-out 20ms;
 
@@ -322,7 +322,7 @@ header.header-ctn {
                 font-family: $font;
                 color: $blue;
                 font-weight: bold;
-                font-size: 1.1rem;
+                font-size: 1.2rem;
             }
             &:has(input#search-input.search-input:focus, input#search-input.search-input:focus-within, input#search-input.search-input:focus-visible, input#search-input.search-input:active, input#search-input.search-input:valid) {
                 border-radius: .6rem;

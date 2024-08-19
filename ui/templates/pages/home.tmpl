@@ -87,10 +87,19 @@
         {{/* #######################################################################################*/}}
 
         {{ with .Author.Presentation }}
-            <div class="about-me">
-                <div class="intro-title">About me</div>
-                <div class="about-ctn">
-                    {{ . }}
+            <div class="about-me relative">
+                <div class="background-img-ctn abs full">
+                    <img src="/static/img/classroom-img.jpg" alt="freepik classroom image" class="background-img">
+                </div>
+                <div class="about-ctn relative">
+                    <div class="intro-title">About me</div>
+                    <div class="about-txt">
+                        {{ . }}
+                    </div>
+                    <img src="/static/img/logo/logo_ynov_campus_aix_white.svg" alt="Aix Ynov Campus logo" class="ynov-logo abs">
+                </div>
+                <div class="img-copyright abs">
+                    <a href="https://www.freepik.com/free-ai-image/innovative-futuristic-classroom-students_76559633.htm#fromView=search&page=1&position=39&uuid=a20bbf88-9085-4afa-bb16-95d69833f3ae">Image by freepik</a>
                 </div>
             </div>
         {{ end }}
@@ -115,11 +124,17 @@
         {{/* #######################################################################################*/}}
 
         {{ with .Author.Tags }}
-            <div class="skills">
-                {{ range . }}
-                    <div class="skill-line">{{ . }}</div>
-                {{ end }}
+            <div class="skills-ctn relative">
+                <div class="background-img-ctn abs full">
+                    <img src="/static/img/coding-screen-img.png" alt="coding screen image" class="background-img">
+                </div>
+                <div class="skills">
+                    {{ range . }}
+                        <div class="skill-line">{{ . }}</div>
+                    {{ end }}
+                </div>
             </div>
+
         {{ end }}
 
 
