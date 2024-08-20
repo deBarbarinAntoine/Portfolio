@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/alexedwards/flow"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -93,6 +94,29 @@ func (app *application) search(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "search.tmpl", tmplData)
 }
 
+func (app *application) latestPosts(w http.ResponseWriter, r *http.Request) {
+
+	// retrieving basic template data
+	tmplData := app.newTemplateData(r)
+	tmplData.Title = "Antoine de Barbarin - Latest Posts"
+
+	// get the latest posts
+	var err error
+	tmplData.Posts.List, tmplData.Posts.Metadata, err = app.models.PostModel.Get("", data.NewPostFilters(url.Values{"sort": []string{"-created_at"}}))
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.clientError(w, r, http.StatusNotFound)
+		default:
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	// rendering the template
+	app.render(w, r, http.StatusOK, "latest.tmpl", tmplData)
+}
+
 func (app *application) postGet(w http.ResponseWriter, r *http.Request) {
 
 	// fetching the post ID
@@ -134,6 +158,9 @@ func (app *application) contact(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, r, http.StatusBadRequest)
 		return
 	}
+
+	// DEBUG
+	app.logger.Debug(fmt.Sprintf("form: %+v", form))
 
 	// checking the form data
 	form.StringCheck(form.Name, 2, 70, true, "name")
@@ -480,12 +507,18 @@ func (app *application) resetPassword(w http.ResponseWriter, r *http.Request) {
 	tmplData := app.newTemplateData(r)
 	tmplData.Title = "Antoine de Barbarin - Reset password"
 
+	// filling the form with empty values
+	form := newResetPasswordForm()
+
 	// retrieving the reset token from the URL
-	tmplData.ResetToken = flow.Param(r.Context(), "token")
-	if tmplData.ResetToken == "" {
-		app.clientError(w, r, http.StatusBadRequest)
+	form.Token = flow.Param(r.Context(), "token")
+	if form.ValidateToken(form.Token); !form.Valid() {
+		app.failedValidationError(w, r, form, &form.Validator, "reset-password.tmpl")
 		return
 	}
+
+	// putting the form in the template data
+	tmplData.Form = form
 
 	// rendering the template
 	app.render(w, r, http.StatusOK, "reset-password.tmpl", tmplData)

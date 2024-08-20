@@ -10,6 +10,7 @@ $bright-blue: #75DDDD;
 $red: #A91101;
 $orange: #FB8500;
 $yellow: #FFB703;
+$cream: #FFEBB8;
 $white: #E6E6FA;
 
 $font: "Dosis", sans-serif;
@@ -103,17 +104,47 @@ $font-weight: 600; // 400 regular 500 medium 600 semi-bold 700 bold 800 extra-bo
 
 
 .flash {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 5rem;
+    transform: translateY(-101%);
+    transition: transform 200ms ease-out 20ms;
+    display: flex;
+    justify-content: center;
 
+    span.flash-message {
+        height: 100%;
+        padding: 1.65rem 5rem;
+        border-radius: 0 0 .6rem .6rem;
+        border: 4px solid $orange;
+        border-top: none;
+        background-color: $cream;
+        color: $medium-blue;
+        font-size: 1.7rem;
+        font-weight: 650;
+    }
 }
 .alert {
     margin: 1.2rem 0;
-    padding: .7rem 1.4rem;
+    padding: 1rem 2.5rem;
     font-size: 1.4rem;
+    font-weight: 600;
     text-align: center;
-    background-color: $orange;
-    border: $red solid 2px;
+    background-color: $yellow;
+    border: $red solid 3px;
     border-radius: .4rem;
     color: $red;
+
+    span {
+        color: $red;
+        font-size: 1.4rem;
+    }
+    span.search-text {
+        color: $red;
+        font-weight: 800;
+        font-size: 1.4rem;
+    }
 }
 .separator {
     width: 100%;
@@ -121,6 +152,31 @@ $font-weight: 600; // 400 regular 500 medium 600 semi-bold 700 bold 800 extra-bo
     border-radius: 2px;
     background-color: $blue;
     margin: 2.5rem 0;
+
+    &.white {
+        background-color: $white;
+    }
+}
+.v-separator {
+    height: 100%;
+    width: 4px;
+    border-radius: 2px;
+    background-color: $blue;
+
+    &.white {
+        background-color: $white;
+    }
+}
+.blue-filter-light {
+    background-color: transparentize($dark-blue, .85);
+    z-index: 4;
+}
+.blue-filter-heavy {
+    background-color: transparentize($dark-blue, .10);
+    z-index: 4;
+}
+.blur {
+    backdrop-filter: blur(1.5px);
 }
 .form-button,
 .button {

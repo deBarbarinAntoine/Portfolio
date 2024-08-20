@@ -62,7 +62,8 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("/post/:id", app.postIncrementView, http.MethodPost) // AJAX call increment post view
 	router.HandleFunc("/post/:id", app.postGet, http.MethodGet)            // post page
 
-	router.HandleFunc("/search", app.search, http.MethodGet) // search page
+	router.HandleFunc("/search", app.search, http.MethodGet)      // search page
+	router.HandleFunc("/latest", app.latestPosts, http.MethodGet) // latest posts page
 
 	router.HandleFunc("/contact", app.contact, http.MethodPost) // contact message treatment page
 
@@ -73,11 +74,11 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("/login", app.login, http.MethodGet)      // login page
 	router.HandleFunc("/login", app.loginPost, http.MethodPost) // login treatment route
 
-	router.HandleFunc("/register", app.register, http.MethodGet)      // register page
-	router.HandleFunc("/register", app.registerPost, http.MethodPost) // register treatment route
+	//router.HandleFunc("/register", app.register, http.MethodGet)      // register page
+	//router.HandleFunc("/register", app.registerPost, http.MethodPost) // register treatment route
 
-	router.HandleFunc("/activation/:token", app.activate, http.MethodGet) // activation page
-	router.HandleFunc("/activation", app.activatePost, http.MethodPost)   // activation treatment route
+	//router.HandleFunc("/activation/:token", app.activate, http.MethodGet) // activation page
+	//router.HandleFunc("/activation", app.activatePost, http.MethodPost)   // activation treatment route
 
 	router.HandleFunc("/forgot-password", app.forgotPassword, http.MethodGet)      // forgot password page
 	router.HandleFunc("/forgot-password", app.forgotPasswordPost, http.MethodPost) // forgot password treatment route

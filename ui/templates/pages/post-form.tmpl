@@ -52,9 +52,7 @@
                 {{ with .Form.FieldErrors.content }}
                     <div class="form-error">{{ . }}</div>
                 {{ end }}
-                <textarea name="content" id="content" cols="30" rows="50" class="input-post-content" placeholder="Type the content here..." required>
-                    {{ .Form.Content }}
-                </textarea>
+                <textarea name="content" id="content" cols="30" rows="50" class="input-post-content" placeholder="Type the content here..." required>{{- .Form.Content -}}</textarea>
             </div>
 
         </div>

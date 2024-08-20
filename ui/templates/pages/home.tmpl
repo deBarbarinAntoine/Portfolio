@@ -125,14 +125,98 @@
 
         {{ with .Author.Tags }}
             <div class="skills-ctn relative">
+
+                {{/*Background Image with Filter*/}}
                 <div class="background-img-ctn abs full">
                     <img src="/static/img/coding-screen-img.png" alt="coding screen image" class="background-img">
+                    <div class="blue-filter-light blur abs full"></div>
                 </div>
-                <div class="skills">
-                    {{ range . }}
-                        <div class="skill-line">{{ . }}</div>
-                    {{ end }}
+
+                {{/*Left Side List of Technologies*/}}
+                <div class="skills-left">
+                    <div class="tech-list">
+
+                        {{/*Languages*/}}
+                        <div class="tech-division">
+                            <div class="title">Programming languages</div>
+                            <div class="list-icon">
+                                <img src="/static/img/icons/tech/go-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/html5-plain-wordmark.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/css3-plain-wordmark.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/sass-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/javascript-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/nodejs-original-wordmark.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/express-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/bash-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/java-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/cplusplus-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/csharp-original.svg" alt="tech icon" class="tech-icon">
+                            </div>
+                        </div>
+
+                        {{/*Programming Environment*/}}
+                        <div class="tech-division">
+                            <div class="title">Programming software</div>
+                            <div class="list-icon">
+                                <img src="/static/img/icons/tech/docker-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/figma-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/git-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/godot-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/jetbrains-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/npm-original-wordmark.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/unity-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/vim-original.svg" alt="tech icon" class="tech-icon">
+                            </div>
+                        </div>
+
+                        {{/*Databases*/}}
+                        <div class="tech-division">
+                            <div class="title">Databases</div>
+                            <div class="list-icon">
+                                <img src="/static/img/icons/tech/mysql-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/postgresql-original.svg" alt="tech icon" class="tech-icon">
+                            </div>
+                        </div>
+
+                        {{/*Operating Systems & IT infrastructure*/}}
+                        <div class="tech-division">
+                            <div class="title">IT infrastructure</div>
+                            <div class="list-icon">
+                                <img src="/static/img/icons/tech/debian-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/linux-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/pfsense-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/ubuntu-original.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/ssh-original-wordmark.svg" alt="tech icon" class="tech-icon">
+                                <img src="/static/img/icons/tech/vmware.png" alt="tech icon" class="tech-icon">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                {{/*Right Side: Language Icon and Skill List*/}}
+                <div class="skills-right">
+                    <div class="right-ctn">
+
+                        {{/*Skills Icon*/}}
+                        <img src="/static/img/icons/code-icon.svg" alt="code icon" class="skills-icon">
+
+                        {{/*Skills Container*/}}
+                        <div class="skills">
+
+                            {{/*Skills Title*/}}
+                            <div class="skill-title">Skills</div>
+
+                            {{/*Skill Tags*/}}
+                            {{ range . }}
+                                <div class="skill-line">
+                                    <img src="/static/img/icons/app-icon.svg" alt="app icon" class="skill-icon">
+                                    <span class="skill-name"> {{ . }} </span>
+                                </div>
+                            {{ end }}
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         {{ end }}
@@ -159,35 +243,84 @@
 
         {{ with .PostFeed }}
 
-            {{ with .Last }}
-                <div class="last-post relative">
-                    <a href="/post/{{ .ID }}" class="abs full on-top"></a>
-                    <img src="{{ index .Images 0 }}" alt="post image" class="post-img" />
-                    <div class="post-views abs">{{ .Views }} views</div>
-                    <div class="post-title">{{ .Title }}</div>
-                    <div class="post-created-at">Published: {{ .CreatedAt }}</div>
-                    <div class="post-updated-at">Edited: {{ .UpdatedAt }}</div>
-                </div>
-            {{ end }}
+            {{/*Post Feed Element*/}}
+            <div class="post-feed-ctn">
+                <div class="post-feed">
 
-            {{ with .Popular }}
-                <div class="popular-posts">
-                    {{ range . }}
-                        <div class="popular-line relative">
+                    {{/*Last Post*/}}
+                    {{ with .Last }}
+                        <div class="last-post relative">
                             <a href="/post/{{ .ID }}" class="abs full on-top"></a>
-                            <div class="img-ctn">
+
+                            {{/*Post Cover Image*/}}
+                            <div class="post-img-ctn abs full">
                                 <img src="{{ index .Images 0 }}" alt="post image" class="post-img" />
+                                <div class="abs full blue-filter-heavy blur"></div>
                             </div>
-                            <div class="post-summary relative">
-                                <div class="post-views abs">{{ .Views }} views</div>
+
+                            {{/*Post Information*/}}
+                            <div class="last-post-content">
+
+                                {{/*View Count*/}}
+                                <div class="post-views abs">
+                                    <svg class="view-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 14.5347C11.2335 13.8218 12.7663 13.8218 13.9999 14.5347M2 15L2.70149 7.98511C2.72808 7.71915 2.74138 7.58617 2.76178 7.47208C3.00222 6.12702 4.1212 5.11436 5.48352 5.00894C5.59907 5 5.73271 5 6 5M22 15L21.2985 7.98511C21.2719 7.71916 21.2586 7.58617 21.2382 7.47208C20.9978 6.12702 19.8788 5.11436 18.5165 5.00894C18.4009 5 18.2673 5 18 5M8.82843 12.1716C10.3905 13.7337 10.3905 16.2663 8.82843 17.8284C7.26634 19.3905 4.73367 19.3905 3.17157 17.8284C1.60948 16.2663 1.60948 13.7337 3.17157 12.1716C4.73366 10.6095 7.26633 10.6095 8.82843 12.1716ZM20.8284 12.1716C22.3905 13.7337 22.3905 16.2663 20.8284 17.8284C19.2663 19.3905 16.7337 19.3905 15.1716 17.8284C13.6095 16.2663 13.6095 13.7337 15.1716 12.1716C16.7337 10.6095 19.2663 10.6095 20.8284 12.1716Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span class="text"> {{ .Views }} </span>
+                                </div>
+
+                                {{/*Post Title*/}}
                                 <div class="post-title">{{ .Title }}</div>
-                                <div class="post-created-at">Published: {{ .CreatedAt }}</div>
-                                <div class="post-updated-at">Edited: {{ .UpdatedAt }}</div>
+
+                                {{/*Post Creation/Update Dates*/}}
+                                <div class="post-dates">
+                                    <div class="post-created-at">Published: {{ humanDate .CreatedAt }}</div>
+                                    <div class="post-updated-at">Edited: {{ humanDate .UpdatedAt }}</div>
+                                </div>
                             </div>
                         </div>
                     {{ end }}
+
+                    <div class="v-separator white"></div>
+
+                    {{/*Popular Posts List*/}}
+                    {{ with .Popular }}
+                        <div class="popular-posts">
+                            {{ range . }}
+                                <div class="popular-line relative">
+                                    <a href="/post/{{ .ID }}" class="abs full on-top"></a>
+
+                                    {{/*Post Cover Image*/}}
+                                    <div class="img-ctn">
+                                        <img src="{{ index .Images 0 }}" alt="post image" class="post-img" />
+                                    </div>
+
+                                    {{/*Post Information*/}}
+                                    <div class="post-summary relative">
+
+                                        {{/*View Count*/}}
+                                        <div class="post-views abs">
+                                            <svg class="view-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M10 14.5347C11.2335 13.8218 12.7663 13.8218 13.9999 14.5347M2 15L2.70149 7.98511C2.72808 7.71915 2.74138 7.58617 2.76178 7.47208C3.00222 6.12702 4.1212 5.11436 5.48352 5.00894C5.59907 5 5.73271 5 6 5M22 15L21.2985 7.98511C21.2719 7.71916 21.2586 7.58617 21.2382 7.47208C20.9978 6.12702 19.8788 5.11436 18.5165 5.00894C18.4009 5 18.2673 5 18 5M8.82843 12.1716C10.3905 13.7337 10.3905 16.2663 8.82843 17.8284C7.26634 19.3905 4.73367 19.3905 3.17157 17.8284C1.60948 16.2663 1.60948 13.7337 3.17157 12.1716C4.73366 10.6095 7.26633 10.6095 8.82843 12.1716ZM20.8284 12.1716C22.3905 13.7337 22.3905 16.2663 20.8284 17.8284C19.2663 19.3905 16.7337 19.3905 15.1716 17.8284C13.6095 16.2663 13.6095 13.7337 15.1716 12.1716C16.7337 10.6095 19.2663 10.6095 20.8284 12.1716Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <span class="text"> {{ .Views }} </span>
+                                        </div>
+
+                                        {{/*Post Title*/}}
+                                        <div class="post-title">{{ .Title }}</div>
+
+                                        {{/*Post Creation/Update Dates*/}}
+                                        <div class="post-dates">
+                                            <div class="post-created-at">Published: {{ humanDate .CreatedAt }}</div>
+                                            <div class="post-updated-at">Edited: {{ humanDate .UpdatedAt }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {{ end }}
+                        </div>
+                    {{ end }}
                 </div>
-            {{ end }}
+            </div>
 
         {{ end }}
 
@@ -197,7 +330,15 @@
         {{/* #######################################################################################*/}}
 
         <div class="contact">
-            <div class="contact-title">Contact</div>
+            <div class="contact-title" id="contact-me">
+                <span class="text">Contact me</span>
+                <div class="separator"></div>
+            </div>
+
+            {{/*Generic error messages*/}}
+            {{ range .Form.NonFieldErrors }}
+                <div class="form-error">{{ . }}</div>
+            {{ end }}
 
             {{/*Contact Form*/}}
             <form action="/contact" method="post" class="contact-form">
@@ -210,20 +351,38 @@
 
                     {{/*Name*/}}
                     <div class="contact-input">
-                        <label for="name">Name*</label>
-                        <input type="text" name="name" id="name" class="contact-name" placeholder="Type your name..." value="{{ .Form.Name }}" />
+                        <label for="name">Name *</label>
+                        <input type="text" name="name" id="name" class="contact-name" placeholder="Type your name..." value="{{ .Form.Name }}" required />
+
+                        {{ with .Form.FieldErrors.name }}
+                            <div class="form-error">{{ . }}</div>
+                        {{ end }}
+
                     </div>
 
                     {{/*Email*/}}
                     <div class="contact-input">
-                        <label for="email">Email*</label>
-                        <input type="email" name="email" id="email" class="contact-email" placeholder="Type your email..." value="{{ .Form.Email }}" />
+                        <label for="email">Email *</label>
+                        <input type="email" name="email" id="email" class="contact-email" placeholder="Type your email..." value="{{ .Form.Email }}" required />
+
+                        {{ with .Form.FieldErrors.email }}
+                            <div class="form-error">{{ . }}</div>
+                        {{ end }}
+
                     </div>
                 </div>
 
                 {{/*Message Body*/}}
-                <label for="message">Message*</label>
-                <input type="text" name="message" id="message" class="contact-msg" placeholder="Type your message..." value="{{ .Form.Message }}" />
+                <div class="contact-body">
+                    <label for="message">Message *</label>
+                    <textarea name="message" id="message" class="contact-msg" placeholder="Type your message..." required>{{- .Form.Message -}}</textarea>
+
+                    {{ with .Form.FieldErrors.message }}
+                        <div class="form-error">{{ . }}</div>
+                    {{ end }}
+
+                    <span class="message">* required fields.</span>
+                </div>
 
                 {{/*Submit Button*/}}
                 <button type="submit" class="button contact-send-btn">Send</button>

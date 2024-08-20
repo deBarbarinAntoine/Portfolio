@@ -25,14 +25,15 @@
             <div class="header">
 
 {{/*            Name left           */}}
-                <div class="name">
+                <div class="name relative">
+                    <a href="/home" class="abs full on-top"></a>
                     &lt;Portfolio&sol;&gt; Antoine de Barbarin
                 </div>
 
 {{/*            Nav Home Articles           */}}
                 <nav class="header-nav">
                     <a href="/home" class="header-link">Home</a>
-                    <a href="/articles" class="header-link">Articles</a>
+                    <a href="/latest" class="header-link">Latest</a>
                 </nav>
 
 {{/*            Search bar          */}}
@@ -58,21 +59,24 @@
                 <div class="header-social">
 
                     {{/*LinkedIn*/}}
-                    <div class="social-elem">
+                    <div class="social-elem relative">
+                        <a href="https://linkedin.com/in/adebarbarin" target="_blank" class="abs full on-top"></a>
                         <img src="/static/img/icons/linkedin-icon.svg" alt="linkedin icon" class="social-icon" />
                         <span class="social-name">LinkedIn</span>
                     </div>
 
                     {{/*Github*/}}
-                    <div class="social-elem">
+                    <div class="social-elem relative">
+                        <a href="https://github.com/deBarbarinAntoine" target="_blank" class="abs full on-top"></a>
                         <img src="/static/img/icons/github-icon.svg" alt="github icon" class="social-icon" />
                         <span class="social-name">Github</span>
                     </div>
 
-                    {{/*Discord*/}}
-                    <div class="social-elem">
-                        <img src="/static/img/icons/discord-icon.svg" alt="discord icon" class="social-icon" />
-                        <span class="social-name">Discord</span>
+                    {{/*Contact Me*/}}
+                    <div class="social-elem relative">
+                        <a href="/home#contact-me" class="abs full on-top"></a>
+                        <img src="/static/img/icons/mail-icon.svg" alt="mail icon" class="social-icon" />
+                        <span class="social-name">Contact me</span>
                     </div>
                 </div>
 
@@ -89,7 +93,9 @@
 {{/*        FLASH       */}}
 {{/* Test flash messages with position fixed and a translateY transition to make it appear from the top of the screen */}}
             {{ with .Flash }}
-                <div class="flash">{{ . }}</div>
+                <div class="flash">
+                    <span class="flash-message"> {{ . }} </span>
+                </div>
             {{ end }}
 
 {{/*        TEMPLATE PAGE          */}}
@@ -119,21 +125,24 @@
             <div class="footer-social">
 
                 {{/*LinkedIn*/}}
-                <div class="social-elem">
+                <div class="social-elem relative">
+                        <a href="https://linkedin.com/in/adebarbarin" target="_blank" class="abs full on-top"></a>
                     <img src="/static/img/icons/linkedin-icon.svg" alt="linkedin icon" class="social-icon" />
                     <span class="social-name">LinkedIn</span>
                 </div>
 
                 {{/*Github*/}}
-                <div class="social-elem">
+                <div class="social-elem relative">
+                        <a href="https://github.com/deBarbarinAntoine" target="_blank" class="abs full on-top"></a>
                     <img src="/static/img/icons/github-icon.svg" alt="github icon" class="social-icon" />
                     <span class="social-name">Github</span>
                 </div>
 
-                {{/*Discord*/}}
-                <div class="social-elem">
-                    <img src="/static/img/icons/discord-icon.svg" alt="discord icon" class="social-icon" />
-                    <span class="social-name">Discord</span>
+                {{/*Contact Me*/}}
+                <div class="social-elem relative">
+                        <a href="/home#contact-me" class="abs full on-top"></a>
+                    <img src="/static/img/icons/mail-icon.svg" alt="mail icon" class="social-icon" />
+                    <span class="social-name">Contact me</span>
                 </div>
 
             </div>
@@ -151,6 +160,31 @@
 
         {{/*including the CSRF token in the axios requests*/}}
         axios.defaults.headers.common['X-CSRF-TOKEN'] = {{ .CSRFToken }};
+
+
+        {{/*####################################*/}}
+        {{/*      Flash Message Animation       */}}
+        {{/*####################################*/}}
+
+        const flash = document.querySelector('.flash');
+
+        if (!!flash) {
+
+            flash.style.transform = 'translate(0,-4px)';
+
+            setTimeout(() => {
+
+                flash.style.transform = 'translate(0,-101%)';
+
+                setTimeout(() => flash.style.display = 'none', 2000);
+
+            }, 5000);
+        }
+
+
+        {{/*####################################*/}}
+        {{/*   Search field Actions & Shorcuts  */}}
+        {{/*####################################*/}}
 
         {{/*Prevent predefined messages when search is invalid*/}}
         const searchInput = document.querySelector('input#search-input.search-input');

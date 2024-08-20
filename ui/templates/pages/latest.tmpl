@@ -4,9 +4,7 @@
     {{ if ne (len .Posts.List) 0 }}
 
     <div class="search-title">
-        {{ with .Search }}
-            <span> Posts for </span> <span class="search-text"> {{ . }} </span>
-        {{ end }}
+        <span> Latest Posts </span>
     </div>
 
     <div class="search-results">
@@ -69,11 +67,7 @@
             {{/*Alert Message*/}}
             <div class="search-title">
                 <div class="alert">
-                    {{ with .Search }}
-                        <span> No post found for </span> <span class="search-text"> {{ . }} </span> <span> :/ </span>
-                    {{ else }}
-                        <span> No research detected :/ </span>
-                    {{ end }}
+                        <span> An error occurred! </span>
                 </div>
             </div>
 

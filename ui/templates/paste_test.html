@@ -19,7 +19,60 @@
   <input type="file" name="file" id="file">
 </form>
 
+<button id="github-stats">Github Stats</button>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
+  let repos = [];
+  let stats = {};
+
+  function calcStats(stats) {
+    console.log(stats);
+    let total = 0;
+    Object.keys(stats).forEach(key => {
+      total += stats[key];
+    });
+    Object.keys(stats).forEach(key => {
+      stats[key] = (100 * stats[key]) / total;
+    });
+    console.log('job finished!')
+    console.log(stats);
+  }
+
+  function scanRepos(repos) {
+    repos.forEach(name => console.log(name));
+
+    // getting language amount for each repo
+    for (const repoName of repos) {
+      console.log(`repo_name: ${repoName}`);
+        axios.get(`https://api.github.com/repos/deBarbarinAntoine/${repoName}/languages`)
+                .then(function (response) {
+                  Object.keys(response.data).forEach(key => {
+                    if (isNaN(stats[key])) stats[key] = 0;
+                    stats[key] += response.data[key];
+                  });
+                  calcStats(stats);
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+    }
+  }
+
+  // test getting user language stats from GitHub account
+function getGithubStats() {
+  //getting repos
+  axios.get('https://api.github.com/users/deBarbarinAntoine/repos')
+          .then(function (response) {
+            response.data.forEach(datum => repos.push(datum.name));
+            scanRepos(repos);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+}
+
+document.querySelector('#github-stats').addEventListener('click', getGithubStats);
 
   // getting the inputs
   const contentInput = document.querySelector('#content');
