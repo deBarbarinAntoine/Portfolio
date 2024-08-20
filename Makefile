@@ -24,11 +24,6 @@ confirm:
 run:
 	@go run ./cmd/web -port=${PORT} -dsn=${DB_DSN} -smtp-sender=${SMTP_SENDER} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
 
-## nodemon: live run the cmd/web application
-.PHONY: nodemon
-nodemon:
-	@nodemon --exec make run
-
 ## db/psql: connect to the database using mysql
 .PHONY: db/psql
 db/psql:
@@ -84,19 +79,11 @@ vendor:
 .PHONY: build
 build:
 	@echo 'Building cmd/web...'
-	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64 ./cmd/web
-	GOOS=windows GOARCH=amd64 go build -ldflags='-s' -o=./bin/windows_amd64 ./cmd/web
+	go build -ldflags='-s' -o=./bin/portfolio ./cmd/web
 
 # =================================================================================== #
 # PRODUCTION
 # =================================================================================== #
-
-production_host_ip = "192.168.122.144"
-
-## production/connect: connect to the production server
-.PHONY: production/connect
-production/connect:
-	@sshpass -p ${SSH_PASS} ssh manager@${production_host_ip}
 
 ## bin: execute the bin application in ./bin/linux_amd64
 .PHONY: bin

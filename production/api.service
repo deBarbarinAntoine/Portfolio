@@ -19,7 +19,7 @@ User=portfolio
 Group=portfolio
 EnvironmentFile=/etc/environment
 WorkingDirectory=/home/portfolio
-ExecStart=/home/portfolio/web -port=4000 -env=production -dsn=${DB_DSN} -smtp-sender=${SMTP_SENDER} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
+ExecStart=/home/portfolio/bin/portfolio -port=4000 -env=production -dsn=${DB_DSN} -smtp-sender=${SMTP_SENDER} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
 
 # Automatically restart the service after 5-second wait if it exits with a non-zero exit code.
 # If it restarts more than 5 times in 600 seconds, then the rate limit configured
