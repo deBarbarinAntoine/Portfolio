@@ -1,7 +1,0 @@
-{
-    email mail@adebarbarin.com
-}
-
-adebarbarin.com, adebarbarin.fr {
-    reverse_proxy localhost:4000
-}
