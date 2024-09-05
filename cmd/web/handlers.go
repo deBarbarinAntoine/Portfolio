@@ -2,12 +2,15 @@ package main
 
 import (
 	"Portfolio/internal/data"
+	"Portfolio/internal/uploads"
 	"Portfolio/internal/validator"
 	"errors"
 	"fmt"
 	"github.com/alexedwards/flow"
 	"net/http"
 	"net/url"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -985,4 +988,83 @@ func (app *application) postIncrementView(w http.ResponseWriter, r *http.Request
 
 	// send the positive response back in JSON
 	app.ajaxResponse(w, http.StatusOK, "post view incremented successfully!")
+}
+
+func (app *application) uploadFile(w http.ResponseWriter, r *http.Request) {
+
+	// getting the file from the form
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		app.ajaxResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer file.Close()
+
+	// uploading the file
+	msg, err := uploads.Add(file, header)
+	if err != nil {
+		app.ajaxResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// DEBUG
+	app.logger.Debug(msg)
+
+	// respond with a validation message and the image name
+	app.ajaxResponse(w, http.StatusOK, msg)
+}
+
+func (app *application) deleteFile(w http.ResponseWriter, r *http.Request) {
+
+	// getting directory and file names
+	dir := flow.Param(r.Context(), "dir")
+	file := flow.Param(r.Context(), "file")
+
+	// retrieving the unescaped path for the directory
+	var err error
+	if dir != "" {
+		dir, err = url.PathUnescape(dir)
+		if err != nil {
+			app.ajaxResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+
+	// deleting the file
+	err = uploads.Remove(filepath.Join(dir, file))
+	if err != nil {
+		app.ajaxResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// sending the positive response
+	app.ajaxResponse(w, http.StatusOK, fmt.Sprintf("file %s successfully deleted from %s!", file, dir))
+}
+
+func (app *application) getFiles(w http.ResponseWriter, r *http.Request) {
+
+	// setting the Browser variable
+	var browser uploads.Browser
+
+	// getting directory name
+	browser.Dirname = flow.Param(r.Context(), "dir")
+
+	// retrieving the unescaped path for the directory
+	var err error
+	if browser.Dirname != "" {
+		browser.Dirname = strings.ReplaceAll(browser.Dirname, "|2F", "/")
+	}
+
+	// getting the files
+	browser.Files, err = uploads.Get(browser.Dirname)
+	if err != nil {
+		app.ajaxResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// parsing the template for the file browser
+	err = uploads.Render(w, browser)
+	if err != nil {
+		app.ajaxResponse(w, http.StatusInternalServerError, err.Error())
+	}
 }

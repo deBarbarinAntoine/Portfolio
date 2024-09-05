@@ -20,7 +20,8 @@ func (app *application) routes() http.Handler {
 	router.NotFound = http.HandlerFunc(app.notFound)                 // error 404 page
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowed) // error 405 page
 
-	router.Handle("/static/...", http.StripPrefix("/static/", http.FileServerFS(staticFs)), http.MethodGet) // static files
+	router.Handle("/static/...", http.StripPrefix("/static/", http.FileServerFS(staticFs)), http.MethodGet)            // static files
+	router.Handle("/uploads/...", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))), http.MethodGet) // uploaded files
 
 	router.Use(app.recoverPanic, app.logRequest, commonHeaders, app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
@@ -32,6 +33,7 @@ func (app *application) routes() http.Handler {
 
 		group.Use(app.requireAuthentication)
 
+		// USER
 		group.HandleFunc("/dashboard", app.dashboard, http.MethodGet)  // dashboard page
 		group.HandleFunc("/logout", app.logoutPost, http.MethodPost)   // logout route
 		group.HandleFunc("/user", app.updateUser, http.MethodGet)      // update user page
@@ -39,15 +41,25 @@ func (app *application) routes() http.Handler {
 
 		// TODO -> add delete user and more to complete the user management options
 
+		// POST HANDLING
 		group.HandleFunc("/post/create", app.createPost, http.MethodGet)          // post creation page
 		group.HandleFunc("/post/create", app.createPostPost, http.MethodPost)     // post creation treatment route
 		group.HandleFunc("/post/:id/update", app.updatePost, http.MethodGet)      // post update page
 		group.HandleFunc("/post/:id/update", app.updatePostPost, http.MethodPost) // post update treatment route
 
+		// AUTHOR HANDLING
 		group.HandleFunc("/author", app.updateAuthor, http.MethodGet)      // author update page
 		group.HandleFunc("/author", app.updateAuthorPost, http.MethodPost) // author update treatment route
 
 		// TODO -> add delete post and more to complete the posts management options
+
+		// FILES & UPLOADS
+		group.HandleFunc("/files/:dir", app.getFiles, http.MethodGet) // get file list with AJAX
+
+		group.HandleFunc("/upload", app.uploadFile, http.MethodPost) // upload file with AJAX
+
+		group.HandleFunc("/upload/:dir/:file", app.deleteFile, http.MethodDelete) // delete file with AJAX
+		group.HandleFunc("/upload/:file", app.deleteFile, http.MethodDelete)      // delete file with AJAX
 
 	})
 

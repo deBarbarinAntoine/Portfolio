@@ -6,3 +6,5 @@ setup
 tmp
 
 ui/templates/paste_test.html
+
+uploads

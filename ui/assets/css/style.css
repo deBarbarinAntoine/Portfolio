@@ -45,6 +45,12 @@
 * a:hover {
   color: #FB8500;
 }
+* button {
+  appearance: none;
+  outline: none;
+  background: none;
+  border: none;
+}
 
 .abs {
   position: absolute;
@@ -1542,6 +1548,7 @@ form.form-center .form-alt a.form-link:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 500;
 }
 .admin-actions-ctn .admin-actions {
   display: flex;
@@ -1553,7 +1560,7 @@ form.form-center .form-alt a.form-link:hover {
   background-color: #034163;
   transition: all 200ms ease-out;
 }
-.admin-actions-ctn .admin-actions .edit, .admin-actions-ctn .admin-actions .delete {
+.admin-actions-ctn .admin-actions .edit, .admin-actions-ctn .admin-actions .delete, .admin-actions-ctn .admin-actions .file-browser-btn, .admin-actions-ctn .admin-actions .logout {
   display: none;
 }
 .admin-actions-ctn .admin-actions .dots {
@@ -1562,6 +1569,15 @@ form.form-center .form-alt a.form-link:hover {
 .admin-actions-ctn .admin-actions .admin-elem {
   width: 100%;
   aspect-ratio: 1;
+  cursor: pointer;
+}
+.admin-actions-ctn .admin-actions .admin-elem a, .admin-actions-ctn .admin-actions .admin-elem button {
+  z-index: 600;
+  cursor: pointer;
+}
+.admin-actions-ctn .admin-actions .admin-elem .logout-btn {
+  width: 100%;
+  height: 100%;
 }
 .admin-actions-ctn .admin-actions .admin-elem .admin-icon {
   object-position: center;
@@ -1569,11 +1585,23 @@ form.form-center .form-alt a.form-link:hover {
   height: 100%;
   width: 100%;
 }
-.admin-actions-ctn .admin-actions .admin-elem .admin-icon path {
+.admin-actions-ctn .admin-actions .admin-elem .admin-icon .to-stroke {
   stroke: #5995ED;
 }
-.admin-actions-ctn .admin-actions .admin-elem a:hover ~ .admin-icon path {
+.admin-actions-ctn .admin-actions .admin-elem .admin-icon .to-fill {
+  fill: #5995ED;
+}
+.admin-actions-ctn .admin-actions .admin-elem a:hover ~ .admin-icon .to-stroke {
   stroke: #FB8500;
+}
+.admin-actions-ctn .admin-actions .admin-elem a:hover ~ .admin-icon .to-fill {
+  fill: #FB8500;
+}
+.admin-actions-ctn .admin-actions .admin-elem:hover .admin-icon .to-stroke {
+  stroke: #FB8500;
+}
+.admin-actions-ctn .admin-actions .admin-elem:hover .admin-icon .to-fill {
+  fill: #FB8500;
 }
 .admin-actions-ctn .admin-actions:hover {
   padding: 1.5rem 0.5rem;
@@ -1581,8 +1609,133 @@ form.form-center .form-alt a.form-link:hover {
 .admin-actions-ctn .admin-actions:hover .dots {
   display: none;
 }
-.admin-actions-ctn .admin-actions:hover .edit, .admin-actions-ctn .admin-actions:hover .delete {
+.admin-actions-ctn .admin-actions:hover .edit, .admin-actions-ctn .admin-actions:hover .delete, .admin-actions-ctn .admin-actions:hover .file-browser-btn, .admin-actions-ctn .admin-actions:hover .logout {
   display: block;
+}
+
+.file-browser-ctn {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px) grayscale(33%);
+  cursor: pointer;
+  z-index: 1000;
+}
+.file-browser-ctn img.loading-img {
+  aspect-ratio: 1;
+  width: 7rem;
+}
+.file-browser-ctn .file-browser {
+  display: flex;
+  flex-direction: column;
+  height: clamp(200px, 50%, 900px);
+  width: clamp(350px, 75%, 1300px);
+  border: 1.5px solid #111;
+  border-radius: 0.7rem;
+  overflow: hidden;
+  box-shadow: 0 0 1.5rem 0.2rem rgba(117, 221, 221, 0.15);
+  z-index: 1500;
+  cursor: default;
+}
+.file-browser-ctn .file-browser .top-bar {
+  display: flex;
+  align-items: center;
+  background-color: #02263C;
+  height: 3.5rem;
+  padding: 0.35rem;
+}
+.file-browser-ctn .file-browser .top-bar .home-icon {
+  width: 2rem;
+  cursor: pointer;
+}
+.file-browser-ctn .file-browser .top-bar .home-icon path.to-stroke {
+  stroke: #5995ED;
+}
+.file-browser-ctn .file-browser .top-bar .home-icon:hover path.to-stroke {
+  stroke: #FB8500;
+}
+.file-browser-ctn .file-browser .top-bar .title {
+  flex: 1;
+  font-size: 1.7rem;
+  color: #E6E6FA;
+  text-align: center;
+}
+.file-browser-ctn .file-browser .top-bar .quit-btn {
+  aspect-ratio: 1;
+  width: 2rem;
+  cursor: pointer;
+}
+.file-browser-ctn .file-browser .top-bar .quit-btn .quit-icon {
+  object-fit: contain;
+  object-position: center;
+  width: 100%;
+  height: 100%;
+}
+.file-browser-ctn .file-browser .file-list-ctn {
+  flex: 1;
+  display: flex;
+  background-color: #034163;
+  border-top: 1.5px solid #111;
+  overflow-y: auto;
+  position: relative;
+}
+.file-browser-ctn .file-browser .file-list-ctn .file-list {
+  flex: 1;
+  padding: 1.25rem 1.5rem 2rem 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-flow: row wrap;
+  gap: 4rem 1.5rem;
+}
+.file-browser-ctn .file-browser .file-list-ctn .file-list .file-ctn {
+  height: 6rem;
+  width: 4rem;
+  cursor: pointer;
+}
+.file-browser-ctn .file-browser .file-list-ctn .file-list .file-ctn .file-icon-ctn {
+  aspect-ratio: 1;
+  width: 100%;
+}
+.file-browser-ctn .file-browser .file-list-ctn .file-list .file-ctn .file-icon-ctn .file-icon {
+  object-fit: contain;
+  object-position: center;
+  width: 100%;
+  height: 100%;
+}
+.file-browser-ctn .file-browser .file-list-ctn .file-list .file-ctn .file-name {
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  font-size: 1rem;
+  color: #E6E6FA;
+}
+.file-browser-ctn .file-browser .file-list-ctn .image-viewer {
+  display: none;
+  position: relative;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1.5px solid #111;
+  background-color: rgba(2, 38, 60, 0.5);
+  padding: 0.4rem;
+}
+.file-browser-ctn .file-browser .file-list-ctn .image-viewer .image, .file-browser-ctn .file-browser .file-list-ctn .image-viewer .embed {
+  object-fit: contain;
+  object-position: center;
+  height: 100%;
+  width: 100%;
+}
+.file-browser-ctn .file-browser .file-list-ctn .image-viewer span.preview-name {
+  font-size: 1.2rem;
+  color: #E6E6FA;
 }
 
 .container-error {

@@ -66,7 +66,7 @@ func (app *application) logout(r *http.Request) error {
 }
 
 func newNonce() (string, error) {
-	nonceBytes := make([]byte, 16)
+	nonceBytes := make([]byte, 32)
 	_, err := rand.Read(nonceBytes)
 	if err != nil {
 		return "", err

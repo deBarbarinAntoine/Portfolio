@@ -22,7 +22,7 @@ confirm:
 ## run: run the cmd/web application
 .PHONY: run
 run:
-	@go run ./cmd/web -port=${PORT} -dsn=${DB_DSN} -smtp-sender=${SMTP_SENDER} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
+	@go run ./cmd/web -port=${PORT} -dsn=${DB_DSN} -smtp-sender="${SMTP_SENDER}" -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
 
 ## db/psql: connect to the database using mysql
 .PHONY: db/psql
@@ -89,4 +89,4 @@ build:
 .PHONY: bin
 bin:
 	@echo 'Executing binary...'
-	@./bin/linux_amd64 -port=${PORT} -dsn=${DB_DSN} -smtp-sender=${SMTP_SENDER} -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}
+	@./bin/linux_amd64 -port=${PORT} -dsn=${DB_DSN} -smtp-sender="${SMTP_SENDER}" -smtp-username=${SMTP_USERNAME} -smtp-password=${SMTP_PASS} -smtp-host=${SMTP_HOST} -smtp-port=${SMTP_PORT}

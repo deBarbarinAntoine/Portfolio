@@ -1315,6 +1315,7 @@ form.form-center {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    z-index: 500;
 
     .admin-actions {
         display: flex;
@@ -1326,7 +1327,7 @@ form.form-center {
         background-color: $medium-blue;
         transition: all 200ms ease-out;
 
-        .edit, .delete {
+        .edit, .delete, .file-browser-btn, .logout {
             display: none;
         }
         .dots {
@@ -1335,19 +1336,43 @@ form.form-center {
         .admin-elem {
             width: 100%;
             aspect-ratio: 1;
+            cursor: pointer;
 
+            a, button {
+                z-index: 600;
+                cursor: pointer;
+            }
+            .logout-btn {
+                width: 100%;
+                height: 100%;
+            }
             .admin-icon {
                 object-position: center;
                 object-fit: contain;
                 height: 100%;
                 width: 100%;
 
-                path {
+                .to-stroke {
                     stroke: $blue;
                 }
+                .to-fill {
+                    fill: $blue;
+                }
             }
-            a:hover ~ .admin-icon path {
+            a:hover ~ .admin-icon .to-stroke {
                 stroke: $orange;
+            }
+            a:hover ~ .admin-icon .to-fill {
+                fill: $orange;
+            }
+            &:hover .admin-icon {
+
+                .to-stroke {
+                    stroke: $orange;
+                }
+                .to-fill {
+                    fill: $orange;
+                }
             }
         }
         &:hover {
@@ -1356,7 +1381,7 @@ form.form-center {
             .dots {
                 display: none;
             }
-            .edit, .delete {
+            .edit, .delete, .file-browser-btn, .logout {
                 display: block;
             }
         }
@@ -1368,6 +1393,144 @@ form.form-center {
 //##############################################################################################################
 
 
+//##############################################################################################################
+//                                                FILE BROWSER                                                 #
+//##############################################################################################################
+
+.file-browser-ctn {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px) grayscale(33%);
+    cursor: pointer;
+    z-index: 1000;
+
+    img.loading-img {
+        aspect-ratio: 1;
+        width: 7rem;
+    }
+    .file-browser {
+        display: flex;
+        flex-direction: column;
+        height: clamp(200px, 50%, 900px);
+        width: clamp(350px, 75%, 1300px);
+        border: 1.5px solid #111;
+        border-radius: .7rem;
+        overflow: hidden;
+        box-shadow:  0 0 1.5rem .2rem transparentize($bright-blue, 0.85);
+        z-index: 1500;
+        cursor: default;
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            background-color: $dark-blue;
+            height: 3.5rem;
+            padding: .35rem;
+
+            .home-icon {
+                width: 2rem;
+                cursor: pointer;
+
+                path.to-stroke {
+                    stroke: $blue;
+                }
+                &:hover path.to-stroke {
+                    stroke: $orange;
+                }
+            }
+            .title {
+                flex: 1;
+                font-size: 1.7rem;
+                color: $white;
+                text-align: center;
+            }
+            .quit-btn {
+                aspect-ratio: 1;
+                width: 2rem;
+                cursor: pointer;
+
+                .quit-icon {
+                    object-fit: contain;
+                    object-position: center;
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+        .file-list-ctn {
+            flex: 1;
+            display: flex;
+            background-color: $medium-blue;
+            border-top: 1.5px solid #111;
+            overflow-y: auto;
+            position: relative;
+
+            .file-list {
+                flex: 1;
+                padding: 1.25rem 1.5rem 2rem 1.5rem;
+                overflow-y: auto;
+                display: flex;
+                flex-flow: row wrap;
+                gap: 4rem 1.5rem;
+
+                .file-ctn {
+                    height: 6rem;
+                    width: 4rem;
+                    cursor: pointer;
+
+                    .file-icon-ctn {
+                        aspect-ratio: 1;
+                        width: 100%;
+
+                        .file-icon {
+                            object-fit: contain;
+                            object-position: center;
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    .file-name {
+                        flex: 1;
+                        text-align: center;
+                        overflow: hidden;
+                        font-size: 1rem;
+                        color: $white;
+                    }
+                }
+            }
+            .image-viewer {
+                display: none;
+                position: relative;
+                top: 0;
+                bottom: 0;
+                width: 30%;
+                flex-direction: column;
+                align-items: center;
+                border-left: 1.5px solid #111;
+                background-color: transparentize($dark-blue, 0.5);
+                padding: .4rem;
+
+                .image, .embed {
+                    object-fit: contain;
+                    object-position: center;
+                    height: 100%;
+                    width: 100%;
+                }
+                span.preview-name {
+                    font-size: 1.2rem;
+                    color: $white;
+                }
+            }
+        }
+    }
+}
 
 //##############################################################################################################
 //                                                    ERROR                                                    #

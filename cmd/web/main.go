@@ -3,6 +3,7 @@ package main
 import (
 	"Portfolio/internal/data"
 	"Portfolio/internal/mailer"
+	"Portfolio/internal/uploads"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -107,6 +108,13 @@ func main() {
 	// Clean expired unactivated users every N duration with 1 hour timeout
 	go app.cleanExpiredUnactivatedUsers(*frequency, time.Hour)
 
+	// Initialize the uploads directories
+	err = uploads.Init()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	// Running the server
 	err = app.serve()
 	if err != nil {
@@ -131,12 +139,4 @@ func openDB(dsn string) (*sql.DB, error) {
 	}
 
 	return db, nil
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
 }

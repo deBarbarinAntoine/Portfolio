@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Antoine's Portfolio - Antoine de Barbarin CV & Portfolio - Computer science student: cyber security, IT infrastructures, programming...">
-    <meta name="keywords" content="Antoine, Antoine-Marie, de Barbarin, Barbarin, Debarbarin, Portfolio, CV, Curriculum, Curriculum Vitae, Curriculum Vita, Curriculum Vite, Curiculum, Curiculum Vitae, Curiculum Vita, Curiculum Vita, Curiculum Vite, Aix, Aix-en-Provence, Aix-en-Pce, Developer, Developpeur, Informatique, Web, HTML, CSS, JavaScript, JS, NodeJS, Express, TypeScript, ECMAScript, ES, Golang, Go, Angular, React, Vue, Programming, Linux, Dev, Hardware, Software, Forum, C++, Java, SCSS, C#, Ynov, Ynov Campus, Aix Ynov Campus, Rust, Lua, CPP, Go, PHP, MySQL, PostGreSQL, Electronique, Cyber, Godot, Unreal, Unity, Security, API, Computer, SBC, Server, Token, Cookie, Authentification, Console, Terminal, Bash, Powershell, Ubuntu, Debian, Kali, VMWare, GNS3, PacketTracer, Proxmox, Error, Help, Tips, Tuto, Tutos">
+    <meta name="keywords" content="Antoine, Antoine-Marie, de Barbarin, Barbarin, Debarbarin, Portfolio, CV, Curriculum, Curriculum Vitae, Curriculum Vita, Curriculum Vite, Curiculum, Curiculum Vitae, Curiculum Vita, Curiculum Vite, Aix, Aix-en-Provence, Aix-en-Pce, Developer, Developpeur, Informatique, Web, HTML, CSS, JavaScript, JS, NodeJS, Express, TypeScript, ECMAScript, ES, Golang, Go, Angular, React, Vue, Programming, Linux, Dev, Hardware, Software, Forum, C++, Java, SCSS, C#, Ynov, Ynov Campus, Aix Ynov Campus, Rust, Lua, CPP, Go, PHP, MySQL, PostgreSQL, Electronique, Cyber, Godot, Unreal, Unity, Security, API, Computer, SBC, Server, Token, Cookie, Authentification, Console, Terminal, Bash, Powershell, Ubuntu, Debian, Kali, VMWare, GNS3, PacketTracer, Proxmox, Error, Help, Tips, Tuto, Tutos">
     <meta name="author" content="Antoine de Barbarin">
 
     <title> {{ .Title }} </title>
@@ -98,6 +98,58 @@
                 </div>
             {{ end }}
 
+            {{ if .IsAuthenticated }}
+                <div class="admin-actions-ctn">
+                    <div class="admin-actions">
+                        <div class="admin-elem dots">
+                            <img src="/static/img/icons/dots-icon.svg" alt="dots icon" class="admin-icon">
+                        </div>
+                        <div class="admin-elem file-browser-btn relative">
+                            <svg class="admin-icon" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                 viewBox="0 0 511.934 511.934" xml:space="preserve"><g><g><g>
+                                <path class="to-fill" d="M508.907,493.893l-67.733-67.733c31.573-39.893,24.853-97.813-15.04-129.387c-39.893-31.573-97.813-24.853-129.387,15.04
+                                    c-31.573,39.893-24.853,97.813,15.04,129.387c33.493,26.453,80.747,26.453,114.24,0l67.733,67.733
+                                    c4.267,4.053,10.987,3.947,15.04-0.213C512.96,504.56,512.96,498.053,508.907,493.893z M369.28,439.813
+                                    c-38.933-0.107-70.507-31.573-70.507-70.507s31.573-70.507,70.507-70.507s70.507,31.573,70.507,70.507
+                                    S408.213,439.813,369.28,439.813z"/>
+                                <path class="to-fill" d="M202.667,384.026h-105.6c4.373-5.653,7.573-12.16,9.28-19.093c0.213-0.853,0.32-1.707,0.32-2.56V128.026h320v74.347
+                                    c0,5.333,3.84,10.133,9.067,10.88c6.613,0.96,12.267-4.16,12.267-10.56v-85.333c0-5.867-4.8-10.667-10.667-10.667h-32V64.026
+                                    c0-5.867-4.8-10.667-10.667-10.667H168.533l-30.72-48.427c-1.92-3.093-5.333-4.907-8.96-4.907H10.667C4.8,0.026,0,4.826,0,10.693
+                                    v351.68c0,0.853,0.107,1.707,0.32,2.56c5.76,23.147,25.92,38.827,50.453,39.893c0.853,0.32,1.707,0.427,2.56,0.533h149.013
+                                    c5.333,0,10.133-3.84,10.88-9.067C214.187,389.679,209.067,384.026,202.667,384.026z M85.333,117.359v243.627
+                                    c-4.8,16.747-20.16,22.72-32,22.72c-11.84,0-27.2-5.973-32-22.72V21.359H122.88l30.72,48.427c1.92,3.093,5.333,4.907,9.067,4.907
+                                    H384v32H96C90.133,106.693,85.333,111.493,85.333,117.359z"/></g></g></g>
+                            </svg>
+                        </div>
+                        {{ if .IsPostView }}
+                            {{ with .Post }}
+                                <div class="admin-elem edit relative">
+                                    <a href="/post/{{ .ID }}/update" class="abs full"></a>
+                                    <svg class="admin-icon" width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path class="to-stroke" d="M21 18.0002L19.9999 19.0943C19.4695 19.6744 18.7501 20.0002 18.0001 20.0002C17.2501 20.0002 16.5308 19.6744 16.0004 19.0943C15.4692 18.5154 14.75 18.1903 14.0002 18.1903C13.2504 18.1903 12.5311 18.5154 12 19.0943M3 20.0002H4.67454C5.16372 20.0002 5.40832 20.0002 5.63849 19.945C5.84256 19.896 6.03765 19.8152 6.2166 19.7055C6.41843 19.5818 6.59138 19.4089 6.93729 19.063L19.5 6.50023C20.3285 5.6718 20.3285 4.32865 19.5 3.50023C18.6716 2.6718 17.3285 2.6718 16.5 3.50023L3.93726 16.063C3.59136 16.4089 3.4184 16.5818 3.29472 16.7837C3.18506 16.9626 3.10425 17.1577 3.05526 17.3618C3 17.5919 3 17.8365 3 18.3257V20.0002Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="admin-elem delete relative">
+                                    <a href="/post/{{ .ID }}/delete" class="abs full"></a>
+                                    <svg class="admin-icon" width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path class="to-stroke" d="M9 3H15M3 6H21M19 6L18.2987 16.5193C18.1935 18.0975 18.1409 18.8867 17.8 19.485C17.4999 20.0118 17.0472 20.4353 16.5017 20.6997C15.882 21 15.0911 21 13.5093 21H10.4907C8.90891 21 8.11803 21 7.49834 20.6997C6.95276 20.4353 6.50009 20.0118 6.19998 19.485C5.85911 18.8867 5.8065 18.0975 5.70129 16.5193L5 6M10 10.5V15.5M14 10.5V15.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            {{ end }}
+                        {{ end }}
+                        <div class="admin-elem logout relative">
+                            <form class="abs full" action="/logout" method="post">
+                                <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+                                <button class="logout-btn"></button>
+                            </form>
+                            <svg class="admin-icon" width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path class="to-stroke" d="M16 16.9998L21 11.9998M21 11.9998L16 6.99982M21 11.9998H9M12 16.9998C12 17.2954 12 17.4432 11.989 17.5712C11.8748 18.9018 10.8949 19.9967 9.58503 20.2571C9.45903 20.2821 9.31202 20.2985 9.01835 20.3311L7.99694 20.4446C6.46248 20.6151 5.69521 20.7003 5.08566 20.5053C4.27293 20.2452 3.60942 19.6513 3.26118 18.8723C3 18.288 3 17.5161 3 15.9721V8.02751C3 6.48358 3 5.71162 3.26118 5.12734C3.60942 4.3483 4.27293 3.75442 5.08566 3.49435C5.69521 3.29929 6.46246 3.38454 7.99694 3.55503L9.01835 3.66852C9.31212 3.70117 9.45901 3.71749 9.58503 3.74254C10.8949 4.00297 11.8748 5.09786 11.989 6.42843C12 6.55645 12 6.70424 12 6.99982" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            {{ end }}
+
 {{/*        TEMPLATE PAGE          */}}
             {{ template "page" . }}
 
@@ -166,18 +218,21 @@
         {{/*      Flash Message Animation       */}}
         {{/*####################################*/}}
 
+        {{/*getting the flash message element*/}}
         const flash = document.querySelector('.flash');
 
+        {{/*checking if there is a flash message*/}}
         if (!!flash) {
 
+            {{/*making the flash message appear*/}}
             flash.style.transform = 'translate(0,-4px)';
-
             setTimeout(() => {
 
+                {{/*pushing the flash message up (with timeout)*/}}
                 flash.style.transform = 'translate(0,-101%)';
 
+                {{/*removing the flash message (with another timeout)*/}}
                 setTimeout(() => flash.style.display = 'none', 2000);
-
             }, 5000);
         }
 
@@ -219,7 +274,7 @@
 
 
 {{/*####################################*/}}
-{{/*    AJAX call increment post view   */}}
+{{/*    AJAX: Increment Post View       */}}
 {{/*####################################*/}}
 
         {{ if .IsPostView }}
@@ -240,6 +295,207 @@
                 }, 5000);
 
             {{ end }}
+
+        {{ end }}
+
+
+        {{/*####################################*/}}
+        {{/*    AJAX: upload file on Paste      */}}
+        {{/*####################################*/}}
+
+        {{/*PostForm Template*/}}
+        if (!!document.querySelector('form#post-form')) {
+
+            {{/*getting the post content input*/}}
+            const contentInput = document.querySelector('textarea.input-post-content#content');
+
+            {{/*'paste' event listener*/}}
+            contentInput.addEventListener('paste', (e) => {
+                e.preventDefault();
+
+                contentInput.disabled = true;
+
+                {{/*setting variables (type and file)*/}}
+                let elemType;
+                let fileValue;
+
+                {{/*skimming through the clipboard data (I don't know exactly why it is like this though)*/}}
+                for (let i = 0; i < e.clipboardData.items.length; ++i) {
+                    let item = e.clipboardData.items[i];
+                    console.log("kind:", item.kind, "type:", item.type);
+                    elemType = item.type;
+
+                    {{/*if the pasted element is an image*/}}
+                    if (elemType.includes('image')) {
+                        fileValue = item.getAsFile();
+                        console.log(fileValue);
+                    }
+                }
+
+                {{/*if the pasted element is an image*/}}
+                if (elemType.includes('image')) {
+                    const formData = new FormData();
+                    formData.append('file', fileValue);
+
+                    axios.post('/upload', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                        .then(response => {
+                        {{/*DEBUG*/}}
+                        console.log(response.data);
+                            const start = contentInput.selectionStart + 2;
+                            contentInput.disabled = false;
+                            contentInput.focus();
+                            const mdImg = `![${response.data.response}](${response.data.response})`;
+                            document.execCommand("insertText", false, mdImg);
+                            contentInput.setSelectionRange(start, start + response.data.response.length);
+                        })
+                        .catch(error => {
+                            contentInput.disabled = false;
+                        {{/*DEBUG*/}}
+                        console.log(error);
+                        });
+
+                }
+            });
+        }
+
+
+        {{/*####################################*/}}
+        {{/*         AJAX: file browser         */}}
+        {{/*####################################*/}}
+
+        {{ if .IsAuthenticated }}
+
+            {{/*Setting the HTML elements variables*/}}
+            const fileBrowserBtn = document.querySelector('.file-browser-btn');
+            const templateCtn = document.querySelector('main.template-ctn');
+            const body = document.querySelector('body');
+
+            {{/*All listeners when the file browser is open*/}}
+            function browserListeners() {
+                const home = document.querySelector('svg.home-icon');
+                const quitBtn = document.querySelector('.quit-btn');
+                const overlay = document.querySelector('.file-browser-ctn');
+                const files = document.querySelectorAll('.file-ctn');
+                const viewer = document.querySelector('.image-viewer');
+                const image = document.querySelector('.image-viewer img.image');
+                const embed = document.querySelector('.image-viewer embed.embed');
+                const previewName = document.querySelector('.image-viewer span.preview-name');
+
+                function closeBrowser(ev) {
+                    if (ev.currentTarget === quitBtn || ev.target === overlay) {
+                        body.style.maxHeight = '';
+                        body.style.overflowY = 'auto';
+                        templateCtn.removeChild(document.querySelector('.file-browser-ctn'));
+                    }
+                }
+
+                {{/*Home Icon event listener*/}}
+                home.addEventListener('click', () => {
+                   fetchFiles();
+                });
+
+                {{/*Click events on files*/}}
+                files.forEach(file => {
+                    switch (file.dataset.type) {
+                        case 'directory':
+                            file.addEventListener('click', () => {
+                                fetchFiles(file.dataset.path);
+                            });
+                            break;
+                        case 'image':
+                            file.addEventListener('click', () => {
+                                const filename = file.dataset.path.slice(file.dataset.path.lastIndexOf('/') + 1);
+                                embed.style.display = 'none';
+                                image.setAttribute('src', `/${file.dataset.path}`);
+                                image.setAttribute('alt', `${filename}`);
+                                image.style.display = 'block';
+                                previewName.innerText = filename;
+                                viewer.style.display = 'flex';
+                            });
+                            break;
+                        case 'pdf': case 'video':
+                            file.addEventListener('click', () => {
+                                const filename = file.dataset.path.slice(file.dataset.path.lastIndexOf('/') + 1);
+                                image.style.display = 'none';
+                                embed.setAttribute('src', `/${file.dataset.path}`);
+                                embed.style.display = 'block';
+                                previewName.innerText = filename;
+                                viewer.style.display = 'flex';
+                            });
+                            break;
+                        case 'audio':
+                            file.addEventListener('click', () => {
+                                const filename = file.dataset.path.slice(file.dataset.path.lastIndexOf('/') + 1);
+                                image.setAttribute('src', '/static/img/icons/files/audio-icon.svg');
+                                image.setAttribute('alt', 'audio file icon');
+                                image.style.flex = '1';
+                                image.style.display = 'block';
+                                embed.setAttribute('src', `/${file.dataset.path}`);
+                                embed.classList.add('music');
+                                embed.style.height = '2.5rem';
+                                previewName.innerText = filename;
+                                viewer.style.display = 'flex';
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+                });
+                quitBtn.addEventListener('click', closeBrowser);
+                overlay.addEventListener('click', closeBrowser);
+            }
+
+            {{/*Fetching file list from server*/}}
+            function fetchFiles(directory = 'uploads') {
+
+                {{/*Escaping the slashes for the request's URL*/}}
+                directory = directory.replace('/', '|2F');
+
+                {{/*Executing the request*/}}
+                axios.get(`/files/${directory}`, {responseType: 'text'})
+                    .then((response) => {
+
+                        {{/*Replacing the overlay HTML content by the request's response*/}}
+                        const overlay = document.querySelector('.file-browser-ctn');
+                        overlay.innerHTML = response.data;
+                        browserListeners();
+                    })
+                    .catch((error) => {
+                        {{/*DEBUG*/}}
+                        console.error(error)
+                    });
+            }
+
+            {{/*Open file browser*/}}
+            function openBrowser(ev) {
+
+                {{/*Creating the HTML elements*/}}
+                const loadingImg = document.createElement('img');
+                loadingImg.classList.add('loading-img');
+                loadingImg.setAttribute('src', '/static/img/loading.gif');
+                loadingImg.setAttribute('alt', 'loading image');
+
+                const overlay = document.createElement('div');
+                overlay.classList.add('file-browser-ctn');
+                overlay.appendChild(loadingImg);
+
+                {{/*Adding the elements to templateContent*/}}
+                templateCtn.appendChild(overlay);
+                body.style.maxHeight = '100dvh';
+                body.style.overflowY = 'hidden';
+
+                {{/*Executing the request*/}}
+                fetchFiles();
+            }
+
+            {{/*Click event to open the browser*/}}
+            if (!!fileBrowserBtn) {
+                fileBrowserBtn.addEventListener('click', openBrowser);
+            }
 
         {{ end }}
 

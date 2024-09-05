@@ -69,6 +69,12 @@ $font-weight: 600; // 400 regular 500 medium 600 semi-bold 700 bold 800 extra-bo
             color: $orange;
         }
     }
+    button {
+        appearance: none;
+        outline: none;
+        background: none;
+        border: none;
+    }
 }
 
 //##############################################################################################################

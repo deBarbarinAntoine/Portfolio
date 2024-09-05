@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Portfolio/internal/uploads"
 	"Portfolio/ui"
 	"html/template"
 	"io/fs"
@@ -14,6 +15,16 @@ var functions = template.FuncMap{
 	"bytesToString": bytesToString,
 	"increment":     increment,
 	"decrement":     decrement,
+	"filename":      filename,
+	"isDir":         isDir,
+}
+
+func filename(file uploads.File) string {
+	return file.Name()
+}
+
+func isDir(file uploads.File) bool {
+	return file.IsDir()
 }
 
 func humanDate(t time.Time) string {

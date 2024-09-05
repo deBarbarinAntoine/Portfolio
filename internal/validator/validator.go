@@ -20,7 +20,11 @@ type Validator struct {
 	FieldErrors    map[string]string `json:"field_errors"`
 }
 
-var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+var (
+	EmailRX     = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	PrintableRX = regexp.MustCompile("^[[:print:]]+$")
+	FileRX      = regexp.MustCompile(`^[^\0/\\\s]+$`)
+)
 
 func New() *Validator {
 	return &Validator{
@@ -133,6 +137,13 @@ func (v *Validator) ValidateNewPassword(newPassword, confirmationPassword string
 func (v *Validator) ValidateToken(token string) {
 	v.Check(token != "", "token", "you need a special link to access here")
 	v.Check(len(token) == 86, "token", "invalid link")
+}
+
+func CheckFileName(filename string) bool {
+	if PrintableRX.MatchString(filename) {
+		return FileRX.MatchString(filename)
+	}
+	return false
 }
 
 func NotBlank(fieldName string) bool {
